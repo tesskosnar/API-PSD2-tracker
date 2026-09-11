@@ -7,7 +7,7 @@ Kontrola běží každé úterý pomocí GitHub Actions a také ručně přes `A
 <!-- TRACKER:START -->
 Očekávané poslední zveřejněné období: **2026-Q2** (po 45denní lhůtě na publikaci).
 
-Souhrn hlavního seznamu: **8 s aktuální dostupností**, **2 s částečnými daty**, **2 zastaralé**, **3 bez nalezeného reportu**, **0 blokováno**.
+Souhrn hlavního seznamu: **7 s aktuální dostupností**, **2 s částečnými daty**, **2 zastaralé**, **3 bez nalezeného reportu**, **1 blokováno**.
 
 | Banka | Stav | Poslední období | Dostupnost | Odezva AISP / PISP | Zdroj |
 |---|---|---:|---:|---:|---|
@@ -20,7 +20,7 @@ Souhrn hlavního seznamu: **8 s aktuální dostupností**, **2 s částečnými 
 | Fio banka | OK | 2026-Q2 | 99.9809 % | — / — | [stránka](https://developers.fio.cz/stats.html) · [report](https://developers.fio.cz/stats/PSD2_2026Q2.pdf) |
 | mBank | Nenalezen report | — | — | — / — | [stránka](https://developer.api.mbank.cz/reports) |
 | UniCredit Bank | OK | 2026-Q2 | 100 % | 345.29 ms / 248.6567 ms | [stránka](https://developer.unicredit.eu/report?view=kpi) |
-| Banka CREDITAS | OK | 2026-Q2 | 99.956 % | 1819.5176 ms / 936.4353 ms | [stránka](https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti) · [report](https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf) |
+| Banka CREDITAS | Zdroj blokuje automatizaci | 2026-Q2 | 99.956 % | 1819.5176 ms / 936.4353 ms | [stránka](https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti) · [report](https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf) |
 | Trinity Bank | OK | 2026-Q2 | 99.9951 % | — / — | [stránka](https://www.trinitybank.cz/otevrene-bankovnictvi/) · [report](https://www.trinitybank.cz/download/3036) |
 | Partners Banka | Nenalezen report | — | — | — / — | [stránka](https://psd2.partnersbanka.cz/) |
 | Oberbank | Nenalezen report | — | — | — / — | [stránka](https://www.oberbank.cz/xs2a-interface) |
