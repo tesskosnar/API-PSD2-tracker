@@ -1,0 +1,153 @@
+[
+  {
+    "id": "csas",
+    "name": "Česká spořitelna",
+    "source_url": "https://developers.erstegroup.com/api-health-check/bank.csas/last-quarter",
+    "parser": "csas",
+    "scope": "main",
+    "note": "Portal poskytuje verejne denni hodnoty dostupnosti pro jednotliva PSD2 API."
+  },
+  {
+    "id": "csob",
+    "name": "ČSOB",
+    "source_url": "https://www.csob.cz/csob/otevrene-bankovnictvi-csob/pro-vyvojare/seznam-api/reporting",
+    "parser": "csob",
+    "scope": "main",
+    "report_pattern": "PSD2|dostupnost|availability|report",
+    "note": "Oficialni reportingova stranka je obcas nestabilni; XLSX publikuje odezvu a chybovost, ale ne dostupnost."
+  },
+  {
+    "id": "kb",
+    "name": "Komerční banka",
+    "source_url": "https://www.kb.cz/cs/dostupnost-sluzeb-internetoveho-a-otevreneho-bankovnictvi-api",
+    "parser": "pdf_links",
+    "scope": "main",
+    "report_pattern": "Statistiky.*20[0-9]{2}.*Q[1-4]|kb-psd2-20[0-9]{2}-q[1-4]",
+    "pdf_layout": "standard_minutes",
+    "note": "Dostupnost je vypoctena z denne publikovane doby provozuschopnosti API."
+  },
+  {
+    "id": "rb",
+    "name": "Raiffeisenbank",
+    "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+    "parser": "report_links",
+    "scope": "main",
+    "report_pattern": "PSD2|API.*dostup|dostup.*API",
+    "seed_period": "2025-Q3",
+    "seed_availability_pct": 100.0,
+    "note": "Dokumenty jsou nacitane dynamicky; posledni rucne overeny podklad v dodanem sesitu je 2025-Q3."
+  },
+  {
+    "id": "air",
+    "name": "Air Bank",
+    "source_url": "https://www.airbank.cz/aplikace-tretich-stran/",
+    "parser": "pdf_links",
+    "scope": "main",
+    "report_pattern": "Statistiky.*[1-4]Q.*20[0-9]{2}|statistiky-dostupnosti-[1-4]q-20[0-9]{2}",
+    "pdf_layout": "standard_minutes",
+    "note": "Dostupnost je vypoctena z denne publikovane doby provozuschopnosti API."
+  },
+  {
+    "id": "moneta",
+    "name": "MONETA Money Bank",
+    "source_url": "https://www.moneta.cz/otevrene-bankovnictvi",
+    "parser": "moneta",
+    "scope": "main",
+    "note": "Banka publikuje klouzavych 90 dni odezvy a chybovosti, nikoli dostupnost/uptime."
+  },
+  {
+    "id": "fio",
+    "name": "Fio banka",
+    "source_url": "https://developers.fio.cz/stats.html",
+    "parser": "pdf_links",
+    "scope": "main",
+    "report_pattern": "PSD2_20[0-9]{2}Q[1-4]\\.pdf",
+    "pdf_layout": "fio",
+    "note": "Dostupnost je vypoctena z denni doby provozu a vypadku PSD2 API."
+  },
+  {
+    "id": "mbank",
+    "name": "mBank",
+    "source_url": "https://developer.api.mbank.cz/reports",
+    "parser": "report_links",
+    "scope": "main",
+    "report_pattern": "report|raport|PSD2|availability|dostupnost",
+    "note": "CZ portal pri overeni zobrazoval polska data; vysledek je proto veden jako nekonzistentni zdroj."
+  },
+  {
+    "id": "unicredit",
+    "name": "UniCredit Bank",
+    "source_url": "https://developer.unicredit.eu/report?view=kpi",
+    "parser": "unicredit",
+    "scope": "main",
+    "note": "Mesicni data pro CZ, Dedicated Interface; tracker sklada posledni uzavrene ctvrtleti."
+  },
+  {
+    "id": "creditas",
+    "name": "Banka CREDITAS",
+    "source_url": "https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti",
+    "parser": "creditas",
+    "scope": "main",
+    "pdf_layout": "creditas",
+    "seed_period": "2026-Q2",
+    "seed_availability_pct": 99.956,
+    "seed_report_url": "https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf",
+    "note": "Prehledova stranka muze blokovat automaticke klienty; PDF maji stabilni a predvidatelnou adresu."
+  },
+  {
+    "id": "trinity",
+    "name": "Trinity Bank",
+    "source_url": "https://www.trinitybank.cz/otevrene-bankovnictvi/",
+    "parser": "pdf_links",
+    "scope": "main",
+    "report_pattern": "Dostupnost.*API.*Q[1-4].*20[0-9]{2}",
+    "pdf_layout": "trinity",
+    "note": "Tracker vybira pouze API report, nikoli paralelni report internetoveho bankovnictvi."
+  },
+  {
+    "id": "partners",
+    "name": "Partners Banka",
+    "source_url": "https://psd2.partnersbanka.cz/",
+    "parser": "report_links",
+    "scope": "main",
+    "report_pattern": "statistik|availability|dostupnost|performance|report",
+    "note": "Na vyvojarskem portalu nebyla dohledana sekce se statistikami dostupnosti."
+  },
+  {
+    "id": "oberbank",
+    "name": "Oberbank",
+    "source_url": "https://www.oberbank.cz/xs2a-interface",
+    "parser": "oberbank",
+    "scope": "main",
+    "note": "Verejna stranka funguje, ale odkaz Zverejneni statistiky XS2A smeruje na interni/neplatny hostname."
+  },
+  {
+    "id": "jt",
+    "name": "J&T Banka",
+    "source_url": "https://www.jtbank.cz/informacni-povinnost",
+    "parser": "pdf_links",
+    "scope": "main",
+    "report_pattern": "psd2.*unavailability\\.pdf|Dostupnost a vykon API",
+    "pdf_layout": "jt",
+    "note": "Reporty jsou vlozene v datech webove aplikace; tracker z nich vybere PSD2 PDF."
+  },
+  {
+    "id": "ppf",
+    "name": "PPF banka",
+    "source_url": "https://www.ppfbanka.cz/cs/dokumenty/1868-pristupy-tretich-stran",
+    "parser": "pdf_links",
+    "scope": "main",
+    "report_pattern": "Statistiky dostupnosti PSD2 API",
+    "pdf_layout": "ppf",
+    "note": "PDF publikuje odezvu a chybovost, ale ne uptime; k 2026-09-11 byl nejnovější pouze 2026-Q1."
+  },
+  {
+    "id": "nrb",
+    "name": "Národní rozvojová banka",
+    "source_url": "https://www.nrb.cz/webklient/api-rozhrani-informace-pro-treti-strany/",
+    "parser": "report_links",
+    "scope": "audit-candidate",
+    "report_pattern": "statistik|availability|dostupnost|performance|report",
+    "note": "Doplněný kandidát mimo původní sešit: oficiální PSD2 API stránka existuje, statistiky nebyly nalezeny."
+  }
+]

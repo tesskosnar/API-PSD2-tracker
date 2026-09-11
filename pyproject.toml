@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cz-psd2-api-tracker"
+version = "0.1.0"
+description = "Automaticky tracker zverejnovane dostupnosti PSD2 API ceskych bank"
+requires-python = ">=3.11"
+dependencies = [
+  "lxml>=5.3,<7",
+  "pypdf>=5.1,<7",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.3,<10"]
+
+[project.scripts]
+psd2-tracker = "psd2_tracker.tracker:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
