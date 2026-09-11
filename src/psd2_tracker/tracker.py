@@ -25,7 +25,16 @@ from lxml import html
 from pypdf import PdfReader
 
 
-ROOT = Path(__file__).resolve().parents[2]
+def discover_project_root() -> Path:
+    """Najde pracovní kopii i při spuštění nainstalovaného CLI."""
+    candidates = (Path.cwd(), *Path(__file__).resolve().parents)
+    for candidate in candidates:
+        if (candidate / "config" / "banks.json").is_file():
+            return candidate
+    return Path.cwd()
+
+
+ROOT = discover_project_root()
 DEFAULT_CONFIG = ROOT / "config" / "banks.json"
 DEFAULT_DATA = ROOT / "data"
 DEFAULT_README = ROOT / "README.md"
