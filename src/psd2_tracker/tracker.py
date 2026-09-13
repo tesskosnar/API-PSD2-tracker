@@ -20,6 +20,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urljoin, urlparse, urlsplit, urlunsplit
 from urllib.request import HTTPCookieProcessor, Request, build_opener
 from xml.etree import ElementTree
+from xml.sax.saxutils import escape as xml_escape
 
 from lxml import html
 from pypdf import PdfReader
@@ -38,6 +39,8 @@ ROOT = discover_project_root()
 DEFAULT_CONFIG = ROOT / "config" / "banks.json"
 DEFAULT_DATA = ROOT / "data"
 DEFAULT_README = ROOT / "README.md"
+DEFAULT_DASHBOARD_DATA = ROOT / "dashboard" / "data.js"
+DEFAULT_TREND_SVG = ROOT / "docs" / "trend.svg"
 
 CSV_FIELDS = [
     "bank_id",
@@ -56,6 +59,25 @@ CSV_FIELDS = [
     "pisp_error_pct",
     "metric_method",
     "note",
+    "source_url",
+]
+
+TIMESERIES_FIELDS = [
+    "bank_id",
+    "bank",
+    "scope",
+    "period",
+    "status",
+    "source_state",
+    "report_url",
+    "availability_pct",
+    "aisp_availability_pct",
+    "pisp_availability_pct",
+    "aisp_response_ms",
+    "pisp_response_ms",
+    "aisp_error_pct",
+    "pisp_error_pct",
+    "metric_method",
     "source_url",
 ]
 
@@ -246,6 +268,10 @@ def previous_quarter(period: str, steps: int = 1) -> str:
     return f"{year}-Q{quarter}"
 
 
+def recent_quarters(latest_period: str, count: int = 8) -> list[str]:
+    return [previous_quarter(latest_period, step) for step in reversed(range(count))]
+
+
 def expected_report_period(today: date | None = None, grace_days: int = 45) -> str:
     today = today or date.today()
     current_quarter = (today.month - 1) // 3 + 1
@@ -270,6 +296,12 @@ def period_from_datetime_range(start: str, end: str) -> str:
 
 def average(values: Iterable[float | None]) -> float | None:
     clean = [float(value) for value in values if value is not None]
+    return fmean(clean) if clean else None
+
+
+def average_active_response(values: Iterable[float | None]) -> float | None:
+    """Nulova odezva znamena den bez volani, nikoli okamzitou odpoved."""
+    clean = [float(value) for value in values if value is not None and value > 0]
     return fmean(clean) if clean else None
 
 
@@ -422,29 +454,74 @@ def parse_pdf_metrics(content: bytes, layout: str) -> dict[str, float | str | No
         "metric_method": "",
     }
 
-    if layout == "standard_minutes":
+    if layout in {"standard_minutes", "standard_minutes_kb", "standard_minutes_air"}:
         api_minutes: list[float] = []
+        aisp_responses: list[float] = []
+        pisp_responses: list[float] = []
+        aisp_errors: list[float] = []
+        pisp_errors: list[float] = []
         for line in lines:
             match = re.match(rf"^{date_prefix}\s+(\d{{1,4}})\s+(\d{{1,4}})(?:\s|$)", line)
             if match:
                 api_minutes.append(float(match.group(2)))
+            row_match = re.match(rf"^{date_prefix}\s+(.+)$", line)
+            if not row_match:
+                continue
+            values = [parse_number(token) for token in row_match.group(1).split()]
+            clean = [value for value in values if value is not None]
+            if len(clean) < 8:
+                continue
+            responses = clean[-6:-3]
+            errors = clean[-3:]
+            if layout == "standard_minutes_air":
+                pisp_responses.append(responses[0])
+                aisp_responses.append(responses[1])
+                pisp_errors.append(errors[0])
+                aisp_errors.append(errors[1])
+            else:
+                aisp_responses.append(responses[0])
+                pisp_responses.append(responses[1])
+                aisp_errors.append(errors[0])
+                pisp_errors.append(errors[1])
         if api_minutes:
             result["availability_pct"] = sum(api_minutes) / (1440 * len(api_minutes)) * 100
             result["metric_method"] = "soucet minut provozu API / kalendarni minuty"
+        result["aisp_response_ms"] = average_active_response(aisp_responses)
+        result["pisp_response_ms"] = average_active_response(pisp_responses)
+        result["aisp_error_pct"] = average(aisp_errors)
+        result["pisp_error_pct"] = average(pisp_errors)
         return result
 
     if layout == "fio":
         up_minutes: list[float] = []
         down_minutes: list[float] = []
+        aisp_responses: list[float] = []
+        pisp_responses: list[float] = []
+        aisp_errors: list[float] = []
+        pisp_errors: list[float] = []
         for line in lines:
             match = re.match(rf"^{date_prefix}\s+(\d{{1,4}})\s+(\d{{1,4}})(?:\s|$)", line)
             if match:
                 up_minutes.append(float(match.group(1)))
                 down_minutes.append(float(match.group(2)))
+            row_match = re.match(rf"^{date_prefix}\s+(.+)$", line)
+            if not row_match:
+                continue
+            values = [parse_number(token) for token in row_match.group(1).split()]
+            if len(values) < 8 or any(value is None for value in values[:8]):
+                continue
+            pisp_responses.append(float(values[2]))
+            pisp_errors.append(float(values[3]))
+            aisp_responses.append(float(values[4]))
+            aisp_errors.append(float(values[5]))
         total = sum(up_minutes) + sum(down_minutes)
         if total:
             result["availability_pct"] = sum(up_minutes) / total * 100
             result["metric_method"] = "soucet PSD2 API provozu / (provoz + vypadek)"
+        result["aisp_response_ms"] = average_active_response(aisp_responses)
+        result["pisp_response_ms"] = average_active_response(pisp_responses)
+        result["aisp_error_pct"] = average(aisp_errors)
+        result["pisp_error_pct"] = average(pisp_errors)
         return result
 
     if layout == "trinity":
@@ -485,8 +562,8 @@ def parse_pdf_metrics(content: bytes, layout: str) -> dict[str, float | str | No
         if uptimes:
             result.update(
                 availability_pct=fmean(uptimes),
-                aisp_response_ms=fmean(aisp_responses),
-                pisp_response_ms=fmean(pisp_responses),
+                aisp_response_ms=average_active_response(aisp_responses),
+                pisp_response_ms=average_active_response(pisp_responses),
                 aisp_error_pct=fmean(errors),
                 pisp_error_pct=fmean(errors),
                 metric_method="aritmeticky prumer dennich uptime hodnot",
@@ -513,13 +590,32 @@ def parse_pdf_metrics(content: bytes, layout: str) -> dict[str, float | str | No
                 pisp_responses.append(responses[1])
         if uptimes:
             result["availability_pct"] = fmean(uptimes)
-            result["aisp_response_ms"] = average(aisp_responses)
-            result["pisp_response_ms"] = average(pisp_responses)
+            result["aisp_response_ms"] = average_active_response(aisp_responses)
+            result["pisp_response_ms"] = average_active_response(pisp_responses)
             result["metric_method"] = "aritmeticky prumer dennich uptime hodnot"
         return result
 
     if layout == "ppf":
-        result["metric_method"] = "banka v PDF nepublikuje uptime"
+        aisp_responses: list[float] = []
+        pisp_responses: list[float] = []
+        aisp_errors: list[float] = []
+        pisp_errors: list[float] = []
+        for line in lines:
+            match = re.match(rf"^{date_prefix}\s+(.+)$", line)
+            if not match:
+                continue
+            values = [parse_number(token) for token in match.group(1).split()]
+            if len(values) < 6 or any(value is None for value in values[:6]):
+                continue
+            aisp_responses.append(float(values[0]))
+            aisp_errors.append(float(values[1]))
+            pisp_responses.append(float(values[2]))
+            pisp_errors.append(float(values[3]))
+        result["aisp_response_ms"] = average_active_response(aisp_responses)
+        result["pisp_response_ms"] = average_active_response(pisp_responses)
+        result["aisp_error_pct"] = average(aisp_errors)
+        result["pisp_error_pct"] = average(pisp_errors)
+        result["metric_method"] = "prumer dennich hodnot odezvy a chybovosti; banka nepublikuje uptime"
         return result
 
     raise ValueError(f"Neznamy PDF layout: {layout}")
@@ -607,6 +703,17 @@ def parse_csas(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
     return observation
 
 
+def apply_csob_workbook(observation: Observation, content: bytes) -> Observation:
+    rows = parse_first_xlsx_sheet(content)
+    data_rows = [row for row in rows if parse_number(row.get("C")) is not None]
+    observation.aisp_response_ms = average_active_response(parse_number(row.get("C")) for row in data_rows)
+    observation.pisp_response_ms = average_active_response(parse_number(row.get("F")) for row in data_rows)
+    observation.aisp_error_pct = average(parse_number(row.get("D")) for row in data_rows)
+    observation.pisp_error_pct = average(parse_number(row.get("G")) for row in data_rows)
+    observation.metric_method = "prumer dennich XLSX hodnot odezvy a chybovosti; uptime chybi"
+    return observation
+
+
 def parse_csob(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
     observation = base_observation(bank)
     page = fetcher.get(bank["source_url"])
@@ -628,21 +735,14 @@ def parse_csob(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
                 "Accept": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,*/*;q=0.8",
             },
         )
-        rows = parse_first_xlsx_sheet(report.content)
-        data_rows = [row for row in rows if parse_number(row.get("C")) is not None]
-        observation.aisp_response_ms = average(parse_number(row.get("C")) for row in data_rows)
-        observation.pisp_response_ms = average(parse_number(row.get("F")) for row in data_rows)
-        observation.aisp_error_pct = average(parse_number(row.get("D")) for row in data_rows)
-        observation.pisp_error_pct = average(parse_number(row.get("G")) for row in data_rows)
-        observation.metric_method = "prumer dennich XLSX hodnot odezvy a chybovosti; uptime chybi"
+        apply_csob_workbook(observation, report.content)
     except (FetchError, ValueError, KeyError, zipfile.BadZipFile) as exc:
         observation.source_state = "report-error"
         observation.note = f"{observation.note} XLSX se nepodarilo zpracovat: {exc}".strip()
     return observation
 
 
-def parse_unicredit(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
-    observation = base_observation(bank)
+def parse_unicredit_quarters(bank: dict[str, Any], fetcher: Fetcher) -> list[Observation]:
     response = fetcher.get(bank["source_url"])
     data = extract_balanced_json(response.text, "var kpiData = {")
     country = data.get("CZ-B") or data.get("CZ")
@@ -657,18 +757,26 @@ def parse_unicredit(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
             dated.append((year, (month - 1) // 3 + 1, month, row))
     if not dated:
         raise ValueError("UniCredit JSON nema datovane CZ zaznamy")
-    year, quarter, _, _ = max(dated)
-    selected = [row for y, q, _, row in dated if y == year and q == quarter]
-    observation.latest_period = f"{year}-Q{quarter}"
-    observation.report_url = bank["source_url"]
-    observation.availability_pct = average(parse_number(row.get("uptime")) for row in selected)
-    observation.aisp_response_ms = average(parse_number(row.get("ais")) for row in selected)
-    observation.pisp_response_ms = average(parse_number(row.get("pis")) for row in selected)
-    error = average(parse_number(row.get("error_response_rate")) for row in selected)
-    observation.aisp_error_pct = error
-    observation.pisp_error_pct = error
-    observation.metric_method = "prumer mesicnich hodnot CZ Dedicated Interface"
-    return observation
+    observations: list[Observation] = []
+    for year, quarter in sorted({(year, quarter) for year, quarter, _, _ in dated}):
+        selected = [row for y, q, _, row in dated if y == year and q == quarter]
+        observation = base_observation(bank)
+        observation.latest_period = f"{year}-Q{quarter}"
+        observation.report_url = bank["source_url"]
+        observation.availability_pct = average(parse_number(row.get("uptime")) for row in selected)
+        observation.aisp_response_ms = average_active_response(parse_number(row.get("ais")) for row in selected)
+        observation.pisp_response_ms = average_active_response(parse_number(row.get("pis")) for row in selected)
+        error = average(parse_number(row.get("error_response_rate")) for row in selected)
+        observation.aisp_error_pct = error
+        observation.pisp_error_pct = error
+        observation.metric_method = "prumer mesicnich hodnot CZ Dedicated Interface"
+        observations.append(observation)
+    return observations
+
+
+def parse_unicredit(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
+    observations = parse_unicredit_quarters(bank, fetcher)
+    return max(observations, key=lambda item: quarter_rank(item.latest_period))
 
 
 def parse_moneta(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
@@ -708,8 +816,8 @@ def parse_moneta(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
     assert isinstance(latest, date)
     observation.latest_period = f"rolling-90d-to-{latest.isoformat()}"
     observation.report_url = bank["source_url"]
-    observation.aisp_response_ms = average(record.get("aisp_response") for record in records)  # type: ignore[arg-type]
-    observation.pisp_response_ms = average(record.get("pisp_response") for record in records)  # type: ignore[arg-type]
+    observation.aisp_response_ms = average_active_response(record.get("aisp_response") for record in records)  # type: ignore[arg-type]
+    observation.pisp_response_ms = average_active_response(record.get("pisp_response") for record in records)  # type: ignore[arg-type]
     observation.aisp_error_pct = average(record.get("aisp_error") for record in records)  # type: ignore[arg-type]
     observation.pisp_error_pct = average(record.get("pisp_error") for record in records)  # type: ignore[arg-type]
     observation.metric_method = "prumer dennich hodnot v klouzavem 90dennim okne; uptime chybi"
@@ -863,6 +971,315 @@ def observation_row(observation: Observation) -> dict[str, Any]:
     return {field: row.get(field, "") if row.get(field) is not None else "" for field in CSV_FIELDS}
 
 
+def has_reported_metrics(observation: Observation) -> bool:
+    return any(
+        getattr(observation, field) is not None
+        for field in (
+            "availability_pct",
+            "aisp_availability_pct",
+            "pisp_availability_pct",
+            "aisp_response_ms",
+            "pisp_response_ms",
+            "aisp_error_pct",
+            "pisp_error_pct",
+        )
+    )
+
+
+def parse_pdf_observation(
+    bank: dict[str, Any], period: str, report_url: str, fetcher: Fetcher
+) -> Observation:
+    observation = base_observation(bank)
+    observation.latest_period = period
+    observation.report_url = report_url
+    report = fetcher.get(report_url, headers={"Accept": "application/pdf,*/*;q=0.8"})
+    if not report.content.startswith(b"%PDF"):
+        raise ValueError("odkaz nevratil PDF")
+    metrics = parse_pdf_metrics(report.content, bank["pdf_layout"])
+    for key, value in metrics.items():
+        setattr(observation, key, value)
+    return finalize_status(observation, period)
+
+
+def collect_pdf_history(
+    bank: dict[str, Any], fetcher: Fetcher, periods: set[str]
+) -> list[Observation]:
+    response = fetcher.get(bank["source_url"])
+    candidates = find_report_candidates(
+        response.text,
+        response.url,
+        bank.get("report_pattern", r"PSD2|availability|dostupnost|report"),
+    )
+    observations: list[Observation] = []
+    seen: set[str] = set()
+    for _, period, report_url, _ in candidates:
+        if period not in periods or period in seen:
+            continue
+        seen.add(period)
+        try:
+            observations.append(parse_pdf_observation(bank, period, report_url, fetcher))
+        except (FetchError, ValueError):
+            continue
+    return observations
+
+
+def collect_csob_history(
+    bank: dict[str, Any], fetcher: Fetcher, periods: set[str]
+) -> list[Observation]:
+    pattern = bank.get("history_url_pattern")
+    if not pattern:
+        return []
+    observations: list[Observation] = []
+    for period in sorted(periods, key=quarter_rank):
+        year = period[:4]
+        quarter = period[-1]
+        report_url = pattern.format(year=year, quarter=quarter)
+        try:
+            report = fetcher.get(
+                report_url,
+                headers={
+                    "Referer": bank["source_url"],
+                    "Accept": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,*/*;q=0.8",
+                },
+            )
+            observation = base_observation(bank)
+            observation.latest_period = period
+            observation.report_url = report_url
+            apply_csob_workbook(observation, report.content)
+            observations.append(finalize_status(observation, period))
+        except (FetchError, ValueError, KeyError, zipfile.BadZipFile):
+            continue
+    return observations
+
+
+def collect_creditas_history(
+    bank: dict[str, Any], fetcher: Fetcher, periods: set[str]
+) -> list[Observation]:
+    observations: list[Observation] = []
+    for period in sorted(periods, key=quarter_rank):
+        year = period[:4]
+        quarter = period[-1]
+        report_url = (
+            "https://www.creditas.cz/files/"
+            f"statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-{quarter}q-{year}.pdf"
+        )
+        try:
+            observations.append(parse_pdf_observation(bank, period, report_url, fetcher))
+        except (FetchError, ValueError):
+            continue
+    return observations
+
+
+def timeseries_row(observation: Observation) -> dict[str, Any]:
+    values = asdict(observation)
+    values["period"] = values.pop("latest_period")
+    return {
+        field: values.get(field, "") if values.get(field) is not None else ""
+        for field in TIMESERIES_FIELDS
+    }
+
+
+def collect_timeseries(
+    banks: list[dict[str, Any]],
+    fetcher: Fetcher,
+    latest: list[Observation],
+    expected_period: str,
+    existing_rows: list[dict[str, Any]] | None = None,
+    refresh: bool = False,
+) -> list[dict[str, Any]]:
+    period_list = recent_quarters(expected_period, 8)
+    periods = set(period_list)
+    rows: dict[tuple[str, str], dict[str, Any]] = {}
+    for row in existing_rows or []:
+        period = str(row.get("period", ""))
+        bank_id = str(row.get("bank_id", ""))
+        if period in periods and bank_id and row.get("report_url"):
+            rows[(bank_id, period)] = {
+                field: row.get(field, "") for field in TIMESERIES_FIELDS
+            }
+
+    for bank in banks:
+        if bank.get("scope", "main") != "main":
+            continue
+        wanted = periods if refresh else {
+            period for period in periods if (bank["id"], period) not in rows
+        }
+        if not wanted:
+            continue
+        print(f"Doplnuji historii {bank['name']}...", flush=True)
+        try:
+            if bank["parser"] == "pdf_links":
+                observations = collect_pdf_history(bank, fetcher, wanted)
+            elif bank["parser"] == "csob":
+                observations = collect_csob_history(bank, fetcher, wanted)
+            elif bank["parser"] == "creditas":
+                observations = collect_creditas_history(bank, fetcher, wanted)
+            elif bank["parser"] == "unicredit":
+                observations = [
+                    item
+                    for item in parse_unicredit_quarters(bank, fetcher)
+                    if item.latest_period in wanted
+                ]
+                observations = [finalize_status(item, item.latest_period) for item in observations]
+            else:
+                observations = []
+            for observation in observations:
+                if has_reported_metrics(observation):
+                    row = timeseries_row(observation)
+                    rows[(observation.bank_id, observation.latest_period)] = row
+        except Exception as exc:  # Historicky archiv nesmi zablokovat aktualni prehled.
+            print(f"  Historii se nepodarilo nacist: {type(exc).__name__}: {exc}", flush=True)
+
+    for observation in latest:
+        if (
+            observation.latest_period in periods
+            and observation.report_url
+            and has_reported_metrics(observation)
+            and observation.source_state in {"ok", "ok-direct-pdf"}
+        ):
+            row = timeseries_row(observation)
+            rows[(observation.bank_id, observation.latest_period)] = row
+
+    return sorted(
+        rows.values(),
+        key=lambda row: (quarter_rank(str(row["period"])), str(row["bank"])),
+    )
+
+
+def write_timeseries(rows: list[dict[str, Any]], data_dir: Path) -> None:
+    json_path = data_dir / "timeseries.json"
+    csv_path = data_dir / "timeseries.csv"
+    json_path.write_text(stable_json(rows), encoding="utf-8")
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=TIMESERIES_FIELDS, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def write_dashboard_data(
+    observations: list[Observation],
+    timeseries: list[dict[str, Any]],
+    expected_period: str,
+    checked_on: date,
+    output_path: Path = DEFAULT_DASHBOARD_DATA,
+) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "expected_period": expected_period,
+        "checked_on": checked_on.isoformat(),
+        "latest": [observation_row(item) for item in observations],
+        "timeseries": timeseries,
+    }
+    source = "window.PSD2_DATA = " + stable_json(payload)
+    output_path.write_text(source, encoding="utf-8")
+    index_path = output_path.parent / "index.html"
+    if index_path.exists():
+        cache_version = hashlib.sha256(source.encode("utf-8")).hexdigest()[:12]
+        content = index_path.read_text(encoding="utf-8")
+        updated = re.sub(
+            r'<script src="data\.js(?:\?v=[^"]+)?"></script>',
+            f'<script src="data.js?v={cache_version}"></script>',
+            content,
+        )
+        if updated != content:
+            index_path.write_text(updated, encoding="utf-8")
+
+
+def history_availability(row: dict[str, Any]) -> float | None:
+    """Jedna vykreslovaná hodnota; oddělené AISP/PISP jsou jen vizuální průměr."""
+    def number(field: str) -> float | None:
+        value = row.get(field)
+        if value in (None, ""):
+            return None
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
+
+    overall = number("availability_pct")
+    if overall is not None:
+        return overall
+    values = [value for field in ("aisp_availability_pct", "pisp_availability_pct")
+              if (value := number(field)) is not None]
+    return fmean(values) if values else None
+
+
+def write_trend_svg(
+    rows: list[dict[str, Any]], expected_period: str,
+    output_path: Path = DEFAULT_TREND_SVG,
+) -> None:
+    """Statický graf fungující i v soukromém GitHub README bez JavaScriptu."""
+    periods = recent_quarters(expected_period, 8)
+    period_index = {period: index for index, period in enumerate(periods)}
+    by_bank: dict[str, dict[str, float]] = {}
+    for row in rows:
+        value = history_availability(row)
+        if row.get("scope") == "main" and row.get("report_url") and row.get("period") in period_index and value is not None:
+            by_bank.setdefault(str(row["bank"]), {})[str(row["period"])] = value
+    selected = sorted(by_bank, key=lambda bank: (-len(by_bank[bank]), bank))
+    selected = [bank for bank in selected if len(by_bank[bank]) >= 3][:6]
+    if not selected:
+        selected = sorted(by_bank, key=lambda bank: (-len(by_bank[bank]), bank))[:6]
+
+    width, height = 1100, 520
+    left, right, top, bottom = 88, 755, 139, 399
+    palette = ["#0F766E", "#C66B1A", "#3E6D8E", "#8A5D9E", "#B2433F", "#5F7A45"]
+    values = [value for bank in selected for value in by_bank[bank].values()]
+    minimum = max(0.0, (int((min(values) - 0.35) * 10) / 10) if values else 95.0)
+    maximum = max(100.0, max(values) + 0.05) if values else 100.0
+    if maximum - minimum < 0.5:
+        minimum = maximum - 0.5
+
+    x = lambda index: left + index * (right - left) / (len(periods) - 1)
+    y = lambda value: bottom - (value - minimum) * (bottom - top) / (maximum - minimum)
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title desc">',
+        '<title id="title">Dostupnost PSD2 API v čase</title>',
+        '<desc id="desc">Čtvrtletní dostupnost dle publikovaných reportů bank. Chybějící reporty přerušují čáru; samotný graf neměří živý provoz.</desc>',
+        '<rect width="1100" height="520" rx="24" fill="#F8FAF9"/>',
+        '<rect x="22" y="20" width="1056" height="480" rx="20" fill="#FFFFFF" stroke="#DCE8E4"/>',
+        '<text x="61" y="64" font-family="Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="2" fill="#0F766E">PSD2 / ČESKÉ BANKY</text>',
+        '<text x="61" y="105" font-family="Arial,sans-serif" font-size="29" font-weight="700" fill="#172C37">Dostupnost API v čase</text>',
+        '<text x="816" y="105" font-family="Arial,sans-serif" font-size="13" fill="#58707A">Posledních 8 čtvrtletí</text>',
+        f'<rect x="{x(len(periods) - 1) - 32:.1f}" y="132" width="64" height="272" rx="10" fill="#F0F8F5"/>',
+    ]
+    for tick in range(5):
+        value = minimum + (maximum - minimum) * tick / 4
+        yy = y(value)
+        parts.extend([
+            f'<line x1="{left}" y1="{yy:.1f}" x2="{right}" y2="{yy:.1f}" stroke="#DFE9E6"/>',
+            f'<text x="{left - 13}" y="{yy + 4:.1f}" text-anchor="end" font-family="Arial,sans-serif" font-size="12" fill="#667D83">{value:.1f} %</text>',
+        ])
+    for period, index in period_index.items():
+        parts.append(
+            f'<text x="{x(index):.1f}" y="426" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#5C737A">{xml_escape(period.replace("-", " "))}</text>'
+        )
+    for color_index, bank in enumerate(selected):
+        color = palette[color_index]
+        points = sorted(((period_index[period], value) for period, value in by_bank[bank].items()), key=lambda item: item[0])
+        path = ""
+        previous_index = -2
+        for index, value in points:
+            path += f'{"L" if index == previous_index + 1 else "M"}{x(index):.1f},{y(value):.1f} '
+            previous_index = index
+        parts.append(f'<path d="{path.strip()}" fill="none" stroke="{color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>')
+        for index, value in points:
+            parts.append(f'<circle cx="{x(index):.1f}" cy="{y(value):.1f}" r="4.5" fill="{color}" stroke="#FFFFFF" stroke-width="2"/>')
+        legend_y = 162 + color_index * 44
+        parts.extend([
+            f'<circle cx="818" cy="{legend_y - 4}" r="5" fill="{color}"/>',
+            f'<text x="834" y="{legend_y}" font-family="Arial,sans-serif" font-size="14" fill="#253E47">{xml_escape(bank)}</text>',
+            f'<text x="834" y="{legend_y + 17}" font-family="Arial,sans-serif" font-size="11" fill="#789096">{len(points)} doložených čtvrtletí</text>',
+        ])
+    parts.extend([
+        '<line x1="61" y1="452" x2="1039" y2="452" stroke="#E6EFEC"/>',
+        '<text x="61" y="476" font-family="Arial,sans-serif" font-size="12" fill="#657B82">Zveřejněné bankovní statistiky, nikoli živé měření. Mezery v datech nejsou automaticky výpadek API.</text>',
+        '</svg>',
+    ])
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("\n".join(parts) + "\n", encoding="utf-8")
+
+
 def stable_json(data: Any) -> str:
     return json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
 
@@ -891,7 +1308,7 @@ def write_outputs(observations: list[Observation], data_dir: Path, today: date) 
     rows = [observation_row(observation) for observation in observations]
     latest_json.write_text(stable_json(rows), encoding="utf-8")
     with latest_csv.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=CSV_FIELDS)
+        writer = csv.DictWriter(handle, fieldnames=CSV_FIELDS, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -904,7 +1321,7 @@ def write_outputs(observations: list[Observation], data_dir: Path, today: date) 
         history_fields = ["observed_on", *CSV_FIELDS]
         exists = history_csv.exists() and history_csv.stat().st_size > 0
         with history_csv.open("a", encoding="utf-8", newline="") as handle:
-            writer = csv.DictWriter(handle, fieldnames=history_fields)
+            writer = csv.DictWriter(handle, fieldnames=history_fields, lineterminator="\n")
             if not exists:
                 writer.writeheader()
             for row in changed:
@@ -1015,6 +1432,7 @@ def run(
     data_dir: Path = DEFAULT_DATA,
     readme_path: Path = DEFAULT_README,
     today: date | None = None,
+    refresh_history: bool = False,
 ) -> list[Observation]:
     today = today or date.today()
     expected = expected_report_period(today)
@@ -1047,6 +1465,26 @@ def run(
             flush=True,
         )
     write_outputs(observations, data_dir, today)
+    existing_timeseries: list[dict[str, Any]] = []
+    timeseries_file = data_dir / "timeseries.json"
+    if timeseries_file.exists():
+        try:
+            loaded = json.loads(timeseries_file.read_text(encoding="utf-8"))
+            if isinstance(loaded, list):
+                existing_timeseries = loaded
+        except json.JSONDecodeError:
+            existing_timeseries = []
+    timeseries = collect_timeseries(
+        banks,
+        fetcher,
+        observations,
+        expected,
+        existing_timeseries,
+        refresh=refresh_history,
+    )
+    write_timeseries(timeseries, data_dir)
+    write_dashboard_data(observations, timeseries, expected, today)
+    write_trend_svg(timeseries, expected)
     update_readme(readme_path, observations, expected)
     return observations
 
@@ -1057,8 +1495,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA)
     parser.add_argument("--readme", type=Path, default=DEFAULT_README)
     parser.add_argument("--date", type=date.fromisoformat, help="Datum behu YYYY-MM-DD (pro testy)")
+    parser.add_argument("--refresh-history", action="store_true", help="Znovu nacist i archivni reporty")
     arguments = parser.parse_args(argv)
-    observations = run(arguments.config, arguments.data_dir, arguments.readme, arguments.date)
+    observations = run(
+        arguments.config,
+        arguments.data_dir,
+        arguments.readme,
+        arguments.date,
+        arguments.refresh_history,
+    )
     if not any(item.source_state.startswith("ok") for item in observations):
         print("Zadny zdroj nebyl dostupny; data nebyla spolehlive overena.", file=sys.stderr)
         return 2

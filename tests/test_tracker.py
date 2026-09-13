@@ -2,11 +2,16 @@ import unittest
 import zipfile
 from datetime import date
 from io import BytesIO
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
+from xml.etree import ElementTree
 
 from psd2_tracker.tracker import (
     Observation,
+    average_active_response,
     carry_previous,
+    collect_timeseries,
     extract_balanced_json,
     expected_report_period,
     finalize_status,
@@ -14,6 +19,8 @@ from psd2_tracker.tracker import (
     parse_first_xlsx_sheet,
     parse_quarter,
     previous_quarter,
+    recent_quarters,
+    write_trend_svg,
 )
 
 
@@ -75,6 +82,11 @@ class TrackerTests(unittest.TestCase):
     def test_previous_quarter_crosses_year(self):
         self.assertEqual(previous_quarter("2026-Q1"), "2025-Q4")
         self.assertEqual(previous_quarter("2026-Q2", 2), "2025-Q4")
+        self.assertEqual(recent_quarters("2026-Q2", 4), ["2025-Q3", "2025-Q4", "2026-Q1", "2026-Q2"])
+
+    def test_zero_response_is_not_instant_api_call(self):
+        self.assertEqual(average_active_response([0, 100, 200]), 150)
+        self.assertIsNone(average_active_response([0, 0, None]))
 
     def test_standard_minutes_pdf_layout(self):
         text = """
@@ -108,12 +120,35 @@ class TrackerTests(unittest.TestCase):
     def test_jt_pdf_layout_reads_uptime_from_tail(self):
         text = """
         01.04.2026 0 283,33 0 0 100 0
-        02.04.2026 0 297,88 0 0,1 80 20
+        02.04.2026 1482 297,88 0 0,1 80 20
         """
         with patch("psd2_tracker.tracker.extract_pdf_text", return_value=text):
             result = parse_pdf_metrics(b"fake", "jt")
         self.assertAlmostEqual(result["availability_pct"], 90.0)
         self.assertAlmostEqual(result["aisp_response_ms"], (283.33 + 297.88) / 2)
+        self.assertEqual(result["pisp_response_ms"], 1482)
+
+    def test_history_requires_a_report_link(self):
+        bank = {"id": "rb", "name": "Raiffeisenbank", "scope": "main", "parser": "report_links", "source_url": "https://example.test"}
+        latest = Observation(bank_id="rb", bank="Raiffeisenbank", scope="main", source_url="https://example.test", latest_period="2024-Q3", availability_pct=100)
+        cached = [{"bank_id": "rb", "bank": "Raiffeisenbank", "period": "2024-Q3", "availability_pct": 100, "report_url": ""}]
+        rows = collect_timeseries([bank], object(), [latest], "2026-Q2", cached)
+        self.assertEqual(rows, [])
+
+    def test_readme_trend_svg_escapes_names_and_breaks_missing_quarters(self):
+        rows = [
+            {"bank": "Bank & Test", "scope": "main", "report_url": "https://example.test/q3.pdf", "period": "2025-Q3", "availability_pct": 99.1},
+            {"bank": "Bank & Test", "scope": "main", "report_url": "https://example.test/q1.pdf", "period": "2026-Q1", "availability_pct": 99.8},
+        ]
+        with TemporaryDirectory() as directory:
+            output = Path(directory) / "trend.svg"
+            write_trend_svg(rows, "2026-Q2", output)
+            source = output.read_text(encoding="utf-8")
+            root = ElementTree.fromstring(source)
+        self.assertIn("Bank &amp; Test", source)
+        path = root.find("{http://www.w3.org/2000/svg}path")
+        self.assertIsNotNone(path)
+        self.assertEqual(path.attrib["d"].count("M"), 2)
 
 
 if __name__ == "__main__":

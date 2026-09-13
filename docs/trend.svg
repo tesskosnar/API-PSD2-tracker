@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="520" viewBox="0 0 1100 520" role="img" aria-labelledby="title desc">
+<title id="title">Dostupnost PSD2 API v čase</title>
+<desc id="desc">Čtvrtletní dostupnost dle publikovaných reportů bank. Chybějící reporty přerušují čáru; samotný graf neměří živý provoz.</desc>
+<rect width="1100" height="520" rx="24" fill="#F8FAF9"/>
+<rect x="22" y="20" width="1056" height="480" rx="20" fill="#FFFFFF" stroke="#DCE8E4"/>
+<text x="61" y="64" font-family="Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="2" fill="#0F766E">PSD2 / ČESKÉ BANKY</text>
+<text x="61" y="105" font-family="Arial,sans-serif" font-size="29" font-weight="700" fill="#172C37">Dostupnost API v čase</text>
+<text x="816" y="105" font-family="Arial,sans-serif" font-size="13" fill="#58707A">Posledních 8 čtvrtletí</text>
+<rect x="723.0" y="132" width="64" height="272" rx="10" fill="#F0F8F5"/>
+<line x1="88" y1="399.0" x2="755" y2="399.0" stroke="#DFE9E6"/>
+<text x="75" y="403.0" text-anchor="end" font-family="Arial,sans-serif" font-size="12" fill="#667D83">96.8 %</text>
+<line x1="88" y1="334.0" x2="755" y2="334.0" stroke="#DFE9E6"/>
+<text x="75" y="338.0" text-anchor="end" font-family="Arial,sans-serif" font-size="12" fill="#667D83">97.6 %</text>
+<line x1="88" y1="269.0" x2="755" y2="269.0" stroke="#DFE9E6"/>
+<text x="75" y="273.0" text-anchor="end" font-family="Arial,sans-serif" font-size="12" fill="#667D83">98.4 %</text>
+<line x1="88" y1="204.0" x2="755" y2="204.0" stroke="#DFE9E6"/>
+<text x="75" y="208.0" text-anchor="end" font-family="Arial,sans-serif" font-size="12" fill="#667D83">99.2 %</text>
+<line x1="88" y1="139.0" x2="755" y2="139.0" stroke="#DFE9E6"/>
+<text x="75" y="143.0" text-anchor="end" font-family="Arial,sans-serif" font-size="12" fill="#667D83">100.0 %</text>
+<text x="88.0" y="426" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#5C737A">2024 Q3</text>
+<text x="183.3" y="426" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#5C737A">2024 Q4</text>
+<text x="278.6" y="426" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#5C737A">2025 Q1</text>
+<text x="373.9" y="426" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#5C737A">2025 Q2</text>
+<text x="469.1" y="426" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#5C737A">2025 Q3</text>
+<text x="564.4" y="426" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#5C737A">2025 Q4</text>
+<text x="659.7" y="426" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#5C737A">2026 Q1</text>
+<text x="755.0" y="426" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#5C737A">2026 Q2</text>
+<path d="M88.0,261.8 L183.3,195.1 L278.6,205.3 L373.9,269.4 L469.1,210.7 L564.4,225.8 L659.7,192.7 L755.0,225.1" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="88.0" cy="261.8" r="4.5" fill="#0F766E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="183.3" cy="195.1" r="4.5" fill="#0F766E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="278.6" cy="205.3" r="4.5" fill="#0F766E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="373.9" cy="269.4" r="4.5" fill="#0F766E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="469.1" cy="210.7" r="4.5" fill="#0F766E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="564.4" cy="225.8" r="4.5" fill="#0F766E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="659.7" cy="192.7" r="4.5" fill="#0F766E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="755.0" cy="225.1" r="4.5" fill="#0F766E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="818" cy="158" r="5" fill="#0F766E"/>
+<text x="834" y="162" font-family="Arial,sans-serif" font-size="14" fill="#253E47">Air Bank</text>
+<text x="834" y="179" font-family="Arial,sans-serif" font-size="11" fill="#789096">8 doložených čtvrtletí</text>
+<path d="M88.0,143.0 L183.3,143.0 L278.6,143.0 L373.9,143.0 L469.1,143.0 L564.4,143.0 L659.7,156.3 L755.0,146.5" fill="none" stroke="#C66B1A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="88.0" cy="143.0" r="4.5" fill="#C66B1A" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="183.3" cy="143.0" r="4.5" fill="#C66B1A" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="278.6" cy="143.0" r="4.5" fill="#C66B1A" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="373.9" cy="143.0" r="4.5" fill="#C66B1A" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="469.1" cy="143.0" r="4.5" fill="#C66B1A" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="564.4" cy="143.0" r="4.5" fill="#C66B1A" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="659.7" cy="156.3" r="4.5" fill="#C66B1A" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="755.0" cy="146.5" r="4.5" fill="#C66B1A" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="818" cy="202" r="5" fill="#C66B1A"/>
+<text x="834" y="206" font-family="Arial,sans-serif" font-size="14" fill="#253E47">Banka CREDITAS</text>
+<text x="834" y="223" font-family="Arial,sans-serif" font-size="11" fill="#789096">8 doložených čtvrtletí</text>
+<path d="M88.0,159.8 L183.3,147.2 L278.6,150.4 L373.9,143.5 L469.1,144.1 L564.4,148.9 L659.7,144.4 L755.0,144.5" fill="none" stroke="#3E6D8E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="88.0" cy="159.8" r="4.5" fill="#3E6D8E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="183.3" cy="147.2" r="4.5" fill="#3E6D8E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="278.6" cy="150.4" r="4.5" fill="#3E6D8E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="373.9" cy="143.5" r="4.5" fill="#3E6D8E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="469.1" cy="144.1" r="4.5" fill="#3E6D8E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="564.4" cy="148.9" r="4.5" fill="#3E6D8E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="659.7" cy="144.4" r="4.5" fill="#3E6D8E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="755.0" cy="144.5" r="4.5" fill="#3E6D8E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="818" cy="246" r="5" fill="#3E6D8E"/>
+<text x="834" y="250" font-family="Arial,sans-serif" font-size="14" fill="#253E47">Fio banka</text>
+<text x="834" y="267" font-family="Arial,sans-serif" font-size="11" fill="#789096">8 doložených čtvrtletí</text>
+<path d="M88.0,237.8 L183.3,189.4 L278.6,286.5 L373.9,368.9 L469.1,325.5 L564.4,234.0 L659.7,311.3 L755.0,368.2" fill="none" stroke="#8A5D9E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="88.0" cy="237.8" r="4.5" fill="#8A5D9E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="183.3" cy="189.4" r="4.5" fill="#8A5D9E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="278.6" cy="286.5" r="4.5" fill="#8A5D9E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="373.9" cy="368.9" r="4.5" fill="#8A5D9E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="469.1" cy="325.5" r="4.5" fill="#8A5D9E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="564.4" cy="234.0" r="4.5" fill="#8A5D9E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="659.7" cy="311.3" r="4.5" fill="#8A5D9E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="755.0" cy="368.2" r="4.5" fill="#8A5D9E" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="818" cy="290" r="5" fill="#8A5D9E"/>
+<text x="834" y="294" font-family="Arial,sans-serif" font-size="14" fill="#253E47">Komerční banka</text>
+<text x="834" y="311" font-family="Arial,sans-serif" font-size="11" fill="#789096">8 doložených čtvrtletí</text>
+<path d="M88.0,153.4 L183.3,212.0 L278.6,163.8 L373.9,175.7 L469.1,203.9 L564.4,177.4 M755.0,160.6" fill="none" stroke="#B2433F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="88.0" cy="153.4" r="4.5" fill="#B2433F" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="183.3" cy="212.0" r="4.5" fill="#B2433F" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="278.6" cy="163.8" r="4.5" fill="#B2433F" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="373.9" cy="175.7" r="4.5" fill="#B2433F" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="469.1" cy="203.9" r="4.5" fill="#B2433F" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="564.4" cy="177.4" r="4.5" fill="#B2433F" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="755.0" cy="160.6" r="4.5" fill="#B2433F" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="818" cy="334" r="5" fill="#B2433F"/>
+<text x="834" y="338" font-family="Arial,sans-serif" font-size="14" fill="#253E47">J&amp;T Banka</text>
+<text x="834" y="355" font-family="Arial,sans-serif" font-size="11" fill="#789096">7 doložených čtvrtletí</text>
+<path d="M564.4,163.2 L659.7,143.4 L755.0,143.4" fill="none" stroke="#5F7A45" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="564.4" cy="163.2" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="659.7" cy="143.4" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="755.0" cy="143.4" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="818" cy="378" r="5" fill="#5F7A45"/>
+<text x="834" y="382" font-family="Arial,sans-serif" font-size="14" fill="#253E47">Trinity Bank</text>
+<text x="834" y="399" font-family="Arial,sans-serif" font-size="11" fill="#789096">3 doložených čtvrtletí</text>
+<line x1="61" y1="452" x2="1039" y2="452" stroke="#E6EFEC"/>
+<text x="61" y="476" font-family="Arial,sans-serif" font-size="12" fill="#657B82">Zveřejněné bankovní statistiky, nikoli živé měření. Mezery v datech nejsou automaticky výpadek API.</text>
+</svg>

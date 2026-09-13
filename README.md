@@ -1,31 +1,37 @@
-# CZ PSD2 API tracker
+# API PSD2 tracker
 
 Automatický přehled zveřejňované dostupnosti a výkonu PSD2 rozhraní českých bank. Tracker sleduje **to, co banky samy publikují** podle čl. 32 odst. 4 regulatorních technických standardů PSD2. Neměří živé produkční API vlastním voláním, protože to by bez TPP certifikátu a korektního testovacího scénáře dávalo zavádějící výsledky.
 
 Kontrola běží každé úterý pomocí GitHub Actions a také ručně přes `Actions → Aktualizace PSD2 trackeru → Run workflow`. Banky publikují povinné statistiky čtvrtletně, ale ne ve stejný den; týdenní kontrola zachytí nový report rychle a přitom jejich weby nezatěžuje.
 
+## Vývoj v čase
+
+![Čtvrtletní vývoj dostupnosti PSD2 API podle zveřejněných reportů bank](docs/trend.svg)
+
+Graf se při týdenní aktualizaci obnovuje automaticky. Zobrazuje jen banky s doloženými reporty; chybějící čtvrtletí nepřemosťuje. Podrobnější interaktivní přehled, přepínání metrik, pokrytí zdroji a odkazy na jednotlivé reporty je v `dashboard/index.html`. Protože repozitář zůstává **soukromý**, po jeho stažení stačí tento soubor otevřít v prohlížeči; žádná veřejná stránka se nezřizuje.
+
 <!-- TRACKER:START -->
 Očekávané poslední zveřejněné období: **2026-Q2** (po 45denní lhůtě na publikaci).
 
-Souhrn hlavního seznamu: **7 s aktuální dostupností**, **2 s částečnými daty**, **2 zastaralé**, **3 bez nalezeného reportu**, **1 blokováno**.
+Souhrn hlavního seznamu: **8 s aktuální dostupností**, **2 s částečnými daty**, **2 zastaralé**, **3 bez nalezeného reportu**, **0 blokováno**.
 
 | Banka | Stav | Poslední období | Dostupnost | Odezva AISP / PISP | Zdroj |
 |---|---|---:|---:|---:|---|
 | Česká spořitelna | OK | 2026-Q2 | AISP 99.5523 % / PISP 99.2837 % | — / — | [stránka](https://developers.erstegroup.com/api-health-check/bank.csas/last-quarter) |
 | ČSOB | Částečná data | 2026-Q2 | — | 879.2395 ms / 612.5572 ms | [stránka](https://www.csob.cz/csob/otevrene-bankovnictvi-csob/pro-vyvojare/seznam-api/reporting) · [report](https://www.csob.cz/documents/10710/21871290/psd2-q2-2026.xlsx) |
-| Komerční banka | OK | 2026-Q2 | 97.1856 % | — / — | [stránka](https://www.kb.cz/cs/dostupnost-sluzeb-internetoveho-a-otevreneho-bankovnictvi-api) · [report](https://www.kb.cz/getmedia/956647de-9725-4cf0-9975-52c1e3462491/kb-psd2-2026-q2-cz.pdf) |
-| Raiffeisenbank | Zastaralé | 2025-Q3 | 100 % | — / — | [stránka](https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni) |
-| Air Bank | OK | 2026-Q2 | 98.9736 % | — / — | [stránka](https://www.airbank.cz/aplikace-tretich-stran/) · [report](https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2026) |
-| MONETA Money Bank | Částečná data | rolling-90d-to-2026-09-10 | — | 500.8889 ms / 150.7111 ms | [stránka](https://www.moneta.cz/otevrene-bankovnictvi) |
-| Fio banka | OK | 2026-Q2 | 99.9809 % | — / — | [stránka](https://developers.fio.cz/stats.html) · [report](https://developers.fio.cz/stats/PSD2_2026Q2.pdf) |
+| Komerční banka | OK | 2026-Q2 | 97.1856 % | 378.5604 ms / 408.4945 ms | [stránka](https://www.kb.cz/cs/dostupnost-sluzeb-internetoveho-a-otevreneho-bankovnictvi-api) · [report](https://www.kb.cz/getmedia/956647de-9725-4cf0-9975-52c1e3462491/kb-psd2-2026-q2-cz.pdf) |
+| Raiffeisenbank | Zastaralé | 2024-Q3 | 100 % | — / — | [stránka](https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni) |
+| Air Bank | OK | 2026-Q2 | 98.9736 % | 62.8242 ms / 72.7143 ms | [stránka](https://www.airbank.cz/aplikace-tretich-stran/) · [report](https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2026) |
+| MONETA Money Bank | Částečná data | rolling-90d-to-2026-09-12 | — | 500.6333 ms / 150.3667 ms | [stránka](https://www.moneta.cz/otevrene-bankovnictvi) |
+| Fio banka | OK | 2026-Q2 | 99.9809 % | 22.7143 ms / 16 ms | [stránka](https://developers.fio.cz/stats.html) · [report](https://developers.fio.cz/stats/PSD2_2026Q2.pdf) |
 | mBank | Nenalezen report | — | — | — / — | [stránka](https://developer.api.mbank.cz/reports) |
 | UniCredit Bank | OK | 2026-Q2 | 100 % | 345.29 ms / 248.6567 ms | [stránka](https://developer.unicredit.eu/report?view=kpi) |
-| Banka CREDITAS | Zdroj blokuje automatizaci | 2026-Q2 | 99.956 % | 1819.5176 ms / 936.4353 ms | [stránka](https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti) · [report](https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf) |
+| Banka CREDITAS | OK | 2026-Q2 | 99.956 % | 1819.5176 ms / 936.4353 ms | [stránka](https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti) · [report](https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf) |
 | Trinity Bank | OK | 2026-Q2 | 99.9951 % | — / — | [stránka](https://www.trinitybank.cz/otevrene-bankovnictvi/) · [report](https://www.trinitybank.cz/download/3036) |
 | Partners Banka | Nenalezen report | — | — | — / — | [stránka](https://psd2.partnersbanka.cz/) |
 | Oberbank | Nenalezen report | — | — | — / — | [stránka](https://www.oberbank.cz/xs2a-interface) |
-| J&T Banka | OK | 2026-Q2 | 99.7801 % | 387.1698 ms / 16.2857 ms | [stránka](https://www.jtbank.cz/informacni-povinnost) · [report](https://assets-eu-01.kc-usercontent.com:443/23883f12-8a12-01af-3f05-426faedce691/69bbf441-3b3b-4519-998b-10ec11b07591/Q2-2026_psd2_unavailability.pdf) |
-| PPF banka | Zastaralé | 2026-Q1 | — | — / — | [stránka](https://www.ppfbanka.cz/cs/dokumenty/1868-pristupy-tretich-stran) · [report](https://www.ppfbanka.cz/cs/document/download/8437) |
+| J&T Banka | OK | 2026-Q2 | 99.7801 % | 387.1698 ms / 1482 ms | [stránka](https://www.jtbank.cz/informacni-povinnost) · [report](https://assets-eu-01.kc-usercontent.com:443/23883f12-8a12-01af-3f05-426faedce691/69bbf441-3b3b-4519-998b-10ec11b07591/Q2-2026_psd2_unavailability.pdf) |
+| PPF banka | Zastaralé | 2026-Q1 | — | 1833.6 ms / — | [stránka](https://www.ppfbanka.cz/cs/dokumenty/1868-pristupy-tretich-stran) · [report](https://www.ppfbanka.cz/cs/document/download/8437) |
 
 ### Kandidáti na rozšíření rozsahu
 
@@ -43,11 +49,15 @@ Souhrn hlavního seznamu: **7 s aktuální dostupností**, **2 s částečnými 
 - **Zdroj blokuje automatizaci**: stránka vrátila chybu, blokaci nebo se změnil její formát. To samo o sobě **neznamená výpadek bankovního API**.
 
 Hodnoty nejsou mezi bankami vždy metodicky totožné. Některá banka publikuje jednu dostupnost vyhrazeného rozhraní, jiná odděleně AISP a PISP a další pouze odezvu a chybovost. Sloupec `metric_method` v datech proto vždy uvádí způsob výpočtu.
+Pokud banka zveřejňuje AISP a PISP dostupnost odděleně, křivka v přehledovém grafu používá jejich prostý průměr jen pro vizualizaci; obě původní hodnoty zůstávají v datech. Nulové denní odezvy se do průměru nezapočítávají, protože typicky znamenají den bez volání, nikoli okamžitou odpověď API.
 
 ## Výstupy
 
 - `data/latest.csv` a `data/latest.json` — poslední stav všech bank.
 - `data/history.csv` — nový záznam se přidá pouze při věcné změně hodnot nebo stavu.
+- `data/timeseries.csv` a `data/timeseries.json` — doložené reporty za posledních osm čtvrtletí.
+- `docs/trend.svg` — automaticky obnovovaný graf pro hlavní stránku GitHubu.
+- `dashboard/index.html` — interaktivní přehled fungující i bez serveru po stažení repozitáře.
 - `docs/source-audit.md` — audit adres z původního sešitu a nalezené mezery v rozsahu.
 - `config/banks.json` — zdroje, parser a poznámky pro jednotlivé banky.
 

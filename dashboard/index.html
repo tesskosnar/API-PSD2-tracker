@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Dostupnost PSD2 API v Česku</title>
+  <link rel="stylesheet" href="styles.css?v=2">
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__inner">
+      <p class="eyebrow">České otevřené bankovnictví</p>
+      <h1>Dostupnost PSD2 API v čase</h1>
+      <p class="hero__lede">Srovnání oficiálně zveřejněných statistik českých bank. Bez domýšlení chybějících hodnot.</p>
+      <div class="hero__meta">
+        <span id="periodLabel">Poslední období</span>
+        <span id="checkedLabel">Poslední kontrola</span>
+        <span>Automatická kontrola každý týden</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="summary" aria-label="Souhrn dat">
+      <article class="summary__item">
+        <span class="summary__label">Aktuální dostupnost</span>
+        <strong id="currentCoverage">—</strong>
+        <span class="summary__context">bank s ověřeným údajem za poslední čtvrtletí</span>
+      </article>
+      <article class="summary__item">
+        <span class="summary__label">Historická řada</span>
+        <strong id="historyPoints">—</strong>
+        <span class="summary__context">doložených bankovních čtvrtletí</span>
+      </article>
+      <article class="summary__item">
+        <span class="summary__label">Sledovaný rozsah</span>
+        <strong id="bankCount">—</strong>
+        <span class="summary__context">bank v hlavním seznamu</span>
+      </article>
+    </section>
+
+    <section class="panel trend-panel" aria-labelledby="trendTitle">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">Vývoj v čase</p>
+          <h2 id="trendTitle">Čtvrtletní srovnání</h2>
+        </div>
+        <label class="metric-control">
+          <span>Metrika</span>
+          <select id="metricSelect">
+            <option value="availability">Dostupnost API</option>
+            <option value="aispResponse">Odezva AISP</option>
+            <option value="pispResponse">Odezva PISP</option>
+            <option value="aispError">Chybovost AISP</option>
+          </select>
+        </label>
+      </div>
+      <div id="chartLegend" class="chart-legend" aria-label="Zobrazené banky"></div>
+      <div class="chart-shell">
+        <svg id="trendChart" role="img" aria-labelledby="trendTitle chartDescription"></svg>
+        <p id="chartDescription" class="sr-only">Čárový graf zveřejněných čtvrtletních statistik bank.</p>
+        <div id="chartTooltip" class="chart-tooltip" hidden></div>
+        <p id="chartEmpty" class="empty-state" hidden>Pro vybrané banky nejsou k této metrice data.</p>
+      </div>
+      <p id="chartNote" class="chart-note"></p>
+    </section>
+
+    <section class="panel" aria-labelledby="coverageTitle">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">Úplnost zdrojů</p>
+          <h2 id="coverageTitle">Kde banky data skutečně publikují</h2>
+        </div>
+        <div class="coverage-key" aria-label="Legenda pokrytí">
+          <span><i class="coverage-dot coverage-dot--full"></i>Dostupnost</span>
+          <span><i class="coverage-dot coverage-dot--partial"></i>Jen výkon</span>
+          <span><i class="coverage-dot coverage-dot--missing"></i>Bez reportu</span>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table id="coverageTable" class="coverage-table"></table>
+      </div>
+      <p class="chart-note">Kliknutím na barevné políčko otevřete původní report banky.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="latestTitle">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">Poslední stav</p>
+          <h2 id="latestTitle">Všechny sledované banky</h2>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Banka</th>
+              <th>Stav</th>
+              <th>Období</th>
+              <th>Dostupnost</th>
+              <th>Odezva AISP</th>
+              <th>Zdroj</th>
+            </tr>
+          </thead>
+          <tbody id="latestRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="method">
+      <h2>Jak data číst</h2>
+      <p>Tracker porovnává hodnoty, které zveřejňují samotné banky. Některé uvádějí uptime, jiné pouze odezvu a chybovost. Prázdné místo proto znamená chybějící publikovaný údaj, ne nulovou dostupnost.</p>
+      <p>Dostupnost oddělená na AISP a PISP zůstává v detailu oddělená; v grafu se pro takový bod používá jejich průměr. Průměr odezvy vynechává dny s 0 ms, které obvykle znamenají žádné volání. Čtvrtletí bez doloženého údaje graf nespojuje čarou.</p>
+      <div class="method__links">
+        <a href="../docs/source-audit.md">Audit zdrojů</a>
+        <a href="../data/timeseries.csv">Stáhnout časovou řadu</a>
+        <a href="https://eur-lex.europa.eu/legal-content/CS/TXT/?uri=CELEX:32018R0389">Regulatorní základ</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>PSD2 API tracker · data z oficiálních stránek bank</p>
+  </footer>
+
+  <script src="data.js?v=5dcad56e7c8f"></script>
+  <script src="app.js?v=2"></script>
+</body>
+</html>
