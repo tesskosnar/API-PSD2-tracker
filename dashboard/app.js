@@ -20,21 +20,21 @@
       unit: "ms",
       value: item => numberOrNull(item.aisp_response_ms),
       format: value => `${formatNumber(value, 1)} ms`,
-      note: "Nižší hodnota je lepší. Jde o průměr zveřejněných denních nebo měsíčních hodnot."
+      note: "Nižší hodnota je lepší. Svislá osa je logaritmicky zhuštěná, aby byly vidět běžné hodnoty i extrémy."
     },
     pispResponse: {
       label: "Odezva PISP",
       unit: "ms",
       value: item => numberOrNull(item.pisp_response_ms),
       format: value => `${formatNumber(value, 1)} ms`,
-      note: "Nižší hodnota je lepší. Nulová hodnota může znamenat, že banka v daném období službu nevyužila."
+      note: "Nižší hodnota je lepší. Svislá osa je logaritmicky zhuštěná; 0 ms se do průměru nezapočítává."
     },
     aispError: {
       label: "Chybovost AISP",
       unit: "%",
-      value: item => numberOrNull(item.aisp_error_pct),
+      value: item => item.metric_method?.includes("spolecna error response rate") ? null : numberOrNull(item.aisp_error_pct),
       format: value => `${formatNumber(value, 3)} %`,
-      note: "Nižší hodnota je lepší. Banky nemusí používat zcela shodnou metodiku agregace."
+      note: "Nižší hodnota je lepší. Svislá osa je logaritmicky zhuštěná, aby jediný extrém neschoval ostatní banky."
     }
   };
 
@@ -60,7 +60,10 @@
 
   function formatPeriod(period) {
     const match = /^(\d{4})-Q([1-4])$/.exec(period || "");
-    return match ? `${match[2]}. čtvrtletí ${match[1]}` : (period || "—");
+    if (match) return `${match[2]}. čtvrtletí ${match[1]}`;
+    const rolling = /^rolling-90d-to-(\d{4})-(\d{2})-(\d{2})$/.exec(period || "");
+    if (rolling) return `90 dní do ${Number(rolling[3])}. ${Number(rolling[2])}. ${rolling[1]}`;
+    return period || "—";
   }
 
   function statusLabel(status) {
@@ -79,7 +82,12 @@
   }
 
   function updateSummary() {
-    const current = latest.filter(item => item.status === "ok" && item.latest_period === data.expected_period && availabilityValue(item) !== null).length;
+    const current = latest.filter(item =>
+      (item.status === "ok" || item.status === "blocked")
+      && item.latest_period === data.expected_period
+      && item.report_url
+      && availabilityValue(item) !== null
+    ).length;
     document.getElementById("currentCoverage").textContent = formatNumber(current, 0);
     document.getElementById("historyPoints").textContent = formatNumber(history.length, 0);
     document.getElementById("bankCount").textContent = formatNumber(latest.length, 0);
@@ -162,24 +170,32 @@
     const values = rows.map(metric.value);
     let min = Math.min(...values);
     let max = Math.max(...values);
+    let transform = value => value;
+    let ticks = [];
     if (activeMetric === "availability") {
       min = Math.max(0, Math.floor((min - 0.35) * 10) / 10);
       max = Math.min(100.05, Math.max(100, max + 0.05));
+      ticks = Array.from({ length: 5 }, (_, index) => min + ((100 - min) * index) / 4);
     } else {
       min = 0;
-      max = max === 0 ? 1 : max * 1.12;
+      const step = activeMetric === "aispError" ? 0.01 : 10;
+      transform = value => Math.log10(1 + Math.max(0, value) / step);
+      ticks = (activeMetric === "aispError"
+        ? [0, 0.01, 0.1, 1, 5, 10, 50, 100]
+        : [0, 10, 100, 1000, 10000, 100000]).filter(value => value <= max);
+      if (ticks.length < 2) ticks = [0, max || 1];
+      max = max === 0 ? 1 : max * 1.1;
     }
     const x = period => margin.left + (periods.indexOf(period) / Math.max(1, periods.length - 1)) * innerWidth;
-    const y = value => margin.top + (1 - (value - min) / (max - min || 1)) * innerHeight;
+    const y = value => margin.top + (1 - (transform(value) - transform(min)) / (transform(max) - transform(min) || 1)) * innerHeight;
 
-    for (let i = 0; i <= 4; i += 1) {
-      const value = min + ((max - min) * i) / 4;
+    ticks.forEach(value => {
       const yy = y(value);
       svg.append(svgElement("line", { x1: margin.left, y1: yy, x2: width - margin.right, y2: yy, class: "chart-grid" }));
       const label = svgElement("text", { x: margin.left - 10, y: yy + 4, "text-anchor": "end", class: "chart-axis" });
-      label.textContent = activeMetric === "availability" ? formatNumber(value, 1) : formatNumber(value, max > 10 ? 0 : 2);
+      label.textContent = `${formatNumber(value, activeMetric === "availability" ? 1 : value < 1 ? 2 : 0)} ${metric.unit}`;
       svg.append(label);
-    }
+    });
 
     periods.forEach((period, index) => {
       if (width < 560 && index % 2 === 1 && index !== periods.length - 1) return;
@@ -268,6 +284,24 @@
   function renderLatest() {
     const tbody = document.getElementById("latestRows");
     tbody.replaceChildren();
+    const pairedCell = (aisp, pisp, unit, shared = false) => {
+      const cell = document.createElement("td");
+      cell.className = "paired-metric";
+      if (shared && aisp !== null) {
+        const line = document.createElement("span");
+        line.textContent = `Společná: ${formatNumber(aisp, unit === "%" ? 3 : 1)} ${unit}`;
+        cell.append(line);
+        return cell;
+      }
+      [["AISP", aisp], ["PISP", pisp]].forEach(([label, value]) => {
+        const line = document.createElement("span");
+        const tag = document.createElement("small");
+        tag.textContent = label;
+        line.append(tag, document.createTextNode(value === null ? "—" : `${formatNumber(value, unit === "%" ? 3 : 1)} ${unit}`));
+        cell.append(line);
+      });
+      return cell;
+    };
     latest.forEach(item => {
       const tr = document.createElement("tr");
       const source = item.report_url || item.source_url;
@@ -275,8 +309,7 @@
         item.bank,
         statusLabel(item.status),
         formatPeriod(item.latest_period),
-        displayAvailability(item),
-        numberOrNull(item.aisp_response_ms) === null ? "—" : `${formatNumber(numberOrNull(item.aisp_response_ms), 1)} ms`
+        displayAvailability(item)
       ];
       cells.forEach((value, index) => {
         const td = document.createElement("td");
@@ -288,13 +321,15 @@
         } else td.textContent = value;
         tr.append(td);
       });
+      tr.append(pairedCell(numberOrNull(item.aisp_response_ms), numberOrNull(item.pisp_response_ms), "ms"));
+      tr.append(pairedCell(numberOrNull(item.aisp_error_pct), numberOrNull(item.pisp_error_pct), "%", item.metric_method?.includes("spolecna error response rate")));
       const sourceCell = document.createElement("td");
       const link = document.createElement("a");
       link.href = source;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
       link.className = "source-link";
-      link.textContent = "Otevřít";
+      link.textContent = item.report_url && item.report_url !== item.source_url ? "Report ↗" : "Stránka ↗";
       sourceCell.append(link);
       tr.append(sourceCell);
       tbody.append(tr);

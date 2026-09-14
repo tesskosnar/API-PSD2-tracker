@@ -564,9 +564,9 @@ def parse_pdf_metrics(content: bytes, layout: str) -> dict[str, float | str | No
                 availability_pct=fmean(uptimes),
                 aisp_response_ms=average_active_response(aisp_responses),
                 pisp_response_ms=average_active_response(pisp_responses),
-                aisp_error_pct=fmean(errors),
-                pisp_error_pct=fmean(errors),
-                metric_method="aritmeticky prumer dennich uptime hodnot",
+                aisp_error_pct=fmean(errors) * 100,
+                pisp_error_pct=fmean(errors) * 100,
+                metric_method="prumer dennich uptime; spolecna error response rate prevedena z podilu na procenta",
             )
         return result
 
@@ -607,15 +607,21 @@ def parse_pdf_metrics(content: bytes, layout: str) -> dict[str, float | str | No
             values = [parse_number(token) for token in match.group(1).split()]
             if len(values) < 6 or any(value is None for value in values[:6]):
                 continue
-            aisp_responses.append(float(values[0]))
-            aisp_errors.append(float(values[1]))
-            pisp_responses.append(float(values[2]))
-            pisp_errors.append(float(values[3]))
+            aisp_response = float(values[0])
+            pisp_response = float(values[2])
+            aisp_responses.append(aisp_response)
+            pisp_responses.append(pisp_response)
+            # Banka uvadi 0 % i ve dnech bez jedineho volani. Tyto dny
+            # nesmeji snizit prumer chybovosti pri aktivnim provozu.
+            if aisp_response > 0:
+                aisp_errors.append(float(values[1]))
+            if pisp_response > 0:
+                pisp_errors.append(float(values[3]))
         result["aisp_response_ms"] = average_active_response(aisp_responses)
         result["pisp_response_ms"] = average_active_response(pisp_responses)
         result["aisp_error_pct"] = average(aisp_errors)
         result["pisp_error_pct"] = average(pisp_errors)
-        result["metric_method"] = "prumer dennich hodnot odezvy a chybovosti; banka nepublikuje uptime"
+        result["metric_method"] = "prumer odezvy a chybovosti jen ve dnech s volanimi; banka nepublikuje uptime"
         return result
 
     raise ValueError(f"Neznamy PDF layout: {layout}")
@@ -708,9 +714,11 @@ def apply_csob_workbook(observation: Observation, content: bytes) -> Observation
     data_rows = [row for row in rows if parse_number(row.get("C")) is not None]
     observation.aisp_response_ms = average_active_response(parse_number(row.get("C")) for row in data_rows)
     observation.pisp_response_ms = average_active_response(parse_number(row.get("F")) for row in data_rows)
-    observation.aisp_error_pct = average(parse_number(row.get("D")) for row in data_rows)
-    observation.pisp_error_pct = average(parse_number(row.get("G")) for row in data_rows)
-    observation.metric_method = "prumer dennich XLSX hodnot odezvy a chybovosti; uptime chybi"
+    aisp_error_ratio = average(parse_number(row.get("D")) for row in data_rows)
+    pisp_error_ratio = average(parse_number(row.get("G")) for row in data_rows)
+    observation.aisp_error_pct = aisp_error_ratio * 100 if aisp_error_ratio is not None else None
+    observation.pisp_error_pct = pisp_error_ratio * 100 if pisp_error_ratio is not None else None
+    observation.metric_method = "prumer dennich XLSX hodnot; chybovost prevedena z podilu na procenta; uptime chybi"
     return observation
 
 
@@ -1093,6 +1101,12 @@ def collect_timeseries(
     for row in existing_rows or []:
         period = str(row.get("period", ""))
         bank_id = str(row.get("bank_id", ""))
+        if bank_id == "ppf" and all(
+            parse_number(row.get(field)) in {None, 0.0}
+            for field in ("aisp_response_ms", "pisp_response_ms", "aisp_error_pct", "pisp_error_pct")
+        ):
+            # Stare radky s nulovym provozem nejsou merena chybovost.
+            continue
         if period in periods and bank_id and row.get("report_url"):
             rows[(bank_id, period)] = {
                 field: row.get(field, "") for field in TIMESERIES_FIELDS

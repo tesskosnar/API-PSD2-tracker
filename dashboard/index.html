@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>Dostupnost PSD2 API v Česku</title>
-  <link rel="stylesheet" href="styles.css?v=2">
+  <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
   <header class="hero">
@@ -26,7 +26,7 @@
       <article class="summary__item">
         <span class="summary__label">Aktuální dostupnost</span>
         <strong id="currentCoverage">—</strong>
-        <span class="summary__context">bank s ověřeným údajem za poslední čtvrtletí</span>
+        <span class="summary__context">bank s doloženým reportem za poslední čtvrtletí</span>
       </article>
       <article class="summary__item">
         <span class="summary__label">Historická řada</span>
@@ -66,6 +66,31 @@
       <p id="chartNote" class="chart-note"></p>
     </section>
 
+    <section class="panel" aria-labelledby="latestTitle">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">Poslední stav</p>
+          <h2 id="latestTitle">Všechny sledované banky</h2>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Banka</th>
+              <th>Stav</th>
+              <th>Období</th>
+              <th>Dostupnost</th>
+              <th>Odezva <small>AISP / PISP</small></th>
+              <th>Chybovost <small>AISP / PISP</small></th>
+              <th>Zdroj</th>
+            </tr>
+          </thead>
+          <tbody id="latestRows"></tbody>
+        </table>
+      </div>
+    </section>
+
     <section class="panel" aria-labelledby="coverageTitle">
       <div class="section-heading">
         <div>
@@ -84,34 +109,10 @@
       <p class="chart-note">Kliknutím na barevné políčko otevřete původní report banky.</p>
     </section>
 
-    <section class="panel" aria-labelledby="latestTitle">
-      <div class="section-heading">
-        <div>
-          <p class="section-kicker">Poslední stav</p>
-          <h2 id="latestTitle">Všechny sledované banky</h2>
-        </div>
-      </div>
-      <div class="table-scroll">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Banka</th>
-              <th>Stav</th>
-              <th>Období</th>
-              <th>Dostupnost</th>
-              <th>Odezva AISP</th>
-              <th>Zdroj</th>
-            </tr>
-          </thead>
-          <tbody id="latestRows"></tbody>
-        </table>
-      </div>
-    </section>
-
     <section class="method">
       <h2>Jak data číst</h2>
-      <p>Tracker porovnává hodnoty, které zveřejňují samotné banky. Některé uvádějí uptime, jiné pouze odezvu a chybovost. Prázdné místo proto znamená chybějící publikovaný údaj, ne nulovou dostupnost.</p>
-      <p>Dostupnost oddělená na AISP a PISP zůstává v detailu oddělená; v grafu se pro takový bod používá jejich průměr. Průměr odezvy vynechává dny s 0 ms, které obvykle znamenají žádné volání. Čtvrtletí bez doloženého údaje graf nespojuje čarou.</p>
+      <p>Tracker porovnává hodnoty, které zveřejňují samotné banky. Některé uvádějí uptime, jiné pouze odezvu a chybovost. Prázdné místo proto znamená chybějící publikovaný údaj, ne nulovou dostupnost. Pokud zdroj dočasně blokuje automatickou kontrolu, poslední dříve ověřený report zůstává viditelný s varovným stavem.</p>
+      <p>Dostupnost oddělená na AISP a PISP zůstává v detailu oddělená; v grafu se pro takový bod používá jejich průměr. Průměr odezvy i chybovosti vynechává dny bez volání, pokud je banka takto publikuje. J&T uvádí jen společnou chybovost služeb. Čtvrtletí bez doloženého údaje graf nespojuje čarou.</p>
       <div class="method__links">
         <a href="../docs/source-audit.md">Audit zdrojů</a>
         <a href="../data/timeseries.csv">Stáhnout časovou řadu</a>
@@ -124,7 +125,7 @@
     <p>PSD2 API tracker · data z oficiálních stránek bank</p>
   </footer>
 
-  <script src="data.js?v=5dcad56e7c8f"></script>
-  <script src="app.js?v=2"></script>
+  <script src="data.js?v=f77e3967df30"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>

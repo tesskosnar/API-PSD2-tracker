@@ -13,20 +13,20 @@ Graf se při týdenní aktualizaci obnovuje automaticky. Zobrazuje jen banky s d
 <!-- TRACKER:START -->
 Očekávané poslední zveřejněné období: **2026-Q2** (po 45denní lhůtě na publikaci).
 
-Souhrn hlavního seznamu: **8 s aktuální dostupností**, **2 s částečnými daty**, **2 zastaralé**, **3 bez nalezeného reportu**, **0 blokováno**.
+Souhrn hlavního seznamu: **7 s aktuální dostupností**, **2 s částečnými daty**, **1 zastaralé**, **4 bez nalezeného reportu**, **1 blokováno**.
 
 | Banka | Stav | Poslední období | Dostupnost | Odezva AISP / PISP | Zdroj |
 |---|---|---:|---:|---:|---|
 | Česká spořitelna | OK | 2026-Q2 | AISP 99.5523 % / PISP 99.2837 % | — / — | [stránka](https://developers.erstegroup.com/api-health-check/bank.csas/last-quarter) |
 | ČSOB | Částečná data | 2026-Q2 | — | 879.2395 ms / 612.5572 ms | [stránka](https://www.csob.cz/csob/otevrene-bankovnictvi-csob/pro-vyvojare/seznam-api/reporting) · [report](https://www.csob.cz/documents/10710/21871290/psd2-q2-2026.xlsx) |
 | Komerční banka | OK | 2026-Q2 | 97.1856 % | 378.5604 ms / 408.4945 ms | [stránka](https://www.kb.cz/cs/dostupnost-sluzeb-internetoveho-a-otevreneho-bankovnictvi-api) · [report](https://www.kb.cz/getmedia/956647de-9725-4cf0-9975-52c1e3462491/kb-psd2-2026-q2-cz.pdf) |
-| Raiffeisenbank | Zastaralé | 2024-Q3 | 100 % | — / — | [stránka](https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni) |
+| Raiffeisenbank | Nenalezen report | — | — | — / — | [stránka](https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni) |
 | Air Bank | OK | 2026-Q2 | 98.9736 % | 62.8242 ms / 72.7143 ms | [stránka](https://www.airbank.cz/aplikace-tretich-stran/) · [report](https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2026) |
-| MONETA Money Bank | Částečná data | rolling-90d-to-2026-09-12 | — | 500.6333 ms / 150.3667 ms | [stránka](https://www.moneta.cz/otevrene-bankovnictvi) |
+| MONETA Money Bank | Částečná data | rolling-90d-to-2026-09-13 | — | 498.8556 ms / 149.9556 ms | [stránka](https://www.moneta.cz/otevrene-bankovnictvi) |
 | Fio banka | OK | 2026-Q2 | 99.9809 % | 22.7143 ms / 16 ms | [stránka](https://developers.fio.cz/stats.html) · [report](https://developers.fio.cz/stats/PSD2_2026Q2.pdf) |
 | mBank | Nenalezen report | — | — | — / — | [stránka](https://developer.api.mbank.cz/reports) |
 | UniCredit Bank | OK | 2026-Q2 | 100 % | 345.29 ms / 248.6567 ms | [stránka](https://developer.unicredit.eu/report?view=kpi) |
-| Banka CREDITAS | OK | 2026-Q2 | 99.956 % | 1819.5176 ms / 936.4353 ms | [stránka](https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti) · [report](https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf) |
+| Banka CREDITAS | Zdroj blokuje automatizaci | 2026-Q2 | 99.956 % | 1819.5176 ms / 936.4353 ms | [stránka](https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti) · [report](https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf) |
 | Trinity Bank | OK | 2026-Q2 | 99.9951 % | — / — | [stránka](https://www.trinitybank.cz/otevrene-bankovnictvi/) · [report](https://www.trinitybank.cz/download/3036) |
 | Partners Banka | Nenalezen report | — | — | — / — | [stránka](https://psd2.partnersbanka.cz/) |
 | Oberbank | Nenalezen report | — | — | — / — | [stránka](https://www.oberbank.cz/xs2a-interface) |

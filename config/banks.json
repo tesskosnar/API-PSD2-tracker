@@ -34,9 +34,7 @@
     "parser": "report_links",
     "scope": "main",
     "report_pattern": "PSD2|API.*dostup|dostup.*API",
-    "seed_period": "2024-Q3",
-    "seed_availability_pct": 100.0,
-    "note": "Dokumenty jsou nacitane dynamicky; dodany sesit obsahuje denni podklad za 2024-Q3, novejsi report se nepodarilo automaticky overit."
+    "note": "Dokumenty jsou nacitane dynamicky; dodany sesit obsahuje denni podklad za 2024-Q3, ale chybi overitelny verejny report. Hodnota se proto nepublikuje jako potvrzena dostupnost."
   },
   {
     "id": "air",

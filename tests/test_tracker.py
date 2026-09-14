@@ -9,6 +9,7 @@ from xml.etree import ElementTree
 
 from psd2_tracker.tracker import (
     Observation,
+    apply_csob_workbook,
     average_active_response,
     carry_previous,
     collect_timeseries,
@@ -127,12 +128,37 @@ class TrackerTests(unittest.TestCase):
         self.assertAlmostEqual(result["availability_pct"], 90.0)
         self.assertAlmostEqual(result["aisp_response_ms"], (283.33 + 297.88) / 2)
         self.assertEqual(result["pisp_response_ms"], 1482)
+        self.assertAlmostEqual(result["aisp_error_pct"], 5.0)
+
+    def test_ppf_ignores_zero_traffic_days_for_error_rate(self):
+        text = """
+        01.03.2026 0 0% 0 0% 0 0%
+        02.03.2026 146 100% 0 0% 0 0%
+        03.03.2026 209 100% 0 0% 0 0%
+        """
+        with patch("psd2_tracker.tracker.extract_pdf_text", return_value=text):
+            result = parse_pdf_metrics(b"fake", "ppf")
+        self.assertEqual(result["aisp_error_pct"], 100)
+        self.assertIsNone(result["pisp_error_pct"])
+
+    def test_csob_xlsx_error_ratio_is_converted_to_percent(self):
+        observation = Observation(bank_id="csob", bank="ČSOB", scope="main", source_url="https://example.test")
+        rows = [{"C": "200", "D": "0.05", "F": "300", "G": "0.01"}]
+        with patch("psd2_tracker.tracker.parse_first_xlsx_sheet", return_value=rows):
+            result = apply_csob_workbook(observation, b"fake")
+        self.assertEqual(result.aisp_error_pct, 5)
+        self.assertEqual(result.pisp_error_pct, 1)
 
     def test_history_requires_a_report_link(self):
         bank = {"id": "rb", "name": "Raiffeisenbank", "scope": "main", "parser": "report_links", "source_url": "https://example.test"}
         latest = Observation(bank_id="rb", bank="Raiffeisenbank", scope="main", source_url="https://example.test", latest_period="2024-Q3", availability_pct=100)
         cached = [{"bank_id": "rb", "bank": "Raiffeisenbank", "period": "2024-Q3", "availability_pct": 100, "report_url": ""}]
         rows = collect_timeseries([bank], object(), [latest], "2026-Q2", cached)
+        self.assertEqual(rows, [])
+
+    def test_ppf_zero_traffic_cache_is_not_a_data_point(self):
+        cached = [{"bank_id": "ppf", "bank": "PPF banka", "period": "2025-Q1", "report_url": "https://example.test/report.pdf", "aisp_error_pct": "0", "pisp_error_pct": "0"}]
+        rows = collect_timeseries([], object(), [], "2026-Q2", cached)
         self.assertEqual(rows, [])
 
     def test_readme_trend_svg_escapes_names_and_breaks_missing_quarters(self):
