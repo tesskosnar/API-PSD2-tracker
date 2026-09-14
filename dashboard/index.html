@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>Dostupnost PSD2 API v Česku</title>
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=8">
 </head>
 <body>
   <header class="hero">
@@ -55,12 +55,12 @@
         </label>
       </div>
       <div id="chartLegend" class="chart-legend" aria-label="Zobrazené banky"></div>
-      <div class="chart-shell">
-        <svg id="trendChart" role="img" aria-labelledby="trendTitle chartDescription"></svg>
-        <p id="chartDescription" class="sr-only">Čárový graf zveřejněných čtvrtletních statistik bank.</p>
-        <div id="chartTooltip" class="chart-tooltip" hidden></div>
+      <p class="scroll-hint">Další čtvrtletí posuň doprava →</p>
+      <div class="chart-shell table-scroll">
+        <table id="metricGrid" class="metric-grid" aria-label="Hodnoty vybrané metriky po bankách a čtvrtletích"></table>
         <p id="chartEmpty" class="empty-state" hidden>Pro vybrané banky nejsou k této metrice data.</p>
       </div>
+      <div class="scale-key" aria-hidden="true"><span>Nižší hodnota</span><i></i><i></i><i></i><i></i><i></i><span>Vyšší hodnota</span></div>
       <p id="chartNote" class="chart-note"></p>
     </section>
 
@@ -119,6 +119,6 @@
   </footer>
 
   <script src="data.js?v=f77e3967df30"></script>
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>

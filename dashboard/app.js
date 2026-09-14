@@ -5,36 +5,34 @@
   const latest = data.latest.filter(item => item.scope === "main");
   const history = data.timeseries.filter(item => item.scope === "main");
   const periods = [...new Set(history.map(item => item.period))].sort();
-  const palette = ["#0f766e", "#c66b1a", "#3e6d8e", "#8a5d9e", "#b2433f", "#5f7a45", "#7c6352", "#376f69"];
-
   const metrics = {
     availability: {
       label: "Dostupnost API",
       unit: "%",
       value: availabilityValue,
       format: value => `${formatNumber(value, 3)} %`,
-      note: "Vyšší hodnota je lepší. Osa je přiblížená, aby byly rozdíly mezi čtvrtletími čitelné."
+      note: "Vyšší hodnota je lepší. Každá banka má vlastní řádek; prázdné políčko znamená, že údaj chybí."
     },
     aispResponse: {
       label: "Odezva AISP",
       unit: "ms",
       value: item => numberOrNull(item.aisp_response_ms),
       format: value => `${formatNumber(value, 1)} ms`,
-      note: "Nižší hodnota je lepší. Svislá osa je logaritmicky zhuštěná, aby byly vidět běžné hodnoty i extrémy."
+      note: "Nižší hodnota je lepší. Čísla jsou průměrná doba odezvy v milisekundách."
     },
     pispResponse: {
       label: "Odezva PISP",
       unit: "ms",
       value: item => numberOrNull(item.pisp_response_ms),
       format: value => `${formatNumber(value, 1)} ms`,
-      note: "Nižší hodnota je lepší. Svislá osa je logaritmicky zhuštěná; 0 ms se do průměru nezapočítává."
+      note: "Nižší hodnota je lepší. Dny bez PISP volání se do průměru odezvy nezapočítávají."
     },
     aispError: {
       label: "Chybovost AISP",
       unit: "%",
       value: item => item.metric_method?.includes("spolecna error response rate") ? null : numberOrNull(item.aisp_error_pct),
-      format: value => `${formatNumber(value, 3)} %`,
-      note: "Nižší hodnota je lepší. Svislá osa je logaritmicky zhuštěná, aby jediný extrém neschoval ostatní banky."
+      format: value => `${formatNumber(value, value > 0 && value < 0.01 ? 4 : 3)} %`,
+      note: "Nižší hodnota je lepší. Barva řadí hodnoty; přesné procento je vždy uvedené v políčku. Společná chybovost J&T se sem nemíchá."
     }
   };
 
@@ -108,19 +106,17 @@
   }
 
   function resetBankSelection() {
-    selectedBanks = new Set(bankCoverage(activeMetric).filter(([, count]) => count >= 3).slice(0, 6).map(([bank]) => bank));
-    if (!selectedBanks.size) selectedBanks = new Set(bankCoverage(activeMetric).slice(0, 6).map(([bank]) => bank));
+    selectedBanks = new Set(bankCoverage(activeMetric).map(([bank]) => bank));
   }
 
   function renderLegend() {
     const container = document.getElementById("chartLegend");
     container.replaceChildren();
-    bankCoverage(activeMetric).forEach(([bank], index) => {
+    bankCoverage(activeMetric).forEach(([bank]) => {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "legend-button";
       button.setAttribute("aria-pressed", selectedBanks.has(bank) ? "true" : "false");
-      button.style.setProperty("--series", palette[index % palette.length]);
       const swatch = document.createElement("span");
       swatch.className = "legend-swatch";
       const label = document.createElement("span");
@@ -129,118 +125,71 @@
       button.addEventListener("click", () => {
         if (selectedBanks.has(bank)) selectedBanks.delete(bank); else selectedBanks.add(bank);
         renderLegend();
-        drawChart();
+        renderGrid();
       });
       container.append(button);
     });
   }
 
-  function svgElement(name, attrs = {}) {
-    const element = document.createElementNS("http://www.w3.org/2000/svg", name);
-    Object.entries(attrs).forEach(([key, value]) => element.setAttribute(key, value));
-    return element;
-  }
-
-  function drawChart() {
-    const svg = document.getElementById("trendChart");
-    const shell = svg.parentElement;
+  function renderGrid() {
+    const table = document.getElementById("metricGrid");
     const empty = document.getElementById("chartEmpty");
-    const tooltip = document.getElementById("chartTooltip");
-    svg.replaceChildren();
-    tooltip.hidden = true;
-
     const metric = metrics[activeMetric];
-    const rows = history.filter(item => selectedBanks.has(item.bank) && metric.value(item) !== null);
     document.getElementById("chartNote").textContent = metric.note;
-    if (!rows.length) {
-      svg.hidden = true;
+
+    const banks = bankCoverage(activeMetric).map(([bank]) => bank).filter(bank => selectedBanks.has(bank));
+    if (!banks.length) {
+      table.hidden = true;
       empty.hidden = false;
       return;
     }
-    svg.hidden = false;
+    table.hidden = false;
     empty.hidden = true;
 
-    const width = Math.max(320, shell.clientWidth);
-    const height = width < 560 ? 330 : 390;
-    const margin = { top: 22, right: 22, bottom: 48, left: width < 560 ? 58 : 76 };
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
-    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    const distinctValues = [...new Set(history.map(metric.value).filter(value => value !== null))].sort((a, b) => a - b);
+    const shade = value => distinctValues.length < 2
+      ? 3
+      : 1 + Math.round(distinctValues.indexOf(value) / (distinctValues.length - 1) * 4);
 
-    const values = rows.map(metric.value);
-    let min = Math.min(...values);
-    let max = Math.max(...values);
-    let transform = value => value;
-    let ticks = [];
-    if (activeMetric === "availability") {
-      min = Math.max(0, Math.floor((min - 0.35) * 10) / 10);
-      max = Math.min(100.05, Math.max(100, max + 0.05));
-      ticks = Array.from({ length: 5 }, (_, index) => min + ((100 - min) * index) / 4);
-    } else {
-      min = 0;
-      const step = activeMetric === "aispError" ? 0.01 : 10;
-      transform = value => Math.log10(1 + Math.max(0, value) / step);
-      ticks = (activeMetric === "aispError"
-        ? [0, 0.01, 0.1, 1, 5, 10, 50, 100]
-        : [0, 10, 100, 1000, 10000, 100000]).filter(value => value <= max);
-      if (ticks.length < 2) ticks = [0, max || 1];
-      max = max === 0 ? 1 : max * 1.1;
-    }
-    const x = period => margin.left + (periods.indexOf(period) / Math.max(1, periods.length - 1)) * innerWidth;
-    const y = value => margin.top + (1 - (transform(value) - transform(min)) / (transform(max) - transform(min) || 1)) * innerHeight;
-
-    ticks.forEach(value => {
-      const yy = y(value);
-      svg.append(svgElement("line", { x1: margin.left, y1: yy, x2: width - margin.right, y2: yy, class: "chart-grid" }));
-      const label = svgElement("text", { x: margin.left - 10, y: yy + 4, "text-anchor": "end", class: "chart-axis" });
-      label.textContent = `${formatNumber(value, activeMetric === "availability" ? 1 : value < 1 ? 2 : 0)} ${metric.unit}`;
-      svg.append(label);
+    const thead = document.createElement("thead");
+    const headRow = document.createElement("tr");
+    ["Banka", ...periods.map(period => period.replace("-", " "))].forEach((label, index) => {
+      const th = document.createElement("th");
+      th.textContent = label;
+      if (index === 0) th.className = "metric-grid__bank";
+      headRow.append(th);
     });
+    thead.append(headRow);
 
-    periods.forEach((period, index) => {
-      if (width < 560 && index % 2 === 1 && index !== periods.length - 1) return;
-      const label = svgElement("text", { x: x(period), y: height - 16, "text-anchor": "middle", class: "chart-axis" });
-      label.textContent = period.replace("-", " ");
-      svg.append(label);
-    });
-
-    const coverage = bankCoverage(activeMetric).map(([bank]) => bank);
-    selectedBanks.forEach(bank => {
-      const bankRows = rows.filter(item => item.bank === bank).sort((a, b) => a.period.localeCompare(b.period));
-      const colorIndex = coverage.indexOf(bank);
-      const group = svgElement("g", { style: `--series:${palette[(colorIndex < 0 ? 0 : colorIndex) % palette.length]}` });
-      let path = "";
-      let previousPeriodIndex = -1;
-      bankRows.forEach(item => {
-        const px = x(item.period);
-        const py = y(metric.value(item));
-        const currentPeriodIndex = periods.indexOf(item.period);
-        path += `${currentPeriodIndex === previousPeriodIndex + 1 ? " L" : " M"}${px.toFixed(2)},${py.toFixed(2)}`;
-        previousPeriodIndex = currentPeriodIndex;
+    const tbody = document.createElement("tbody");
+    banks.forEach(bank => {
+      const row = document.createElement("tr");
+      const name = document.createElement("th");
+      name.scope = "row";
+      name.className = "metric-grid__bank";
+      name.textContent = bank;
+      row.append(name);
+      periods.forEach(period => {
+        const item = history.find(point => point.bank === bank && point.period === period);
+        const value = item ? metric.value(item) : null;
+        const cell = document.createElement("td");
+        cell.className = value === null ? "metric-grid__cell metric-grid__cell--empty" : `metric-grid__cell metric-grid__cell--${shade(value)}`;
+        const content = document.createElement(value !== null && item.report_url ? "a" : "span");
+        content.className = "metric-grid__value";
+        content.textContent = value === null ? "—" : metric.format(value);
+        content.title = `${bank} · ${formatPeriod(period)} · ${metric.label}: ${content.textContent}`;
+        if (content.tagName === "A") {
+          content.href = item.report_url;
+          content.target = "_blank";
+          content.rel = "noopener noreferrer";
+          content.title += " · otevřít report";
+        }
+        cell.append(content);
+        row.append(cell);
       });
-      if (bankRows.length > 1) group.append(svgElement("path", { d: path, class: "chart-line" }));
-      bankRows.forEach(item => {
-        const point = svgElement("circle", { cx: x(item.period), cy: y(metric.value(item)), r: 4.5, class: "chart-point", tabindex: "0" });
-        const show = event => {
-          const separate = activeMetric === "availability"
-            && numberOrNull(item.availability_pct) === null
-            && numberOrNull(item.aisp_availability_pct) !== null
-            && numberOrNull(item.pisp_availability_pct) !== null;
-          tooltip.innerHTML = `<strong>${bank}</strong>${formatPeriod(item.period)}<br>${metric.label}: ${metric.format(metric.value(item))}${separate ? "<br>Průměr AISP a PISP" : ""}`;
-          tooltip.hidden = false;
-          const box = shell.getBoundingClientRect();
-          const target = event.currentTarget.getBoundingClientRect();
-          tooltip.style.left = `${Math.min(box.width - 230, Math.max(6, target.left - box.left + 10))}px`;
-          tooltip.style.top = `${Math.max(5, target.top - box.top - 64)}px`;
-        };
-        point.addEventListener("mouseenter", show);
-        point.addEventListener("focus", show);
-        point.addEventListener("mouseleave", () => { tooltip.hidden = true; });
-        point.addEventListener("blur", () => { tooltip.hidden = true; });
-        group.append(point);
-      });
-      svg.append(group);
+      tbody.append(row);
     });
+    table.replaceChildren(thead, tbody);
   }
 
   function renderCoverage() {
@@ -340,7 +289,7 @@
     activeMetric = event.target.value;
     resetBankSelection();
     renderLegend();
-    drawChart();
+    renderGrid();
   });
 
   updateSummary();
@@ -348,6 +297,5 @@
   renderLatest();
   resetBankSelection();
   renderLegend();
-  drawChart();
-  new ResizeObserver(drawChart).observe(document.querySelector(".chart-shell"));
+  renderGrid();
 })();
