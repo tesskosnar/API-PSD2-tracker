@@ -34,14 +34,13 @@ a:hover { color: var(--navy); }
   background:
     radial-gradient(circle at 82% 18%, rgba(105, 205, 179, 0.24), transparent 28rem),
     linear-gradient(135deg, #09252c, var(--navy));
-  padding: 42px 24px 72px;
+  padding: 38px 24px 68px;
 }
 
 .hero__inner,
 main,
 footer { max-width: 1180px; margin: 0 auto; }
 
-.eyebrow,
 .section-kicker {
   margin: 0 0 10px;
   color: #7cd3bd;
@@ -59,13 +58,6 @@ footer { max-width: 1180px; margin: 0 auto; }
   font-weight: 500;
   letter-spacing: -0.045em;
   line-height: 0.98;
-}
-
-.hero__lede {
-  max-width: 670px;
-  margin: 17px 0 0;
-  color: #cfddda;
-  font-size: 1.1rem;
 }
 
 .hero__meta {
