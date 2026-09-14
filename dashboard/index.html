@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>Dostupnost PSD2 API v Česku</title>
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
   <header class="hero">
@@ -109,20 +109,15 @@
       <p class="chart-note">Kliknutím na barevné políčko otevřete původní report banky.</p>
     </section>
 
-    <section class="method">
-      <h2>Jak data číst</h2>
-      <p>Tracker porovnává hodnoty, které zveřejňují samotné banky. Některé uvádějí uptime, jiné pouze odezvu a chybovost. Prázdné místo proto znamená chybějící publikovaný údaj, ne nulovou dostupnost. Pokud zdroj dočasně blokuje automatickou kontrolu, poslední dříve ověřený report zůstává viditelný s varovným stavem.</p>
-      <p>Dostupnost oddělená na AISP a PISP zůstává v detailu oddělená; v grafu se pro takový bod používá jejich průměr. Průměr odezvy i chybovosti vynechává dny bez volání, pokud je banka takto publikuje. J&T uvádí jen společnou chybovost služeb. Čtvrtletí bez doloženého údaje graf nespojuje čarou.</p>
-      <div class="method__links">
-        <a href="../docs/source-audit.md">Audit zdrojů</a>
-        <a href="../data/timeseries.csv">Stáhnout časovou řadu</a>
-        <a href="https://eur-lex.europa.eu/legal-content/CS/TXT/?uri=CELEX:32018R0389">Regulatorní základ</a>
-      </div>
-    </section>
   </main>
 
   <footer>
     <p>PSD2 API tracker · data z oficiálních stránek bank</p>
+    <nav class="footer-links" aria-label="Další zdroje">
+      <a href="../docs/source-audit.md">Audit zdrojů</a>
+      <a href="../data/timeseries.csv">Stáhnout časovou řadu</a>
+      <a href="https://eur-lex.europa.eu/legal-content/CS/TXT/?uri=CELEX:32018R0389">Regulatorní základ</a>
+    </nav>
   </footer>
 
   <script src="data.js?v=f77e3967df30"></script>
