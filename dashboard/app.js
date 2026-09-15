@@ -33,11 +33,19 @@
       value: item => item.metric_method?.includes("spolecna error response rate") ? null : numberOrNull(item.aisp_error_pct),
       format: value => `${formatNumber(value, value > 0 && value < 0.01 ? 4 : 3)} %`,
       note: "Nižší hodnota je lepší. Barva řadí hodnoty; přesné procento je vždy uvedené v políčku. Společná chybovost J&T se sem nemíchá."
+    },
+    pispError: {
+      label: "Chybovost PISP",
+      unit: "%",
+      value: item => item.metric_method?.includes("spolecna error response rate") ? null : numberOrNull(item.pisp_error_pct),
+      format: value => `${formatNumber(value, value > 0 && value < 0.01 ? 4 : 3)} %`,
+      note: "Nižší hodnota je lepší. Barva řadí hodnoty; přesné procento je vždy uvedené v políčku. Společná chybovost J&T se sem nemíchá."
     }
   };
 
   let activeMetric = "availability";
   let selectedBanks = new Set();
+  let latestSort = { key: null, direction: "asc" };
 
   function numberOrNull(value) {
     if (value === "" || value === null || value === undefined) return null;
@@ -203,7 +211,7 @@
     });
     thead.append(headRow);
     const tbody = document.createElement("tbody");
-    latest.forEach(bank => {
+    [...latest].sort((a, b) => a.bank.localeCompare(b.bank, "cs")).forEach(bank => {
       const tr = document.createElement("tr");
       const name = document.createElement("td");
       name.textContent = bank.bank;
@@ -251,7 +259,26 @@
       });
       return cell;
     };
-    latest.forEach(item => {
+    const sortValue = (item, key) => {
+      const fields = key === "response"
+        ? [item.aisp_response_ms, item.pisp_response_ms]
+        : [item.aisp_error_pct, item.pisp_error_pct];
+      const values = fields.map(numberOrNull).filter(value => value !== null);
+      return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+    };
+    const rows = [...latest];
+    if (latestSort.key) {
+      rows.sort((a, b) => {
+        const aValue = sortValue(a, latestSort.key);
+        const bValue = sortValue(b, latestSort.key);
+        if (aValue === null && bValue === null) return a.bank.localeCompare(b.bank, "cs");
+        if (aValue === null) return 1;
+        if (bValue === null) return -1;
+        const difference = latestSort.direction === "asc" ? aValue - bValue : bValue - aValue;
+        return difference || a.bank.localeCompare(b.bank, "cs");
+      });
+    }
+    rows.forEach(item => {
       const tr = document.createElement("tr");
       const source = item.report_url || item.source_url;
       const cells = [
@@ -285,11 +312,38 @@
     });
   }
 
-  document.getElementById("metricSelect").addEventListener("change", event => {
-    activeMetric = event.target.value;
+  document.getElementById("metricTabs").addEventListener("click", event => {
+    const button = event.target.closest("button[data-metric]");
+    if (!button || button.dataset.metric === activeMetric) return;
+    activeMetric = button.dataset.metric;
+    document.querySelectorAll("#metricTabs button[data-metric]").forEach(item => {
+      const isActive = item === button;
+      item.classList.toggle("active", isActive);
+      item.setAttribute("aria-pressed", String(isActive));
+    });
     resetBankSelection();
     renderLegend();
     renderGrid();
+  });
+
+  document.querySelectorAll("button[data-sort]").forEach(button => {
+    button.addEventListener("click", () => {
+      const key = button.dataset.sort;
+      latestSort = latestSort.key === key
+        ? { key, direction: latestSort.direction === "asc" ? "desc" : "asc" }
+        : { key, direction: "asc" };
+      document.querySelectorAll("button[data-sort]").forEach(item => {
+        const isActive = item.dataset.sort === latestSort.key;
+        item.classList.toggle("active", isActive);
+        item.querySelector(".sort-arrow").textContent = isActive
+          ? (latestSort.direction === "asc" ? "↑" : "↓")
+          : "↕";
+        item.closest("th").setAttribute("aria-sort", isActive
+          ? (latestSort.direction === "asc" ? "ascending" : "descending")
+          : "none");
+      });
+      renderLatest();
+    });
   });
 
   updateSummary();

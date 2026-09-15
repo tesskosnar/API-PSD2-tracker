@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light">
   <title>Dostupnost PSD2 API v Česku</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d2f37'/%3E%3Cpath d='M18 18h18c8 0 13 5 13 12s-5 12-13 12H27v8h-9V18zm9 8v8h8c3 0 5-1 5-4s-2-4-5-4h-8z' fill='%237cd3bd'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="styles.css?v=9">
 </head>
 <body>
   <header class="hero">
@@ -45,15 +45,16 @@
           <p class="section-kicker">Vývoj v čase</p>
           <h2 id="trendTitle">Čtvrtletní srovnání</h2>
         </div>
-        <label class="metric-control">
-          <span>Metrika</span>
-          <select id="metricSelect">
-            <option value="availability">Dostupnost API</option>
-            <option value="aispResponse">Odezva AISP</option>
-            <option value="pispResponse">Odezva PISP</option>
-            <option value="aispError">Chybovost AISP</option>
-          </select>
-        </label>
+        <div class="metric-filter">
+          <span class="metric-filter__label">Metrika</span>
+          <div id="metricTabs" class="metric-seg" role="group" aria-label="Vybrat metriku vývoje">
+            <button type="button" class="metric-button active" data-metric="availability" aria-pressed="true">Dostupnost</button>
+            <button type="button" class="metric-button" data-metric="aispResponse" aria-pressed="false">Odezva AISP</button>
+            <button type="button" class="metric-button" data-metric="pispResponse" aria-pressed="false">Odezva PISP</button>
+            <button type="button" class="metric-button" data-metric="aispError" aria-pressed="false">Chybovost AISP</button>
+            <button type="button" class="metric-button" data-metric="pispError" aria-pressed="false">Chybovost PISP</button>
+          </div>
+        </div>
       </div>
       <div id="chartLegend" class="chart-legend" aria-label="Zobrazené banky"></div>
       <p class="scroll-hint">Další čtvrtletí posuň doprava →</p>
@@ -80,8 +81,16 @@
               <th>Stav</th>
               <th>Období</th>
               <th>Dostupnost</th>
-              <th>Odezva <small>AISP / PISP</small></th>
-              <th>Chybovost <small>AISP / PISP</small></th>
+              <th id="responseSortHeader" aria-sort="none">
+                <button type="button" class="sort-button" data-sort="response">
+                  Odezva <small>AISP / PISP</small><span class="sort-arrow" aria-hidden="true">↕</span>
+                </button>
+              </th>
+              <th id="errorSortHeader" aria-sort="none">
+                <button type="button" class="sort-button" data-sort="error">
+                  Chybovost <small>AISP / PISP</small><span class="sort-arrow" aria-hidden="true">↕</span>
+                </button>
+              </th>
               <th>Zdroj</th>
             </tr>
           </thead>
@@ -93,8 +102,8 @@
     <section class="panel" aria-labelledby="coverageTitle">
       <div class="section-heading">
         <div>
-          <p class="section-kicker">Úplnost zdrojů</p>
-          <h2 id="coverageTitle">Kde banky data skutečně publikují</h2>
+          <p class="section-kicker">Úplnost reportů</p>
+          <h2 id="coverageTitle">Přehled publikovaných reportů</h2>
         </div>
         <div class="coverage-key" aria-label="Legenda pokrytí">
           <span><i class="coverage-dot coverage-dot--full"></i>Dostupnost</span>
@@ -120,6 +129,6 @@
   </footer>
 
   <script src="data.js?v=df5b32333135"></script>
-  <script src="app.js?v=8"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>
