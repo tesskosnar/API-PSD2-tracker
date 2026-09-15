@@ -1,5 +1,5 @@
 window.PSD2_DATA = {
-  "checked_on": "2026-09-14",
+  "checked_on": "2026-09-15",
   "expected_period": "2026-Q2",
   "latest": [
     {
@@ -100,16 +100,16 @@ window.PSD2_DATA = {
     {
       "aisp_availability_pct": "",
       "aisp_error_pct": 0.1733,
-      "aisp_response_ms": 498.8556,
+      "aisp_response_ms": 498.7889,
       "availability_pct": "",
       "bank": "MONETA Money Bank",
       "bank_id": "moneta",
-      "latest_period": "rolling-90d-to-2026-09-13",
+      "latest_period": "rolling-90d-to-2026-09-14",
       "metric_method": "prumer dennich hodnot v klouzavem 90dennim okne; uptime chybi",
       "note": "Banka publikuje klouzavych 90 dni odezvy a chybovosti, nikoli dostupnost/uptime.",
       "pisp_availability_pct": "",
       "pisp_error_pct": 0.0089,
-      "pisp_response_ms": 149.9556,
+      "pisp_response_ms": 149.6556,
       "report_url": "https://www.moneta.cz/otevrene-bankovnictvi",
       "scope": "main",
       "source_state": "ok",
