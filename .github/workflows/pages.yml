@@ -1,0 +1,53 @@
+name: Publikace dashboardu na GitHub Pages
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Aktualizace PSD2 trackeru"]
+    types: [completed]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Stažení aktuálního repozitáře
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Sestavení veřejného dashboardu
+        run: |
+          mkdir -p _site
+          cp dashboard/index.html dashboard/app.js dashboard/data.js dashboard/styles.css _site/
+          cp data/timeseries.csv _site/timeseries.csv
+          cp docs/source-audit.md _site/source-audit.md
+          sed -i.bak \
+            -e 's#../docs/source-audit.md#source-audit.md#' \
+            -e 's#../data/timeseries.csv#timeseries.csv#' \
+            _site/index.html
+          rm _site/index.html.bak
+
+      - name: Nastavení GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Nahrání dashboardu
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Zveřejnění dashboardu
+        id: deployment
+        uses: actions/deploy-pages@v4

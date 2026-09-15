@@ -8,7 +8,11 @@ Kontrola běží každé úterý pomocí GitHub Actions a také ručně přes `A
 
 ![Čtvrtletní vývoj dostupnosti PSD2 API podle zveřejněných reportů bank](docs/trend.svg)
 
-Graf se při týdenní aktualizaci obnovuje automaticky. Zobrazuje jen banky s doloženými reporty; chybějící čtvrtletí nepřemosťuje. Podrobnější interaktivní přehled, přepínání metrik, pokrytí zdroji a odkazy na jednotlivé reporty je v `dashboard/index.html`. Protože repozitář zůstává **soukromý**, po jeho stažení stačí tento soubor otevřít v prohlížeči; žádná veřejná stránka se nezřizuje.
+Graf se při týdenní aktualizaci obnovuje automaticky. Zobrazuje jen banky s doloženými reporty; chybějící čtvrtletí nepřemosťuje. Podrobnější interaktivní přehled, přepínání metrik, pokrytí zdroji a odkazy na jednotlivé reporty je připravený pro GitHub Pages na adrese `https://tesskosnar.github.io/API-PSD2-tracker/`.
+
+GitHub Pages je nutné jednou povolit v `Settings → Pages → Source: GitHub Actions`. Publikace se potom obnoví po každém úspěšném běhu týdenního trackeru a lze ji spustit také ručně v `Actions → Publikace dashboardu na GitHub Pages`.
+
+> **Soukromí:** GitHub Pages je veřejně dostupný web i tehdy, když zdrojový repozitář zůstane soukromý. Zapnutí Pages proto znamená zveřejnění dashboardu a dat, která zobrazuje.
 
 <!-- TRACKER:START -->
 Očekávané poslední zveřejněné období: **2026-Q2** (po 45denní lhůtě na publikaci).
@@ -57,7 +61,7 @@ Pokud banka zveřejňuje AISP a PISP dostupnost odděleně, křivka v přehledov
 - `data/history.csv` — nový záznam se přidá pouze při věcné změně hodnot nebo stavu.
 - `data/timeseries.csv` a `data/timeseries.json` — doložené reporty za posledních osm čtvrtletí.
 - `docs/trend.svg` — automaticky obnovovaný graf pro hlavní stránku GitHubu.
-- `dashboard/index.html` — interaktivní přehled fungující i bez serveru po stažení repozitáře.
+- `dashboard/index.html` — interaktivní přehled publikovaný přes GitHub Pages.
 - `docs/source-audit.md` — audit adres z původního sešitu a nalezené mezery v rozsahu.
 - `config/banks.json` — zdroje, parser a poznámky pro jednotlivé banky.
 
