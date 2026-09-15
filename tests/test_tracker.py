@@ -20,6 +20,7 @@ from psd2_tracker.tracker import (
     parse_first_xlsx_sheet,
     parse_quarter,
     previous_quarter,
+    quarter_range,
     recent_quarters,
     write_trend_svg,
 )
@@ -84,6 +85,7 @@ class TrackerTests(unittest.TestCase):
         self.assertEqual(previous_quarter("2026-Q1"), "2025-Q4")
         self.assertEqual(previous_quarter("2026-Q2", 2), "2025-Q4")
         self.assertEqual(recent_quarters("2026-Q2", 4), ["2025-Q3", "2025-Q4", "2026-Q1", "2026-Q2"])
+        self.assertEqual(quarter_range("2019-Q3", "2020-Q2"), ["2019-Q3", "2019-Q4", "2020-Q1", "2020-Q2"])
 
     def test_zero_response_is_not_instant_api_call(self):
         self.assertEqual(average_active_response([0, 100, 200]), 150)
@@ -113,10 +115,25 @@ class TrackerTests(unittest.TestCase):
 
         0,00 100,00 0,19
         02.04.2026 194,00 683,00 1,00 99,00 0,36
+        03.04.2026 728,00 0,00 100,00 0,00
         """
         with patch("psd2_tracker.tracker.extract_pdf_text", return_value=text):
             result = parse_pdf_metrics(b"fake", "creditas")
-        self.assertAlmostEqual(result["availability_pct"], 99.5)
+        self.assertAlmostEqual(result["availability_pct"], (100 + 99 + 100) / 3)
+        self.assertAlmostEqual(result["aisp_response_ms"], 194)
+        self.assertAlmostEqual(result["pisp_response_ms"], (685 + 683 + 728) / 3)
+
+    def test_creditas_legacy_pdf_layout(self):
+        text = """
+        01.07.2019 645 653 96% 3,740% 0,09%
+        02.07.2019 1 816 347 100% 0,41%
+        03.07.2019 81 569 98% 2,00% 0,02%
+        """
+        with patch("psd2_tracker.tracker.extract_pdf_text", return_value=text):
+            result = parse_pdf_metrics(b"fake", "creditas")
+        self.assertAlmostEqual(result["availability_pct"], 98)
+        self.assertAlmostEqual(result["aisp_response_ms"], (645 + 1816 + 81) / 3)
+        self.assertAlmostEqual(result["pisp_response_ms"], (653 + 347 + 569) / 3)
 
     def test_jt_pdf_layout_reads_uptime_from_tail(self):
         text = """
@@ -156,10 +173,12 @@ class TrackerTests(unittest.TestCase):
         rows = collect_timeseries([bank], object(), [latest], "2026-Q2", cached)
         self.assertEqual(rows, [])
 
-    def test_ppf_zero_traffic_cache_is_not_a_data_point(self):
+    def test_public_report_is_kept_even_without_measurable_traffic(self):
         cached = [{"bank_id": "ppf", "bank": "PPF banka", "period": "2025-Q1", "report_url": "https://example.test/report.pdf", "aisp_error_pct": "0", "pisp_error_pct": "0"}]
-        rows = collect_timeseries([], object(), [], "2026-Q2", cached)
-        self.assertEqual(rows, [])
+        bank = {"id": "ppf", "name": "PPF banka", "scope": "main", "parser": "report_links", "source_url": "https://example.test", "history_start_period": "2024-Q1"}
+        rows = collect_timeseries([bank], object(), [], "2026-Q2", cached)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["report_url"], "https://example.test/report.pdf")
 
     def test_readme_trend_svg_escapes_names_and_breaks_missing_quarters(self):
         rows = [

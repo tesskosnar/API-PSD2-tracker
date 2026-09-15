@@ -104,6 +104,15 @@ MONTHS = {
     "DECEMBER": 12,
 }
 
+CREDITAS_REPORT_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+        "Chrome/140.0 Safari/537.36"
+    ),
+    "Referer": "https://www.creditas.cz/povinne-uverejnovane-informace",
+    "Accept": "application/pdf,*/*;q=0.8",
+}
+
 
 class FetchError(RuntimeError):
     def __init__(self, url: str, message: str, status: int | None = None):
@@ -270,6 +279,20 @@ def previous_quarter(period: str, steps: int = 1) -> str:
 
 def recent_quarters(latest_period: str, count: int = 8) -> list[str]:
     return [previous_quarter(latest_period, step) for step in reversed(range(count))]
+
+
+def quarter_range(first_period: str, last_period: str) -> list[str]:
+    """Vratí všechna čtvrtletí včetně hranic, chronologicky."""
+    first_rank = quarter_rank(first_period)
+    last_rank = quarter_rank(last_period)
+    if first_rank < 0 or last_rank < 0 or first_rank > last_rank:
+        raise ValueError(f"Neplatny rozsah ctvrtleti: {first_period}..{last_period}")
+    periods: list[str] = []
+    for rank in range(first_rank, last_rank + 1):
+        year = (rank - 1) // 4
+        quarter = (rank - 1) % 4 + 1
+        periods.append(f"{year}-Q{quarter}")
+    return periods
 
 
 def expected_report_period(today: date | None = None, grace_days: int = 45) -> str:
@@ -588,11 +611,54 @@ def parse_pdf_metrics(content: bytes, layout: str) -> dict[str, float | str | No
             if len(responses) >= 2:
                 aisp_responses.append(responses[0])
                 pisp_responses.append(responses[1])
+            elif len(responses) == 1:
+                # CREDITAS nechává AISP prázdné ve dnech bez AISP volání,
+                # zatímco PISP zůstá vyplněné. Jediná odezva je proto PISP.
+                pisp_responses.append(responses[0])
+        if not uptimes:
+            # Reporty 2019–2020 používají celá čísla odezvy a znak %.
+            # Počet odezev se liší podle toho, zda daný den proběhlo
+            # AISP, PISP a CISP volání; první dvě pozice jsou AISP/PISP.
+            legacy_row = re.compile(
+                rf"^{date_prefix}\s+(?P<responses>.*?)\s+(?P<uptime>[\d,.]+)%"
+            )
+            integer_token = re.compile(r"\d+")
+            for line in lines:
+                match = legacy_row.match(line)
+                if not match:
+                    continue
+                uptime = parse_number(match.group("uptime"))
+                tokens = integer_token.findall(match.group("responses"))
+                responses: list[float | None] = []
+                token_index = 0
+                while token_index < len(tokens):
+                    token = tokens[token_index]
+                    if (
+                        len(token) <= 2
+                        and token_index + 1 < len(tokens)
+                        and len(tokens[token_index + 1]) == 3
+                        and (len(tokens) - token_index >= 3 or responses)
+                    ):
+                        token = f"{token}{tokens[token_index + 1]}"
+                        token_index += 1
+                    responses.append(parse_number(token))
+                    token_index += 1
+                clean_responses = [value for value in responses if value is not None]
+                if uptime is not None:
+                    uptimes.append(uptime)
+                if clean_responses:
+                    aisp_responses.append(clean_responses[0])
+                if len(clean_responses) >= 2:
+                    pisp_responses.append(clean_responses[1])
         if uptimes:
             result["availability_pct"] = fmean(uptimes)
             result["aisp_response_ms"] = average_active_response(aisp_responses)
             result["pisp_response_ms"] = average_active_response(pisp_responses)
-            result["metric_method"] = "aritmeticky prumer dennich uptime hodnot"
+            result["metric_method"] = (
+                "aritmeticky prumer dennich uptime hodnot"
+                if value_pattern.search(text)
+                else "aritmeticky prumer dennich uptime hodnot; starsi PDF format"
+            )
         return result
 
     if layout == "ppf":
@@ -844,7 +910,7 @@ def parse_creditas(bank: dict[str, Any], fetcher: Fetcher, today: date) -> Obser
             f"statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-{quarter}q-{year}.pdf"
         )
         try:
-            response = fetcher.get(report_url, headers={"Accept": "application/pdf,*/*;q=0.8"})
+            response = fetcher.get(report_url, headers=CREDITAS_REPORT_HEADERS)
         except FetchError as exc:
             if exc.status == 404:
                 continue
@@ -1000,7 +1066,10 @@ def parse_pdf_observation(
     observation = base_observation(bank)
     observation.latest_period = period
     observation.report_url = report_url
-    report = fetcher.get(report_url, headers={"Accept": "application/pdf,*/*;q=0.8"})
+    headers = CREDITAS_REPORT_HEADERS if bank.get("id") == "creditas" else {
+        "Accept": "application/pdf,*/*;q=0.8"
+    }
+    report = fetcher.get(report_url, headers=headers)
     if not report.content.startswith(b"%PDF"):
         raise ValueError("odkaz nevratil PDF")
     metrics = parse_pdf_metrics(report.content, bank["pdf_layout"])
@@ -1026,8 +1095,18 @@ def collect_pdf_history(
         seen.add(period)
         try:
             observations.append(parse_pdf_observation(bank, period, report_url, fetcher))
-        except (FetchError, ValueError):
-            continue
+        except (FetchError, ValueError) as exc:
+            # Odkaz na report z oficiálního archivu je sám o sobě důležitý.
+            # Zachováme jej i tehdy, když se změnil formát PDF nebo je jeho
+            # stažení dočasně blokované; v tabulce tak nevznikne falešná mezera.
+            observation = base_observation(bank)
+            observation.latest_period = period
+            observation.report_url = report_url
+            observation.status = "partial"
+            observation.source_state = "report-error"
+            observation.metric_method = "verejny report nalezen; metriky se nepodarilo zpracovat"
+            observation.note = f"{observation.note} Historicky report se nepodarilo zpracovat: {exc}".strip()
+            observations.append(observation)
     return observations
 
 
@@ -1053,9 +1132,16 @@ def collect_csob_history(
             observation = base_observation(bank)
             observation.latest_period = period
             observation.report_url = report_url
-            apply_csob_workbook(observation, report.content)
-            observations.append(finalize_status(observation, period))
-        except (FetchError, ValueError, KeyError, zipfile.BadZipFile):
+            try:
+                apply_csob_workbook(observation, report.content)
+                observations.append(finalize_status(observation, period))
+            except (ValueError, KeyError, zipfile.BadZipFile) as exc:
+                observation.status = "partial"
+                observation.source_state = "report-error"
+                observation.metric_method = "verejny report nalezen; metriky se nepodarilo zpracovat"
+                observation.note = f"{observation.note} Historicky XLSX se nepodarilo zpracovat: {exc}".strip()
+                observations.append(observation)
+        except FetchError:
             continue
     return observations
 
@@ -1064,17 +1150,59 @@ def collect_creditas_history(
     bank: dict[str, Any], fetcher: Fetcher, periods: set[str]
 ) -> list[Observation]:
     observations: list[Observation] = []
+    verified_through = quarter_rank(str(bank.get("history_verified_through", "")))
+    discovered: dict[str, str] = {}
+    try:
+        page = fetcher.get(bank["source_url"])
+        candidates = find_report_candidates(
+            page.text,
+            page.url,
+            bank.get(
+                "history_report_pattern",
+                r"Statistick[eé].*dostupnosti|[1-4]Q\s*20[0-9]{2}|monitoring-mch",
+            ),
+        )
+        discovered = {period: report_url for _, period, report_url, _ in candidates}
+    except FetchError:
+        pass
+    overrides = bank.get("history_url_overrides", {})
     for period in sorted(periods, key=quarter_rank):
         year = period[:4]
         quarter = period[-1]
-        report_url = (
-            "https://www.creditas.cz/files/"
-            f"statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-{quarter}q-{year}.pdf"
+        report_url = str(
+            discovered.get(period)
+            or overrides.get(period)
+            or (
+                "https://www.creditas.cz/files/"
+                f"statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-{quarter}q-{year}.pdf"
+            )
         )
         try:
             observations.append(parse_pdf_observation(bank, period, report_url, fetcher))
-        except (FetchError, ValueError):
-            continue
+        except FetchError as exc:
+            known_public = (
+                period in discovered
+                or period in overrides
+                or quarter_rank(period) <= verified_through
+            )
+            if not known_public:
+                continue
+            observation = base_observation(bank)
+            observation.latest_period = period
+            observation.report_url = report_url
+            observation.status = "partial"
+            observation.source_state = "report-error"
+            observation.metric_method = "verejny report overen v archivu; automaticke stazeni je blokovane"
+            observations.append(observation)
+        except ValueError as exc:
+            observation = base_observation(bank)
+            observation.latest_period = period
+            observation.report_url = report_url
+            observation.status = "partial"
+            observation.source_state = "report-error"
+            observation.metric_method = "verejny report nalezen; metriky se nepodarilo zpracovat"
+            observation.note = f"{observation.note} Historicky report se nepodarilo zpracovat: {exc}".strip()
+            observations.append(observation)
     return observations
 
 
@@ -1095,19 +1223,26 @@ def collect_timeseries(
     existing_rows: list[dict[str, Any]] | None = None,
     refresh: bool = False,
 ) -> list[dict[str, Any]]:
-    period_list = recent_quarters(expected_period, 8)
-    periods = set(period_list)
+    starts = [
+        str(bank["history_start_period"])
+        for bank in banks
+        if bank.get("scope", "main") == "main"
+        and quarter_rank(str(bank.get("history_start_period", ""))) >= 0
+    ]
+    first_period = min(starts, key=quarter_rank) if starts else expected_period
+    periods = set(quarter_range(first_period, expected_period))
+    periods_by_bank = {
+        bank["id"]: set(
+            quarter_range(str(bank.get("history_start_period", first_period)), expected_period)
+        )
+        for bank in banks
+        if bank.get("scope", "main") == "main"
+    }
     rows: dict[tuple[str, str], dict[str, Any]] = {}
     for row in existing_rows or []:
         period = str(row.get("period", ""))
         bank_id = str(row.get("bank_id", ""))
-        if bank_id == "ppf" and all(
-            parse_number(row.get(field)) in {None, 0.0}
-            for field in ("aisp_response_ms", "pisp_response_ms", "aisp_error_pct", "pisp_error_pct")
-        ):
-            # Stare radky s nulovym provozem nejsou merena chybovost.
-            continue
-        if period in periods and bank_id and row.get("report_url"):
+        if period in periods_by_bank.get(bank_id, periods) and bank_id and row.get("report_url"):
             rows[(bank_id, period)] = {
                 field: row.get(field, "") for field in TIMESERIES_FIELDS
             }
@@ -1115,8 +1250,9 @@ def collect_timeseries(
     for bank in banks:
         if bank.get("scope", "main") != "main":
             continue
-        wanted = periods if refresh else {
-            period for period in periods if (bank["id"], period) not in rows
+        bank_periods = periods_by_bank.get(bank["id"], periods)
+        wanted = bank_periods if refresh else {
+            period for period in bank_periods if (bank["id"], period) not in rows
         }
         if not wanted:
             continue
@@ -1138,7 +1274,7 @@ def collect_timeseries(
             else:
                 observations = []
             for observation in observations:
-                if has_reported_metrics(observation):
+                if observation.report_url:
                     row = timeseries_row(observation)
                     rows[(observation.bank_id, observation.latest_period)] = row
         except Exception as exc:  # Historicky archiv nesmi zablokovat aktualni prehled.
@@ -1146,9 +1282,8 @@ def collect_timeseries(
 
     for observation in latest:
         if (
-            observation.latest_period in periods
+            observation.latest_period in periods_by_bank.get(observation.bank_id, periods)
             and observation.report_url
-            and has_reported_metrics(observation)
             and observation.source_state in {"ok", "ok-direct-pdf"}
         ):
             row = timeseries_row(observation)

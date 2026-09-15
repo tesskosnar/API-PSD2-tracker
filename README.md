@@ -17,7 +17,7 @@ GitHub Pages je nutné jednou povolit v `Settings → Pages → Source: GitHub A
 <!-- TRACKER:START -->
 Očekávané poslední zveřejněné období: **2026-Q2** (po 45denní lhůtě na publikaci).
 
-Souhrn hlavního seznamu: **7 s aktuální dostupností**, **2 s částečnými daty**, **1 zastaralé**, **4 bez nalezeného reportu**, **1 blokováno**.
+Souhrn hlavního seznamu: **8 s aktuální dostupností**, **2 s částečnými daty**, **1 zastaralé**, **4 bez nalezeného reportu**, **0 blokováno**.
 
 | Banka | Stav | Poslední období | Dostupnost | Odezva AISP / PISP | Zdroj |
 |---|---|---:|---:|---:|---|
@@ -30,7 +30,7 @@ Souhrn hlavního seznamu: **7 s aktuální dostupností**, **2 s částečnými 
 | Fio banka | OK | 2026-Q2 | 99.9809 % | 22.7143 ms / 16 ms | [stránka](https://developers.fio.cz/stats.html) · [report](https://developers.fio.cz/stats/PSD2_2026Q2.pdf) |
 | mBank | Nenalezen report | — | — | — / — | [stránka](https://developer.api.mbank.cz/reports) |
 | UniCredit Bank | OK | 2026-Q2 | 100 % | 345.29 ms / 248.6567 ms | [stránka](https://developer.unicredit.eu/report?view=kpi) |
-| Banka CREDITAS | Zdroj blokuje automatizaci | 2026-Q2 | 99.956 % | 1819.5176 ms / 936.4353 ms | [stránka](https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti) · [report](https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf) |
+| Banka CREDITAS | OK | 2026-Q2 | 99.956 % | 1819.5176 ms / 938.0659 ms | [stránka](https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti) · [report](https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf) |
 | Trinity Bank | OK | 2026-Q2 | 99.9951 % | — / — | [stránka](https://www.trinitybank.cz/otevrene-bankovnictvi/) · [report](https://www.trinitybank.cz/download/3036) |
 | Partners Banka | Nenalezen report | — | — | — / — | [stránka](https://psd2.partnersbanka.cz/) |
 | Oberbank | Nenalezen report | — | — | — / — | [stránka](https://www.oberbank.cz/xs2a-interface) |
@@ -59,10 +59,11 @@ Pokud banka zveřejňuje AISP a PISP dostupnost odděleně, křivka v přehledov
 
 - `data/latest.csv` a `data/latest.json` — poslední stav všech bank.
 - `data/history.csv` — nový záznam se přidá pouze při věcné změně hodnot nebo stavu.
-- `data/timeseries.csv` a `data/timeseries.json` — doložené reporty za posledních osm čtvrtletí.
+- `data/timeseries.csv` a `data/timeseries.json` — všechny zpětně dohledané veřejné reporty a online čtvrtletní zdroje.
 - `docs/trend.svg` — automaticky obnovovaný graf pro hlavní stránku GitHubu.
 - `dashboard/index.html` — interaktivní přehled publikovaný přes GitHub Pages.
 - `docs/source-audit.md` — audit adres z původního sešitu a nalezené mezery v rozsahu.
+- `docs/original-data-comparison.md` — přesný seznam změn a metodických rozdílů proti dodanému Excelu.
 - `config/banks.json` — zdroje, parser a poznámky pro jednotlivé banky.
 
 ## Místní spuštění

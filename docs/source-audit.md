@@ -1,6 +1,6 @@
 # Audit zdrojů PSD2 statistik
 
-Původní seznam je ze sešitu dodaného k 9. září 2026. První audit proběhl 11. září; znovu ověřeno 14. září 2026 automatickým sběrem a u sporných adres kontrolou oficiálních webů bank. Hodnocení rozlišuje dostupnost **publikovaného reportu** od dostupnosti samotného PSD2 API.
+Původní seznam je ze sešitu dodaného k 9. září 2026. První audit proběhl 11. září; znovu ověřeno 15. září 2026 automatickým sběrem a u sporných adres kontrolou oficiálních webů bank. Hodnocení rozlišuje dostupnost **publikovaného reportu** od dostupnosti samotného PSD2 API.
 
 | Banka | Výsledek ověření | Nejdůležitější zjištění |
 |---|---|---|
@@ -37,7 +37,28 @@ Všech 15 původních bankovních stránek zůstává v trackeru na stejné adre
 | [J&T Banka](https://www.jtbank.cz/informacni-povinnost) | Původní sešit násobil denní „Error response rate“ stem. | [PDF 2026-Q2](https://assets-eu-01.kc-usercontent.com/23883f12-8a12-01af-3f05-426faedce691/69bbf441-3b3b-4519-998b-10ec11b07591/Q2-2026_psd2_unavailability.pdf) uvádí míru chyb společně pro všechny služby bez znaku `%`. | Tracker opravuje převod podílu na procenta a v tabulce hodnotu označuje jako společnou; graf AISP ji nemíchá se samostatnými AISP mírami. |
 | [Banka CREDITAS](https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf) | Původní sešit sloupec „poměr výpadků“ uváděl v souhrnu jako chybovost. | PDF jej označuje jako poměr výpadků, ne jako podíl chybných API odpovědí. | Chybovost zůstává v trackeru prázdná; odlišné metriky se nemíchají. |
 
-U ostatních bank se mezi sběry 13. a 14. září nezměnil odkaz na report ani poslední doložené čtvrtletí. Čtvrtletní dostupnost za 2026-Q2 lze stále doložit pro osm bank (u CREDITAS se automatické čtení někdy zablokuje, poslední ověřený report se zachová s varováním). Po odstranění čtyř období PPF s nulovým provozem a bez měřitelné odezvy či chybovosti obsahuje historická řada 55 bankovních čtvrtletí s použitelným údajem a odkazem na zdroj. Úplné pokrytí všech bank netvrdíme: prázdné místo znamená nedoloženou či metodicky neporovnatelnou hodnotu.
+U ostatních bank se mezi sběry 13. a 14. září nezměnil odkaz na report ani poslední doložené čtvrtletí. Čtvrtletní dostupnost za 2026-Q2 lze stále doložit pro osm bank. Úplné pokrytí všech bank netvrdíme: prázdné místo znamená nedoloženou či metodicky neporovnatelnou hodnotu.
+
+## Veřejné reporty dohledané zpětně
+
+Kontrola 15. září 2026 prošla celé archivy na oficiálních stránkách, ne jen posledních osm čtvrtletí. Dataset nyní obsahuje 142 archivních PDF/XLSX a dvě aktuální období z veřejných online portálů, celkem 144 doložených bankovních období.
+
+| Banka | Počet | Veřejný rozsah | Poznámka |
+|---|---:|---|---|
+| Air Bank | 30 | 2019-Q1–2026-Q2 | Souvislý archiv PDF. |
+| Banka CREDITAS | 28 | 2019-Q3–2026-Q2 | Souvislý archiv PDF; 2023-Q2 má odlišně pojmenovaný soubor. |
+| Fio banka | 28 | 2019-Q3–2026-Q2 | Souvislý archiv PDF. |
+| ČSOB | 22 | 2021-Q1–2026-Q2 | Souvislý archiv XLSX, bez uptime. |
+| J&T Banka | 14 | 2019-Q2–2026-Q2 | Veřejný archiv má mezi roky mezery; tracker je nedoplňuje odhadem. |
+| PPF banka | 9 | 2024-Q1–2026-Q1 | Souvislý archiv PDF, bez uptime. |
+| Komerční banka | 8 | 2024-Q3–2026-Q2 | Tolik dokumentů dnes uvádí oficiální stránka. |
+| Trinity Bank | 3 | 2025-Q4–2026-Q2 | Tolik API reportů dnes uvádí oficiální stránka. |
+| Česká spořitelna | 1 | 2026-Q2 | Veřejný portál poskytuje poslední čtvrtletí, ne archiv dokumentů. |
+| UniCredit Bank | 1 | 2026-Q2 | Veřejný portál aktuálně vrací tři měsíce posledního čtvrtletí. |
+
+Čtvrtletní report nebyl doložen pro Raiffeisenbank, mBank, Partners Banku a Oberbank. MONETA publikuje jen pohyblivé 90denní okno, proto se nevydává za čtvrtletní archiv. V dashboardu se nově zobrazí všech 15 bank; banka bez hodnoty pro vybranou metriku zůstane viditelná s prázdnými poli.
+
+Podrobné porovnání hodnot s dodaným Excelem je v [`original-data-comparison.md`](original-data-comparison.md).
 
 ## Opravené nebo sporné body
 

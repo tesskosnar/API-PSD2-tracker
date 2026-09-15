@@ -179,15 +179,15 @@
     "bank_id": "creditas",
     "latest_period": "2026-Q2",
     "metric_method": "aritmeticky prumer dennich uptime hodnot",
-    "note": "Prehledova stranka muze blokovat automaticke klienty; PDF maji stabilni a predvidatelnou adresu. Automaticke nacteni selhalo: HTTP 403 Posledni zname metriky byly zachovany z predchoziho behu.",
+    "note": "Prehledova stranka muze blokovat automaticke klienty; PDF maji stabilni a predvidatelnou adresu.",
     "pisp_availability_pct": "",
     "pisp_error_pct": "",
-    "pisp_response_ms": 936.4353,
+    "pisp_response_ms": 938.0659,
     "report_url": "https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf",
     "scope": "main",
-    "source_state": "http-403",
+    "source_state": "ok-direct-pdf",
     "source_url": "https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti",
-    "status": "blocked"
+    "status": "ok"
   },
   {
     "aisp_availability_pct": "",

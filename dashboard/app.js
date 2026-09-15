@@ -106,11 +106,11 @@
 
   function bankCoverage(metricKey) {
     const metric = metrics[metricKey];
-    const counts = new Map();
+    const counts = new Map(latest.map(item => [item.bank, 0]));
     history.forEach(item => {
       if (metric.value(item) !== null) counts.set(item.bank, (counts.get(item.bank) || 0) + 1);
     });
-    return [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "cs"));
+    return [...counts.entries()].sort((a, b) => a[0].localeCompare(b[0], "cs"));
   }
 
   function resetBankSelection() {
@@ -120,11 +120,14 @@
   function renderLegend() {
     const container = document.getElementById("chartLegend");
     container.replaceChildren();
-    bankCoverage(activeMetric).forEach(([bank]) => {
+    bankCoverage(activeMetric).forEach(([bank, count]) => {
       const button = document.createElement("button");
       button.type = "button";
-      button.className = "legend-button";
+      button.className = `legend-button${count ? "" : " legend-button--no-data"}`;
       button.setAttribute("aria-pressed", selectedBanks.has(bank) ? "true" : "false");
+      button.title = count
+        ? `${bank}: ${count} doložených období pro tuto metriku`
+        : `${bank}: pro tuto metriku zatím není doložená historie`;
       const swatch = document.createElement("span");
       swatch.className = "legend-swatch";
       const label = document.createElement("span");
@@ -222,8 +225,16 @@
         const cell = document.createElement(item?.report_url ? "a" : "span");
         const hasAvailability = item && availabilityValue(item) !== null;
         const hasPerformance = item && [item.aisp_response_ms, item.pisp_response_ms, item.aisp_error_pct, item.pisp_error_pct].some(value => numberOrNull(value) !== null);
-        cell.className = `coverage-cell ${hasAvailability ? "coverage-cell--full" : hasPerformance ? "coverage-cell--partial" : ""}`;
-        cell.setAttribute("aria-label", `${bank.bank}, ${period}: ${hasAvailability ? "dostupnost" : hasPerformance ? "jen výkonnost" : "bez dat"}${item?.report_url ? "; otevřít report" : ""}`);
+        const hasReport = Boolean(item?.report_url);
+        const coverageState = hasAvailability
+          ? "dostupnost"
+          : hasPerformance
+            ? "jen výkonnost"
+            : hasReport
+              ? "report bez měřitelné hodnoty"
+              : "bez reportu";
+        cell.className = `coverage-cell ${hasAvailability ? "coverage-cell--full" : hasPerformance ? "coverage-cell--partial" : hasReport ? "coverage-cell--report" : ""}`;
+        cell.setAttribute("aria-label", `${bank.bank}, ${period}: ${coverageState}${hasReport ? "; otevřít report" : ""}`);
         cell.title = cell.getAttribute("aria-label");
         if (item?.report_url) {
           cell.href = item.report_url;
