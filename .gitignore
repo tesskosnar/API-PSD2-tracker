@@ -7,3 +7,6 @@ __pycache__/
 build/
 *.egg-info/
 dist/
+data/archive/*.sqlite3-journal
+data/archive/*.sqlite3-wal
+data/archive/*.sqlite3-shm

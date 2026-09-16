@@ -2461,7 +2461,7 @@
     "pisp_response_ms": 938.0659,
     "report_url": "https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf",
     "scope": "main",
-    "source_state": "ok",
+    "source_state": "ok-direct-pdf",
     "source_url": "https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti",
     "status": "ok"
   },

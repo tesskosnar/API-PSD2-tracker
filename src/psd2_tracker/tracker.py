@@ -13,7 +13,7 @@ import sys
 import time
 import unicodedata
 import zipfile
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from statistics import fmean
@@ -27,6 +27,7 @@ from xml.sax.saxutils import escape as xml_escape
 from lxml import html
 from pypdf import PdfReader
 import pdfplumber
+from .archive import Archive
 
 
 def discover_project_root() -> Path:
@@ -160,6 +161,7 @@ class Observation:
     metric_method: str = ""
     note: str = ""
     report_details: dict[str, Any] | None = None
+    daily_metrics: list[dict[str, Any]] | None = None
 
     def rounded(self) -> "Observation":
         for field in (
@@ -181,8 +183,10 @@ class Observation:
 
 
 class Fetcher:
-    def __init__(self, timeout: float = 45.0):
+    def __init__(self, timeout: float = 45.0, archive: Archive | None = None):
         self.timeout = timeout
+        self.archive = archive
+        self.bank_id = ""
         self.opener = build_opener(HTTPCookieProcessor(http.cookiejar.CookieJar()))
         self.default_headers = {
             "User-Agent": (
@@ -208,12 +212,15 @@ class Fetcher:
                 request = Request(url, headers=headers, method="GET")
                 with self.opener.open(request, timeout=timeout) as response:
                     content = response.read()
-                    return HttpResponse(
+                    result = HttpResponse(
                         content=content,
                         url=response.geturl(),
                         status_code=response.status,
                         headers=response.headers,
                     )
+                    if self.archive:
+                        self.archive.record_response(self.bank_id, result)
+                    return result
             except HTTPError as exc:
                 if exc.code in {429, 502, 503, 504} and attempt < 2:
                     time.sleep(0.7 * (attempt + 1))
@@ -1007,6 +1014,16 @@ def parse_moneta(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
     observation.aisp_error_pct = average(record.get("aisp_error") for record in records)  # type: ignore[arg-type]
     observation.pisp_error_pct = average(record.get("pisp_error") for record in records)  # type: ignore[arg-type]
     observation.metric_method = "prumer dennich hodnot v klouzavem 90dennim okne; uptime chybi"
+    observation.daily_metrics = [
+        {
+            "date": record["date"].isoformat(),
+            "aisp_response_ms": record.get("aisp_response"),
+            "pisp_response_ms": record.get("pisp_response"),
+            "aisp_error_pct": record.get("aisp_error"),
+            "pisp_error_pct": record.get("pisp_error"),
+        }
+        for record in sorted(records, key=lambda item: item["date"])
+    ]
     return observation
 
 
@@ -1149,6 +1166,11 @@ def collect_bank(
         observation = base_observation(bank)
         observation.source_state = "parse-error"
         observation.note = f"{observation.note} Parser selhal: {type(exc).__name__}: {exc}".strip()
+    if (observation.source_state in {"ok", "ok-direct-pdf"}
+        and parser_name in {"csas", "csob", "unicredit", "moneta", "creditas", "pdf_links"}
+        and previous and row_has_metrics(previous) and not has_reported_metrics(observation)):
+        observation.source_state = "parse-error"
+        observation.note = f"{observation.note} Novy zdroj neobsahuje ocekavane meritelne hodnoty.".strip()
     observation = carry_previous(observation, previous)
     observation = apply_seed(bank, observation)
     return finalize_status(observation, expected_period)
@@ -1172,6 +1194,10 @@ def has_reported_metrics(observation: Observation) -> bool:
             "pisp_error_pct",
         )
     )
+
+
+def row_has_metrics(row: dict[str, Any]) -> bool:
+    return any(row.get(field) not in (None, "") for field in TIMESERIES_FIELDS if field.endswith(("_pct", "_ms")))
 
 
 def parse_pdf_observation(
@@ -1321,6 +1347,9 @@ def collect_creditas_history(
 
 
 def timeseries_row(observation: Observation) -> dict[str, Any]:
+    # Historical completeness is relative to its own quarter, not today's latest quarter.
+    if quarter_rank(observation.latest_period) >= 0:
+        observation = finalize_status(replace(observation), observation.latest_period)
     values = asdict(observation)
     values["period"] = values.pop("latest_period")
     return {
@@ -1372,6 +1401,8 @@ def collect_timeseries(
         }
         if not wanted:
             continue
+        if isinstance(fetcher, Fetcher):
+            fetcher.bank_id = bank["id"]
         print(f"Doplnuji historii {bank['name']}...", flush=True)
         try:
             if bank["parser"] == "pdf_links":
@@ -1392,7 +1423,11 @@ def collect_timeseries(
             for observation in observations:
                 if observation.report_url:
                     row = timeseries_row(observation)
-                    rows[(observation.bank_id, observation.latest_period)] = row
+                    key = (observation.bank_id, observation.latest_period)
+                    previous = rows.get(key)
+                    if previous and previous.get("source_state") in {"ok", "ok-direct-pdf"} and (observation.source_state not in {"ok", "ok-direct-pdf"} or (row_has_metrics(previous) and not has_reported_metrics(observation))):
+                        continue
+                    rows[key] = row
         except Exception as exc:  # Historicky archiv nesmi zablokovat aktualni prehled.
             print(f"  Historii se nepodarilo nacist: {type(exc).__name__}: {exc}", flush=True)
 
@@ -1403,7 +1438,10 @@ def collect_timeseries(
             and observation.source_state in {"ok", "ok-direct-pdf"}
         ):
             row = timeseries_row(observation)
-            rows[(observation.bank_id, observation.latest_period)] = row
+            key = (observation.bank_id, observation.latest_period)
+            if row_has_metrics(rows.get(key, {})) and not has_reported_metrics(observation):
+                continue
+            rows[key] = row
 
     return sorted(
         rows.values(),
@@ -1427,9 +1465,11 @@ def write_dashboard_data(
     expected_period: str,
     checked_on: date,
     output_path: Path = DEFAULT_DASHBOARD_DATA,
+    archive: Archive | None = None,
 ) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     source_details = {}
+    previous = {}
     if output_path.exists():
         try:
             previous = json.loads(output_path.read_text(encoding="utf-8").removeprefix("window.PSD2_DATA = ").rstrip().removesuffix(";"))
@@ -1447,10 +1487,17 @@ def write_dashboard_data(
         "timeseries": timeseries,
         "source_details": source_details,
     }
+    if archive:
+        payload["daily_history"] = archive.daily_rows()
+        payload["archive"] = archive.summary()
+    elif isinstance(previous, dict):
+        for key in ("daily_history", "archive"):
+            if key in previous:
+                payload[key] = previous[key]
     source = "window.PSD2_DATA = " + stable_json(payload)
     output_path.write_text(source, encoding="utf-8")
     cache_version = hashlib.sha256(source.encode("utf-8")).hexdigest()[:12]
-    for index_path in (output_path.parent / "index.html", output_path.parent / "report.html"):
+    for index_path in (output_path.parent / "index.html", output_path.parent / "report.html", output_path.parent / "archive.html"):
         if not index_path.exists():
             continue
         content = index_path.read_text(encoding="utf-8")
@@ -1715,7 +1762,8 @@ def run(
     today = today or date.today()
     expected = expected_report_period(today)
     banks = json.loads(config_path.read_text(encoding="utf-8"))
-    previous_by_id: dict[str, dict[str, Any]] = {}
+    archive = Archive(data_dir / "archive", today)
+    previous_by_id: dict[str, dict[str, Any]] = archive.latest_rows()
     previous_file = data_dir / "latest.json"
     if previous_file.exists():
         try:
@@ -1724,10 +1772,11 @@ def run(
                 for item in json.loads(previous_file.read_text(encoding="utf-8"))
             }
         except (json.JSONDecodeError, KeyError, TypeError):
-            previous_by_id = {}
-    fetcher = Fetcher()
+            pass  # A damaged latest export must not discard the persistent fallback.
+    fetcher = Fetcher(archive=archive)
     observations: list[Observation] = []
     for bank in banks:
+        fetcher.bank_id = bank["id"]
         print(f"Kontroluji {bank['name']}...", flush=True)
         observation = collect_bank(
             bank,
@@ -1737,6 +1786,8 @@ def run(
             previous_by_id.get(bank["id"]),
         )
         observations.append(observation)
+        archive.record_snapshot({**observation_row(observation), "report_details": observation.report_details}, "latest-check")
+        archive.record_daily(observation)
         print(
             f"  {observation.status}: {observation.latest_period or '-'}; "
             f"{availability_display(observation)}",
@@ -1752,16 +1803,21 @@ def run(
                 existing_timeseries = loaded
         except json.JSONDecodeError:
             existing_timeseries = []
+    archived_timeseries = {(row["bank_id"], row["period"]): row for row in archive.quarterly_rows()}
+    archived_timeseries.update({(row["bank_id"], row["period"]): row for row in existing_timeseries})
     timeseries = collect_timeseries(
         banks,
         fetcher,
         observations,
         expected,
-        existing_timeseries,
+        list(archived_timeseries.values()),
         refresh=refresh_history,
     )
     write_timeseries(timeseries, data_dir)
-    write_dashboard_data(observations, timeseries, expected, today)
+    for row in timeseries:
+        archive.record_snapshot(row, "quarterly-report")
+    archive.export(data_dir)
+    write_dashboard_data(observations, timeseries, expected, today, archive=archive)
     write_trend_svg(timeseries, expected)
     update_readme(readme_path, observations, expected)
     return observations

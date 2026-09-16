@@ -76,6 +76,12 @@ Ve zdrojových datech byla ověřena výhradně česká větev `CZ-B` (také vě
 
 Automatické zpracování bylo přizpůsobeno i aktuálnímu formátu `JSON.parse(...)`. Měsíční české podklady se při dalších kontrolách ukládají spolu s dashboardem a historické detaily zůstávají zachované i po posunu posledního čtvrtletí.
 
+## Trvalý archiv založený 16. září
+
+Všech 144 již ověřených bankovních období bylo převedeno do trvalé databáze. Uloženy jsou i kopie všech 142 dostupných PDF/XLSX z předchozího sběru a původní obsah online zdrojů při nové kontrole. MONETA nově uchovává jednotlivých 90 dnů od 18. června do 15. září, nejen poslední pohyblivý průměr. Nové dny se při týdenních kontrolách doplňují, staré se neodstraňují a opravy mají vlastní verze. [Popis archivace](data-archive.md) uvádí uložení, obnovu, kontrolu integrity i limity.
+
+Při této úpravě se nezměnila žádná stávající číselná hodnota posledního stavu ani čtvrtletních řad. U CREDITAS za 2026-Q2 se pouze upřesnil stav zdroje na `ok-direct-pdf`, protože sběr použil přímý oficiální PDF odkaz. Nové denní hodnoty MONETY jsou dodatečná podrobnost, nikoli změna jejích původních čtvrtletních dat; MONETA nadále není vykazována jako banka s čtvrtletním reportem.
+
 ## Opravené nebo sporné body
 
 1. Oberbank nemá nedostupný webový server; problém je konkrétní neplatný odkaz na statistiky.

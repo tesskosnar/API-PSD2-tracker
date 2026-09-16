@@ -68,6 +68,12 @@ Pokud banka zveřejňuje AISP a PISP dostupnost odděleně, křivka v přehledov
 - `docs/original-data-comparison.md` — přesný seznam změn a metodických rozdílů proti dodanému Excelu.
 - `config/banks.json` — zdroje, parser a poznámky pro jednotlivé banky.
 
+## Trvalý archiv
+
+Od 16. září 2026 se při každé týdenní kontrole doplňuje databáze `data/archive/tracker.sqlite3` a uchovávají se původní stažené reporty v `data/archive/objects/`. Staré záznamy se po 90 dnech nemažou. MONETA se ukládá i po jednotlivých dnech, ne pouze jako pohyblivý průměr; případné zpětné opravy mají vlastní verze. Archiv již převzal všech 144 ověřených bankovních období a 142 PDF/XLSX z předchozího sběru.
+
+[Denní historie v dashboardu](https://tesskosnar.github.io/API-PSD2-tracker/archive.html), [export denních hodnot](data/daily-history.csv) a [popis archivace](docs/data-archive.md) doplňují čtvrtletní srovnání. Archiv se verzovaně ukládá do repozitáře, nikoli pouze do dočasných příloh GitHub Actions. Již odstraněná data, která jsme nikdy nezachytili, zpětně obnovit nelze.
+
 ## Místní spuštění
 
 ```bash

@@ -6,6 +6,8 @@ on:
     paths:
       - "dashboard/**"
       - "data/timeseries.csv"
+      - "data/daily-history.csv"
+      - "docs/data-archive.md"
       - "docs/source-audit.md"
       - "docs/original-data-comparison.md"
       - "docs/historical-data-corrections.csv"
@@ -40,8 +42,10 @@ jobs:
       - name: Sestavení veřejného dashboardu
         run: |
           mkdir -p _site
-          cp dashboard/index.html dashboard/app.js dashboard/report.html dashboard/report.js dashboard/data.js dashboard/styles.css _site/
+          cp dashboard/index.html dashboard/app.js dashboard/report.html dashboard/report.js dashboard/archive.html dashboard/archive.js dashboard/data.js dashboard/styles.css _site/
           cp data/timeseries.csv _site/timeseries.csv
+          cp data/daily-history.csv _site/daily-history.csv
+          cp docs/data-archive.md _site/data-archive.md
           cp docs/source-audit.md _site/source-audit.md
           cp docs/original-data-comparison.md _site/original-data-comparison.md
           cp docs/historical-data-corrections.csv _site/historical-data-corrections.csv
@@ -52,6 +56,11 @@ jobs:
             -e 's#../data/timeseries.csv#timeseries.csv#' \
             _site/index.html
           rm _site/index.html.bak
+          sed -i.bak \
+            -e 's#../data/daily-history.csv#daily-history.csv#' \
+            -e 's#../docs/data-archive.md#data-archive.md#' \
+            _site/archive.html
+          rm _site/archive.html.bak
 
       - name: Nastavení GitHub Pages
         uses: actions/configure-pages@v5

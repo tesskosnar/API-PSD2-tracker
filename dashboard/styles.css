@@ -362,6 +362,15 @@ footer { display: flex; justify-content: space-between; align-items: baseline; f
 .report-months tbody th { font-size: .86rem; letter-spacing: 0; text-transform: none; color: var(--ink); white-space: nowrap; }
 .report-months thead { background: #eef5f3; }
 .report-months thead small { font-weight: 400; color: var(--ink-soft); }
+.archive-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 14px; margin: 24px 0; }
+.archive-controls label { display: grid; gap: 6px; font-size: .75rem; color: var(--ink-soft); }
+.archive-controls select, .archive-controls input, .archive-controls button { min-height: 40px; border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px; color: var(--ink); background: #fff; font: inherit; font-size: .82rem; }
+.archive-controls button { cursor: pointer; color: var(--teal); }
+.archive-chart { overflow-x: auto; margin-top: 25px; }
+#dailyChart { width: 100%; min-width: 650px; height: auto; display: block; }
+#dailyChart[hidden] { display: none; }
+.archive-day-detail { margin-top: 28px; }
+.archive-day-detail summary { cursor: pointer; font-size: .86rem; font-weight: 650; color: var(--teal); margin-bottom: 18px; }
 @media (max-width: 700px) {
   .report-summary { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .report-summary article { padding: 16px; }
