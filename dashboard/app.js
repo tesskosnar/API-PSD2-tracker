@@ -533,7 +533,7 @@
   });
 
   document.getElementById("bankSearch").value = params.get("search") || "";
-  if ([...document.getElementById("statusFilter").options].some(option => option.value === params.get("status"))) document.getElementById("statusFilter").value = params.get("status");
+  document.getElementById("statusFilter").value = [...document.getElementById("statusFilter").options].some(option => option.value === params.get("status")) ? params.get("status") : "";
   document.getElementById("bankSearch").addEventListener("input", () => { renderLatest(); syncUrl(); });
   document.getElementById("statusFilter").addEventListener("change", () => { renderLatest(); syncUrl(); });
   const quarterSelect = document.getElementById("comparisonQuarter");
@@ -565,4 +565,5 @@
   document.querySelectorAll("#metricTabs [data-metric]").forEach(button => { const active = button.dataset.metric === activeMetric; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); });
   document.querySelectorAll("#latestTable [data-sort]").forEach(button => { const active = button.dataset.sort === latestSort.key; button.classList.toggle("active", active); button.querySelector(".sort-arrow").textContent = active ? latestSort.direction === "asc" ? "↑" : "↓" : "↕"; button.closest("th").setAttribute("aria-sort", active ? latestSort.direction === "asc" ? "ascending" : "descending" : "none"); });
   initializePeriodControls();
+  ui.initializeNavigation();
 })();

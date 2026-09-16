@@ -191,4 +191,5 @@
   document.querySelector("#shareDaily")?.addEventListener("click",event=>ui.share(event.currentTarget));
   window.addEventListener("resize", render);
   render();
+  ui.initializeNavigation();
 })();

@@ -130,6 +130,37 @@
       container.append(button);
     }
   }
+  function initializeNavigation() {
+    const nav = document.querySelector(".top-nav");
+    if (!nav || nav.dataset.initialized) return;
+    nav.dataset.initialized = "true";
+    const links = [...nav.querySelectorAll('.top-nav__sections a[href^="#"]')].map(link => ({ link, section: document.querySelector(link.getAttribute("href")) })).filter(item => item.section);
+    let scheduled = false;
+    const update = () => {
+      scheduled = false;
+      const height = Math.ceil(nav.getBoundingClientRect().height);
+      document.documentElement.style.setProperty("--nav-offset", `${height + 16}px`);
+      let current = null;
+      for (const item of links) if (item.section.getBoundingClientRect().top <= height + 24) current = item.link;
+      for (const { link } of links) {
+        if (link === current) link.setAttribute("aria-current", "location");
+        else link.removeAttribute("aria-current");
+      }
+    };
+    const schedule = () => { if (!scheduled) { scheduled = true; requestAnimationFrame(update); } };
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    if (typeof ResizeObserver !== "undefined") new ResizeObserver(schedule).observe(nav);
+    schedule();
+    const alignInitialSection = () => requestAnimationFrame(() => {
+      update();
+      const target = links.find(({ link }) => link.getAttribute("href") === location.hash);
+      if (target) target.section.scrollIntoView({ block: "start", behavior: "instant" });
+      update();
+    });
+    if (document.readyState === "complete") alignInitialSection();
+    else window.addEventListener("load", alignInitialSection, { once: true });
+  }
   function coverageContent(container, data, row) {
     container.replaceChildren();
     const add = (tag, text, className = "") => { const el = document.createElement(tag); el.textContent = text; el.className = className; container.append(el); return el; };
@@ -166,7 +197,7 @@
     dialog.addEventListener("click", event => { if (event.target === dialog && (event.clientX < dialog.getBoundingClientRect().left || event.clientX > dialog.getBoundingClientRect().right || event.clientY < dialog.getBoundingClientRect().top || event.clientY > dialog.getBoundingClientRect().bottom)) dialog.close(); });
     return (data, row) => { coverageContent(content, data, row); const link = document.createElement("a"); link.href = bankUrl(row.bank_id, row.period); link.className = "bank-detail-link"; link.textContent = "Celý detail banky →"; content.append(link); dialog.showModal(); };
   }
-  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, methodNote, hasMetrics, bankMetricCoverage, comparisonRows, nearestDailyPoint, bankUrl, reportUrl, csv, download, share, appendMetricButtons, coverageContent, createCoverageDialog };
+  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, methodNote, hasMetrics, bankMetricCoverage, comparisonRows, nearestDailyPoint, bankUrl, reportUrl, csv, download, share, appendMetricButtons, initializeNavigation, coverageContent, createCoverageDialog };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.PSD2_UI = api;
 })(typeof window === "undefined" ? globalThis : window);

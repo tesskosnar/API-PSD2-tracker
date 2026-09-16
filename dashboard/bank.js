@@ -91,4 +91,5 @@
   document.getElementById("exportBankHistory").addEventListener("click",()=>{ const metric=ui.metrics[activeMetric]; ui.download(`psd2-${bank.bank_id}-${activeMetric}.csv`,["banka","období","metrika","hodnota","jednotka","metodika","zdroj"],history.map(row=>[bank.bank,row.period,metric.label,metric.value(row),metric.unit,row.metric_method,row.report_url])); });
   window.addEventListener("resize", renderHistory);
   renderReport(); renderHistory(); syncUrl();
+  ui.initializeNavigation();
 })();

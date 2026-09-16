@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Detail banky · PSD2 API tracker</title>
-  <link rel="stylesheet" href="styles.css?v=19">
+  <link rel="stylesheet" href="styles.css?v=20">
 </head>
 <body class="report-page bank-page">
   <header class="hero"><div class="hero__inner">
@@ -11,7 +11,7 @@
     <div class="bank-heading"><h1 id="bankTitle">Detail banky</h1><label class="bank-selector">Vybrat banku<select id="detailBank"></select></label></div>
     <div class="hero__meta"><span id="bankMeta"></span><span>Pouze české PSD2 rozhraní</span></div>
   </div></header>
-  <nav class="top-nav" aria-label="Navigace detailu banky"><div><a href="index.html#latestTitle">Přehled bank</a><a href="#bankLatestTitle">Report a metriky</a><a href="#bankHistoryTitle">Čtvrtletní historie</a><a href="#archiveTitle">Denní data</a><button id="shareBank" type="button" class="text-button">Sdílet výběr ↗</button></div></nav>
+  <nav class="top-nav" aria-label="Navigace detailu banky"><div class="top-nav__inner"><a class="top-nav__home" href="index.html" aria-label="Dostupnost PSD2 API — úvodní stránka, obnovit výchozí filtry">Dostupnost PSD2 API</a><div class="top-nav__sections"><a href="index.html#latestTitle">Přehled bank</a><a href="#bankLatestTitle">Report a metriky</a><a href="#bankHistoryTitle">Čtvrtletní historie</a><a href="#archiveTitle">Denní data</a></div><button id="shareBank" type="button" class="text-button">Sdílet výběr ↗</button></div></nav>
   <main>
     <p id="bankNotFound" class="empty-state" hidden>Banka nebo požadované období není v ověřeném datasetu.</p>
     <section class="panel" aria-labelledby="bankLatestTitle">
@@ -44,6 +44,6 @@
     </section>
   </main>
   <footer><p>PSD2 API tracker · archivované hodnoty se nemažou</p><nav class="footer-links"><a href="index.html">Přehled bank</a><a href="archive.html">Archiv všech bank</a><a href="https://github.com/tesskosnar/API-PSD2-tracker/blob/main/docs/expanded-data-audit.md">Audit zdrojů ↗</a></nav></footer>
-  <script src="data.js?v=b4e3e91ee8a2"></script><script src="core.js?v=19"></script><script src="bank.js?v=18"></script><script src="daily-data.js?v=d2f47aa5f6c7"></script><script src="archive.js?v=19"></script>
+  <script src="data.js?v=b4e3e91ee8a2"></script><script src="core.js?v=20"></script><script src="bank.js?v=20"></script><script src="daily-data.js?v=d2f47aa5f6c7"></script><script src="archive.js?v=20"></script>
 </body>
 </html>
