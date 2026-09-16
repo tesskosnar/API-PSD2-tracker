@@ -82,3 +82,16 @@ test('history orders banks by actual selected metric values, then Czech alphabet
 test('CSV quotes Czech text, nulls and formula-like values safely', () => {
   assert.equal(ui.csv(['banka','hodnota'],[['Česká "banka"',null],['=formula',0]]),'\ufeff"banka","hodnota"\r\n"Česká ""banka""",""\r\n"\'=formula","0"');
 });
+test('daily selection uses an actual measured day, including gaps, edges and ties', () => {
+  const rows = [{date:'2026-06-01',value:0},{date:'2026-06-02',value:1},{date:'2026-06-05',value:2}];
+  const time = value => Date.parse(`${value}T00:00:00Z`);
+  assert.equal(ui.nearestDailyPoint(rows,time('2026-06-02')),rows[1]);
+  assert.equal(ui.nearestDailyPoint(rows,time('2026-05-01')),rows[0]);
+  assert.equal(ui.nearestDailyPoint(rows,time('2026-07-01')),rows[2]);
+  assert.equal(ui.nearestDailyPoint(rows,time('2026-06-03')),rows[1]);
+  assert.equal(ui.nearestDailyPoint(rows,time('2026-06-04')),rows[2]);
+  assert.equal(ui.nearestDailyPoint(rows,(time('2026-06-02')+time('2026-06-05'))/2),rows[1]);
+  assert.equal(ui.nearestDailyPoint([rows[0]],time('2026-06-05')),rows[0]);
+  assert.equal(ui.nearestDailyPoint([],time('2026-06-01')),null);
+  assert.equal(ui.nearestDailyPoint(rows,NaN),null);
+});

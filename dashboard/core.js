@@ -91,6 +91,20 @@
     });
   }
   const bankUrl = (id, period = "") => `bank.html?bank=${encodeURIComponent(id)}${period ? `&period=${encodeURIComponent(period)}` : ""}`;
+  // Rows must contain measured days in ascending date order. Gaps are not interpolated.
+  function nearestDailyPoint(rows, timestamp) {
+    if (!rows.length || !Number.isFinite(timestamp)) return null;
+    const time = row => new Date(`${row.date}T00:00:00Z`).getTime();
+    let left = 0, right = rows.length;
+    while (left < right) {
+      const middle = Math.floor((left + right) / 2);
+      if (time(rows[middle]) < timestamp) left = middle + 1;
+      else right = middle;
+    }
+    if (!left) return rows[0];
+    if (left === rows.length) return rows.at(-1);
+    return timestamp - time(rows[left - 1]) <= time(rows[left]) - timestamp ? rows[left - 1] : rows[left];
+  }
   const reportUrl = row => row.bank_id === "unicredit" ? `report.html?bank=unicredit&period=${encodeURIComponent(row.period || row.latest_period || "")}` : row.report_url || row.source_url;
   const csvCell = value => {
     let text = String(value ?? "");
@@ -152,7 +166,7 @@
     dialog.addEventListener("click", event => { if (event.target === dialog && (event.clientX < dialog.getBoundingClientRect().left || event.clientX > dialog.getBoundingClientRect().right || event.clientY < dialog.getBoundingClientRect().top || event.clientY > dialog.getBoundingClientRect().bottom)) dialog.close(); });
     return (data, row) => { coverageContent(content, data, row); const link = document.createElement("a"); link.href = bankUrl(row.bank_id, row.period); link.className = "bank-detail-link"; link.textContent = "Celý detail banky →"; content.append(link); dialog.showModal(); };
   }
-  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, methodNote, hasMetrics, bankMetricCoverage, comparisonRows, bankUrl, reportUrl, csv, download, share, appendMetricButtons, coverageContent, createCoverageDialog };
+  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, methodNote, hasMetrics, bankMetricCoverage, comparisonRows, nearestDailyPoint, bankUrl, reportUrl, csv, download, share, appendMetricButtons, coverageContent, createCoverageDialog };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.PSD2_UI = api;
 })(typeof window === "undefined" ? globalThis : window);

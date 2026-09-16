@@ -8,6 +8,8 @@
   const from = document.querySelector("#archiveFrom");
   const to = document.querySelector("#archiveTo");
   const chart = document.querySelector("#dailyChart");
+  const pointDetails = document.querySelector("#dailyPointDetails");
+  let plottedPoints = [], plot = null, selection = null;
   let metric = "aisp_response_ms";
   let exportedRows = [];
   const labels = { availability_pct: "Dostupnost", aisp_availability_pct: "Dostupnost AISP", pisp_availability_pct: "Dostupnost PISP", aisp_response_ms: "Odezva AISP", pisp_response_ms: "Odezva PISP", aisp_error_pct: "Chybovost AISP", pisp_error_pct: "Chybovost PISP", shared_error_pct: "Společná chybovost" };
@@ -47,6 +49,21 @@
     chart.append(el);
     return el;
   }
+  function showPoint(row) {
+    chart.querySelector(".daily-selection")?.remove();
+    pointDetails.hidden = !row;
+    if (!row) { selection = null; return; }
+    selection = { bank: bank.value, metric, date: row.date };
+    const date = document.querySelector("#dailyPointDate");
+    date.dateTime = row.date;
+    date.textContent = new Intl.DateTimeFormat("cs-CZ", { timeZone: "UTC", weekday: "long", day: "numeric", month: "numeric", year: "numeric" }).format(day(row.date));
+    document.querySelector("#dailyPointMetric").textContent = labels[metric];
+    document.querySelector("#dailyPointValue").textContent = `${format(row[metric], 20)} ${unit()}`;
+    const marker = svg("g", { class: "daily-selection", "pointer-events": "none", "aria-hidden": "true" });
+    const line = svg("line", { x1: plot.x(row), x2: plot.x(row), y1: 35, y2: 285, stroke: "#0f766e", "stroke-width": 1.5, "stroke-dasharray": "4 4" });
+    const dot = svg("circle", { cx: plot.x(row), cy: plot.y(row), r: 6, fill: "#0f766e", stroke: "#fff", "stroke-width": 2.5 });
+    marker.append(line, dot);
+  }
   function render() {
     const available = key => history.some(row => row.bank_id === bank.value && number(row[key]) !== null);
     if (!available(metric)) metric = Object.keys(labels).find(available) || "availability_pct";
@@ -59,9 +76,12 @@
     const rows = history.filter(row => row.bank_id === bank.value && row.date >= from.value && row.date <= to.value).sort((a,b) => a.date.localeCompare(b.date));
     exportedRows = rows;
     const points = rows.filter(row => Number.isFinite(number(row[metric])));
+    plottedPoints = points;
+    plot = null;
     chart.replaceChildren();
     chart.toggleAttribute("hidden", !points.length);
     document.querySelector("#dailyEmpty").hidden = Boolean(points.length);
+    document.querySelector("#dailyChartHint").hidden = !points.length;
     document.querySelector("#dailyRange").textContent = rows.length ? `${dateLabel(from.value)} – ${dateLabel(to.value)} · ${rows.length} uložených dnů · ${labels[metric]} (${unit()})` : "Žádné uložené dny ve výběru";
     if (points.length) {
       const width = Math.max(300, Math.min(1080, chart.parentElement.clientWidth));
@@ -72,8 +92,10 @@
       const padding = (max - min) * .1 || Math.max(max * .05, 1);
       const low = Math.max(0, min - padding), high = metric.includes("availability") ? Math.min(100, max + padding) : max + padding;
       const start = day(from.value).getTime(), end = day(to.value).getTime();
-      const x = row => 80 + (day(row.date).getTime() - start) / (end - start || 86400000) * (right - 80);
-      const y = row => 285 - (number(row[metric]) - low) / (high - low) * 250;
+      const x = row => start === end ? (80 + right) / 2 : 80 + (day(row.date).getTime() - start) / (end - start) * (right - 80);
+      const y = row => 285 - (number(row[metric]) - low) / (high - low || 1) * 250;
+      plot = { x, y, start, end, right };
+      chart.setAttribute("aria-label", `${bankNames.get(bank.value)} · ${labels[metric]} · interaktivní denní graf`);
       svg("title", {}, `${bankNames.get(bank.value)} · ${labels[metric]}`);
       for (let index = 0; index <= 4; index++) {
         const position = 35 + index * 62.5;
@@ -91,12 +113,13 @@
       }
       svg("path", { d: path, fill: "none", stroke: "#0f766e", "stroke-width": 2.5, "stroke-linejoin": "round" });
       for (const row of points) {
-        const point = svg("circle", { cx: x(row), cy: y(row), r: points.length > 400 ? 1.5 : 3, fill: "#0f766e" });
+        const point = svg("circle", { cx: x(row), cy: y(row), r: points.length > 400 ? 1.5 : 3, fill: "#0f766e", "data-date": row.date });
         const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
         title.textContent = `${dateLabel(row.date)}: ${format(row[metric], 4)} ${unit()}`;
         point.append(title);
       }
     }
+    showPoint(selection?.bank === bank.value && selection.metric === metric ? points.find(row => row.date === selection.date) : null);
     const tbody = document.querySelector("#dailyRows");
     document.querySelector("#dailyMethod").textContent = bank.value === "partners" ? ui.methodNote({bank_id:"partners"}) : bank.value === "ppf" ? "PPF: publikované nuly často znamenají dny bez volání, nikoli okamžitou odezvu. Uptime banka v reportu neuvádí." : "";
     if (document.querySelector("#dailyBankDetail")) document.querySelector("#dailyBankDetail").href = ui.bankUrl(bank.value);
@@ -122,6 +145,26 @@
     }
     syncUrl();
   }
+  chart.addEventListener("click", event => {
+    if (!plot) return;
+    const matrix = chart.getScreenCTM();
+    if (!matrix) return;
+    const point = chart.createSVGPoint(); point.x = event.clientX; point.y = event.clientY;
+    const position = point.matrixTransform(matrix.inverse());
+    if (position.x < 72 || position.x > plot.right + 8 || position.y < 25 || position.y > 295) return;
+    const ratio = Math.max(0, Math.min(1, (position.x - 80) / (plot.right - 80)));
+    const timestamp = plot.start + ratio * (plot.end - plot.start);
+    showPoint(ui.nearestDailyPoint(plottedPoints, timestamp));
+  });
+  chart.addEventListener("keydown", event => {
+    if (!plottedPoints.length || !["ArrowLeft", "ArrowRight", "Home", "End", "Escape"].includes(event.key)) return;
+    event.preventDefault();
+    if (event.key === "Escape") { showPoint(null); return; }
+    const current = plottedPoints.findIndex(row => row.date === selection?.date);
+    const index = event.key === "Home" ? 0 : event.key === "End" ? plottedPoints.length - 1 : current < 0 ? event.key === "ArrowLeft" ? plottedPoints.length - 1 : 0 : Math.max(0, Math.min(plottedPoints.length - 1, current + (event.key === "ArrowLeft" ? -1 : 1)));
+    showPoint(plottedPoints[index]);
+  });
+  document.querySelector("#clearDailyPoint").addEventListener("click", () => { showPoint(null); chart.focus({ preventScroll: true }); });
   function syncUrl() {
     const url = new URL(location.href); url.searchParams.delete("v");
     for (const [key,value] of Object.entries({bank:bank.value, dailyMetric:metric, dayFrom:from.value, dayTo:to.value})) { if(value) url.searchParams.set(key,value); else url.searchParams.delete(key); }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Detail banky · PSD2 API tracker</title>
-  <link rel="stylesheet" href="styles.css?v=18">
+  <link rel="stylesheet" href="styles.css?v=19">
 </head>
 <body class="report-page bank-page">
   <header class="hero"><div class="hero__inner">
@@ -36,12 +36,14 @@
         <button type="button" class="metric-button" data-daily-metric="availability_pct">Dostupnost</button><button type="button" class="metric-button" data-daily-metric="aisp_availability_pct">Dostupnost AISP</button><button type="button" class="metric-button" data-daily-metric="pisp_availability_pct">Dostupnost PISP</button><button type="button" class="metric-button" data-daily-metric="aisp_response_ms">Odezva AISP</button><button type="button" class="metric-button" data-daily-metric="pisp_response_ms">Odezva PISP</button><button type="button" class="metric-button" data-daily-metric="aisp_error_pct">Chybovost AISP</button><button type="button" class="metric-button" data-daily-metric="pisp_error_pct">Chybovost PISP</button><button type="button" class="metric-button" data-daily-metric="shared_error_pct">Společná chybovost</button>
       </div>
       <p id="dailyRange" class="period-range-info" aria-live="polite"></p>
-      <div class="archive-chart"><svg id="dailyChart" viewBox="0 0 1080 340" role="img" aria-label="Denní vývoj banky"></svg></div>
+      <p id="dailyChartHint" class="chart-note daily-chart-hint">Klikněte nebo klepněte do grafu pro datum a hodnotu nejbližšího publikovaného dne. Na klávesnici použijte šipky ← →.</p>
+      <div class="archive-chart"><svg id="dailyChart" viewBox="0 0 1080 340" role="group" tabindex="0" aria-roledescription="interaktivní graf" aria-describedby="dailyChartHint" aria-label="Denní vývoj banky"></svg></div>
+      <div id="dailyPointDetails" class="daily-point-details" role="status" aria-live="polite" aria-atomic="true" hidden><div><span>Vybraný den</span><time id="dailyPointDate"></time></div><div><span id="dailyPointMetric"></span><strong id="dailyPointValue"></strong></div><button id="clearDailyPoint" class="text-button" type="button" aria-label="Zrušit výběr dne">Zrušit ×</button></div>
       <p id="dailyEmpty" class="empty-state" hidden>Pro vybrané období nejsou archivované denní hodnoty.</p><p id="dailyMethod" class="chart-note"></p>
       <details class="archive-day-detail"><summary id="dailyTableSummary">Jednotlivé uložené dny</summary><div class="table-scroll"><table class="report-months"><thead><tr><th>Den</th><th>Dostupnost %</th><th>Dostupnost AISP %</th><th>Dostupnost PISP %</th><th>Odezva AISP ms</th><th>Odezva PISP ms</th><th>Chybovost AISP %</th><th>Chybovost PISP %</th><th>Společná chybovost %</th><th>První uložení</th><th>Poslední ověření</th><th>Verze</th></tr></thead><tbody id="dailyRows"></tbody></table></div></details>
     </section>
   </main>
   <footer><p>PSD2 API tracker · archivované hodnoty se nemažou</p><nav class="footer-links"><a href="index.html">Přehled bank</a><a href="archive.html">Archiv všech bank</a><a href="https://github.com/tesskosnar/API-PSD2-tracker/blob/main/docs/expanded-data-audit.md">Audit zdrojů ↗</a></nav></footer>
-  <script src="data.js?v=b4e3e91ee8a2"></script><script src="core.js?v=18"></script><script src="bank.js?v=18"></script><script src="daily-data.js?v=d2f47aa5f6c7"></script><script src="archive.js?v=15"></script>
+  <script src="data.js?v=b4e3e91ee8a2"></script><script src="core.js?v=19"></script><script src="bank.js?v=18"></script><script src="daily-data.js?v=d2f47aa5f6c7"></script><script src="archive.js?v=19"></script>
 </body>
 </html>

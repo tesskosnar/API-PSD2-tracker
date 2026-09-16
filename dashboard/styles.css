@@ -378,6 +378,15 @@ footer { display: flex; justify-content: space-between; align-items: baseline; f
 .archive-chart { overflow-x: auto; margin-top: 25px; }
 #dailyChart { width: 100%; height: auto; display: block; }
 #dailyChart[hidden] { display: none; }
+#dailyChart { cursor: crosshair; touch-action: manipulation; border-radius: 8px; }
+#dailyChart:focus-visible { outline: 3px solid #8dcabb; outline-offset: 3px; }
+.daily-chart-hint { margin-top: 20px; }
+.daily-chart-hint + .archive-chart { margin-top: 10px; }
+.daily-point-details { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 32px; margin-top: 12px; padding: 16px 20px; border: 1px solid #a8d5c2; border-left: 4px solid var(--teal); border-radius: 8px; background: #edf7f3; }
+.daily-point-details > div { display: grid; gap: 5px; min-width: 0; }
+.daily-point-details span { color: var(--ink-soft); font-size: .75rem; }
+.daily-point-details time, .daily-point-details strong { color: var(--ink); font-size: 1rem; font-weight: 650; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.daily-point-details .text-button { margin-left: auto; }
 .archive-day-detail { margin-top: 28px; }
 .archive-day-detail summary { cursor: pointer; font-size: .86rem; font-weight: 650; color: var(--teal); margin-bottom: 18px; }
 @media (max-width: 700px) {
