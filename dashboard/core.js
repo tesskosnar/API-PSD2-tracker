@@ -135,6 +135,8 @@
       list.append(dt, dd);
     }
     add("p", `Publikovaná metodika / zpracování: ${row.metric_method || "Neuvedeno"}`, "chart-note");
+    if (row.source_state === "report-error") add("p", `Report je uložen jako zdrojový doklad, jeho čísla však nejsou použita. ${row.metric_method || "Údaje nebylo možné spolehlivě ověřit."}`, "method-notice");
+    else if (row.metric_method?.includes("hlavicka uvadi")) add("p", "Záhlaví reportu uvádí jiné období. Denní data jsou zařazena podle datumů řádků, která souhlasí s názvem v katalogu; původní datumy nebyly přepsány. Podrobnost je uvedena v metodice výše.", "method-notice");
     if (row.note) add("p", row.note, "chart-note");
     if (row.bank_id === "partners" || row.bank_id === "moneta") add("p", methodNote(row), "method-notice");
     if (coverage && coverage.archived_days < coverage.calendar_days) add("p", "Denní archiv nepokrývá všechny kalendářní dny. Důvodem může být kratší report, prázdné metriky nebo omezení extrakce; úplné znění ověřte ve zdroji.", "method-notice");

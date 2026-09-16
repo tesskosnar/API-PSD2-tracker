@@ -412,11 +412,14 @@ html { scroll-behavior: smooth; scroll-padding-top: 90px; }
 .trend-panel .section-heading { display: grid; grid-template-columns: minmax(290px, 1fr) minmax(0, 680px); }
 .trend-panel .metric-filter { min-width: 0; }
 .trend-panel .metric-seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.fixed-scale { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 15px; }
-.scale-band { padding: 6px 9px; border-radius: 5px; font-size: .7rem; font-weight: 600; }
-.quality-0, .quality-0 .metric-grid__value { background: #d7efe7; color: #145f57; }
-.quality-1, .quality-1 .metric-grid__value { background: #eef2f0; color: #53666d; }
-.quality-2, .quality-2 .metric-grid__value { background: #f7e6cf; color: #7b491b; }
+.fixed-scale { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 15px; }
+.scale-band { padding: 7px 11px; border-radius: 5px; font-size: .7rem; font-weight: 600; }
+/* Ordered green shades: darker always means better, including lower errors
+   and response times. Unpublished values retain their separate gray styling. */
+.quality-0, .quality-0 .metric-grid__value { background: #1b7662; color: #fff; }
+.quality-1, .quality-1 .metric-grid__value { background: #a8d5c2; color: #174d42; }
+.quality-2, .quality-2 .metric-grid__value { background: #e7f3ec; color: #3b6357; }
+.scale-direction { align-self: center; margin: 0 8px; color: var(--ink-soft); font-size: .73rem; }
 .scale-median { align-self: center; margin-left: auto; color: var(--ink-soft); font-size: .73rem; font-variant-numeric: tabular-nums; }
 .metric-grid td[class*="quality-"] { background: transparent; }
 button.metric-grid__value { width: 100%; border: 0; cursor: pointer; font-family: inherit; }

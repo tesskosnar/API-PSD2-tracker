@@ -22,6 +22,11 @@ from psd2_tracker.tracker import (
     parse_pdf_metrics,
     parse_pdf_daily,
     parse_partners,
+    find_rb_reports,
+    parse_rb_report,
+    parse_rb,
+    rb_report_text,
+    parse_report_links,
     collect_pdf_history,
     parse_first_xlsx_sheet,
     parse_quarter,
@@ -35,6 +40,107 @@ from psd2_tracker.tracker import (
 
 
 class TrackerTests(unittest.TestCase):
+    def test_mbank_static_report_link_does_not_invent_a_confirmed_czech_quarter(self):
+        bank = {"id": "mbank", "name": "mBank", "source_url": "https://developer.api.mbank.cz/reports"}
+        fetcher = SimpleNamespace(get=lambda *a, **k: SimpleNamespace(text='<a href="/availability-Q2-2026.pdf">report Q2 2026</a>', url=bank['source_url']))
+        item = parse_report_links(bank, fetcher)
+        self.assertEqual(item.latest_period, "")
+        self.assertIsNone(item.availability_pct)
+        self.assertIn("cesky rozsah", item.metric_method)
+
+    def test_rb_zipped_pdf_ignores_macos_metadata_and_rejects_ambiguous_archive(self):
+        buffer = BytesIO()
+        with zipfile.ZipFile(buffer, "w") as packed:
+            packed.writestr("source.pdf", b"%PDF-example")
+            packed.writestr("__MACOSX/._source.pdf", b"metadata")
+        with patch("psd2_tracker.tracker.extract_rb_pdf_text", return_value="report"):
+            text, note = rb_report_text(buffer.getvalue())
+        self.assertEqual(text, "report")
+        self.assertIn("ZIP", note)
+        with zipfile.ZipFile(buffer, "a") as packed:
+            packed.writestr("second.pdf", b"%PDF-example")
+        with self.assertRaisesRegex(ValueError, "jednoznacny"):
+            rb_report_text(buffer.getvalue())
+
+    def test_rb_docx_tables_use_daily_dates_and_disclose_conflicting_header(self):
+        buffer = BytesIO()
+        cells = ["01.07.2021", "759.0439", "90", "99,85%", "728,009", "0", "100,00%"]
+        row = "".join(f"<w:tc><w:p><w:r><w:t>{value}</w:t></w:r></w:p></w:tc>" for value in cells)
+        xml = f'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Statistiky 1.6.2020 – 30.9.2020</w:t></w:r></w:p><w:p><w:r><w:t>AISP odezva PISP odezva</w:t></w:r></w:p><w:tbl><w:tr>{row}</w:tr></w:tbl></w:body></w:document>'
+        with zipfile.ZipFile(buffer, "w") as packed:
+            packed.writestr("word/document.xml", xml)
+        bank = {"id": "rb", "name": "RB", "source_url": "https://www.rb.cz"}
+        fetcher = SimpleNamespace(get=lambda *a, **k: SimpleNamespace(content=buffer.getvalue()))
+        item = parse_rb_report(bank, "2021-Q3", "https://www.rb.cz/source.pdf", fetcher)
+        self.assertEqual(item.aisp_availability_pct, 99.85)
+        self.assertEqual(item.daily_metrics[0]["date"], "2021-07-01")
+        self.assertIn("hlavicka uvadi 2020-06-01, 2020-09-30", item.metric_method)
+        self.assertIn("Word", item.metric_method)
+        self.assertIsNone(item.aisp_response_ms)
+
+    def test_rb_split_response_digits_and_missing_first_service_keep_columns(self):
+        text = "AISP odezva PISP odezva\n01.07.2020 74 4,1016 17 99,87 % 631 0 100,00 %\n02.07.2020 N/A N/A N/A 500 1 99,00%"
+        bank = {"id": "rb", "name": "RB", "source_url": "https://www.rb.cz"}
+        fetcher = SimpleNamespace(get=lambda *a, **k: SimpleNamespace(content=b"%PDF"))
+        with patch("psd2_tracker.tracker.extract_rb_pdf_text", return_value=text):
+            item = parse_rb_report(bank, "2020-Q3", "https://www.rb.cz/source.pdf", fetcher)
+        self.assertEqual(item.daily_metrics[0]["aisp_response_reported_without_unit"], 744.1016)
+        self.assertEqual(item.daily_metrics[0]["pisp_availability_pct"], 100)
+        self.assertNotIn("aisp_availability_pct", item.daily_metrics[1])
+        self.assertEqual(item.daily_metrics[1]["pisp_availability_pct"], 99)
+
+    def test_rb_catalogue_includes_archived_names_but_not_foreign_or_other_pdfs(self):
+        bank = {"source_url": "https://www.rb.cz/documents", "report_search_url": "https://www.rb.cz/search", "report_search_queries": ["statistiky", "legacy"]}
+        items = [{"title": "statistiky-vykonu-Q1-2021", "url": "/attachments/infopovinnost/statistiky-vykonu-Q1-2021.pdf"},
+                 {"title": "report Q1 2026", "url": "https://foreign.test/report.pdf"},
+                 {"title": "terms", "url": "/attachments/terms.pdf"},
+                 {"title": "statistiky", "url": "/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevrenehho-bankovnictvi.pdf"}]
+        fetcher = SimpleNamespace(get=lambda *a, **k: SimpleNamespace(json=lambda: {"attachmentResults": {"results": items}}))
+        reports = find_rb_reports(bank, fetcher)
+        self.assertEqual(len(reports), 2)
+        self.assertEqual(reports[0][0], "2021-Q1")
+        self.assertEqual(reports[1][0], "")
+
+    def test_rb_preserves_separate_availability_and_derives_errors_from_calls_only(self):
+        text = "Statistiky\n1.7.2024 – 30.9.2024\nDatum PISP volání PISP chyb Dostupnost AISP volání AISP chyb Dostupnost\n01.07.2024 100 1 99,00% 1000 2 99,80%\n02.07.2024 300 0 100,00% 0 0 100,00%"
+        bank = {"id": "rb", "name": "RB", "source_url": "https://www.rb.cz"}
+        fetcher = SimpleNamespace(get=lambda *a, **k: SimpleNamespace(content=b"%PDF"))
+        with patch("psd2_tracker.tracker.extract_rb_pdf_text", return_value=text):
+            item = parse_rb_report(bank, "2024-Q3", "https://www.rb.cz/report.pdf", fetcher)
+        self.assertIsNone(item.availability_pct)
+        self.assertEqual(item.aisp_availability_pct, 99.9)
+        self.assertEqual(item.pisp_availability_pct, 99.5)
+        self.assertEqual(item.pisp_error_pct, .25)  # total errors / calls, not mean daily ratios
+        self.assertEqual(item.aisp_error_pct, .2)
+        self.assertIsNone(item.daily_metrics[1]["aisp_error_pct"])
+        self.assertIsNone(item.aisp_response_ms)
+
+    def test_rb_legacy_does_not_invent_response_units_or_error_denominators(self):
+        text = "Datum AISP PISP\nAISP odezva AISP počet chyb AISP dostupnost PISP odezva PISP počet chyb PISP dostupnost\n1 1. 04. 2020 615 44 99,87 % 494 2 99,68 %\n12. 04. 2020 0 0 0,00 % N/A N/A"
+        bank = {"id": "rb", "name": "RB", "source_url": "https://www.rb.cz"}
+        fetcher = SimpleNamespace(get=lambda *a, **k: SimpleNamespace(content=b"%PDF"))
+        with patch("psd2_tracker.tracker.extract_rb_pdf_text", return_value=text):
+            item = parse_rb_report(bank, "", "https://www.rb.cz/report.pdf", fetcher)
+        self.assertEqual(item.latest_period, "2020-Q2")
+        self.assertEqual(item.daily_metrics[0]["date"], "2020-04-11")
+        self.assertEqual(item.daily_metrics[1]["aisp_availability_pct"], 0)
+        self.assertIsNone(item.aisp_response_ms)
+        self.assertIsNone(item.aisp_error_pct)
+        self.assertEqual(item.daily_metrics[0]["aisp_response_reported_without_unit"], 615)
+
+    def test_rb_rejects_mislabelled_year_and_uses_previous_verified_report(self):
+        bank = {"id": "rb", "name": "RB", "source_url": "https://www.rb.cz"}
+        fetcher = SimpleNamespace(get=lambda *a, **k: SimpleNamespace(content=b"%PDF"))
+        text = "Statistiky 1.7.2025 – 30.9.2025\nDatum PISP volání PISP chyb Dostupnost AISP volání AISP chyb Dostupnost\n01.07.2024 100 0 100,00% 1000 0 100,00%"
+        with patch("psd2_tracker.tracker.extract_rb_pdf_text", return_value=text):
+            with self.assertRaisesRegex(ValueError, "obsahuje den 2024-07-01"):
+                parse_rb_report(bank, "2025-Q3", "https://www.rb.cz/report.pdf", fetcher)
+        previous = Observation(bank_id="rb", bank="RB", scope="main", source_url=bank["source_url"], latest_period="2025-Q1", aisp_availability_pct=99)
+        with patch("psd2_tracker.tracker.find_rb_reports", return_value=[("2025-Q3", "bad"), ("2025-Q1", "good")]), patch("psd2_tracker.tracker.parse_rb_report", side_effect=[ValueError("year mismatch"), previous]):
+            item = parse_rb(bank, fetcher)
+        self.assertEqual(item.latest_period, "2025-Q1")
+        self.assertIn("year mismatch", item.note)
+
     def test_trinity_legacy_percent_without_sign_is_supported(self):
         text = "Tar_01_PSD_API 01.10.2021 7200 8,3 91,7 n/a n/a\nTar_02_PSD_API 01.10.2021 7200 8,3 91,7 n/a n/a"
         with patch("psd2_tracker.tracker.extract_pdf_text", return_value=text):

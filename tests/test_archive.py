@@ -112,6 +112,17 @@ class ArchiveTests(unittest.TestCase):
             rows = collect_timeseries([bank], object(), [], "2026-Q2", [row], refresh=True)
         self.assertEqual(rows[0]["availability_pct"], 99.9)
 
+    def test_rejected_published_report_survives_export_without_numeric_data(self):
+        row = {"bank_id": "rb", "bank": "RB", "scope": "main", "period": "2025-Q3", "source_state": "report-error", "report_url": "https://example.test/bad.pdf", "availability_pct": "", "metric_method": "date mismatch"}
+        self.archive.record_snapshot(row, "quarterly-report")
+        self.assertEqual(self.archive.quarterly_rows(), [row])
+        self.archive.record_snapshot({**row, "availability_pct": 100}, "quarterly-report")
+        self.assertEqual(self.archive.quarterly_rows(), [row])
+        failed = self.daily("2025-07-01", 0)
+        failed.source_state = "report-error"
+        self.archive.record_daily(failed)
+        self.assertEqual(self.archive.daily_rows(), [])
+
     def test_moneta_parser_keeps_each_published_day_including_zero(self):
         source = b'<div class="table-accordion__row">15.09.2026 AISP avg. latency (ms) 250 AISP err. rate (%) 0.2 PISP avg. latency (ms) 0 PISP err. rate (%) 0</div>'
         bank = {"id": "moneta", "name": "MONETA", "scope": "main", "source_url": "https://example.test"}

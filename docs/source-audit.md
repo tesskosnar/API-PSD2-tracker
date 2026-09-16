@@ -2,18 +2,18 @@
 
 Původní seznam je ze sešitu dodaného k 9. září 2026. První audit proběhl 11. září; poslední sběr a kontrola historických reportů proběhly 16. září 2026. U sporných adres byly kontrolovány oficiální weby bank. Hodnocení rozlišuje dostupnost **publikovaného reportu** od dostupnosti samotného PSD2 API.
 
-**Nejnovější rozšíření 16. září:** 173 čtvrtletních záznamů (+29) a 15 507 denních záznamů za 12 bank. Původních 144 čtvrtletních záznamů se číselně nezměnilo. [Úplný audit všech 15 bank a seznam přírůstků](expanded-data-audit.md). Níže jsou zachovány také výsledky předchozích kontrol pro srovnání.
+**Nejnovější opakovaná kontrola 16. září:** 194 čtvrtletních záznamů (189 s číselným souhrnem, 4 reporty PPF bez aktivních volání a 1 sporný report bez čísel) a 17 319 denních záznamů za 13 bank. Po předchozím rozšíření 144 → 173 nyní přibylo 20 použitelných reportů Raiffeisenbank a zdrojový doklad s chybným rokem. Všech 173 předchozích záznamů zůstalo beze změny. [Nová kontrola všech 15 bank a přesný seznam změn](re-audit-2026-09-16.md). Níže jsou zachovány také výsledky předchozích kontrol pro srovnání; tvrzení, že u RB nebyl report doložen, se vztahuje k předchozí kontrole a bylo opraveno.
 
 | Banka | Výsledek ověření | Nejdůležitější zjištění |
 |---|---|---|
 | Česká spořitelna | správně | Stránka je JavaScriptový portál; pod ní je veřejné JSON API s denními hodnotami AISP/PISP. Tracker načítá konfiguraci a veřejný klíč přímo z portálu, takže není závislý na natvrdo uloženém klíči. |
 | ČSOB | správně, ale jen částečná metrika | Reportingová adresa při jednom ověření vrátila HTTP 500, při opakovaném načtení ale zpřístupnila XLSX 2026-Q2. Soubor obsahuje odezvu a chybovost, nikoli dostupnost. Chybovost je v XLSX uložená jako podíl a na procenta se násobí 100. |
 | Komerční banka | správně | Na stránce je aktuální PDF 2026-Q2 a archiv starších čtvrtletí. |
-| Raiffeisenbank | rozcestník funguje, report nedoložen | Dokumenty se načítají dynamicky. Poznámka původního sešitu uvádí 2025-Q3, ale dodaný datový list, ze kterého pochází hodnota 100 %, pokrývá 2024-Q3. Bez ověřitelného veřejného reportu se ruční hodnota nezobrazuje ani jako poslední dostupnost. |
+| Raiffeisenbank | reporty doplněny, starý závěr opraven | Veřejný dynamický katalog obsahuje 21 statistických dokumentů. Použita denní data 20 čtvrtletí 2020-Q1–2025-Q1; 2025-Q3 obsahuje datumy 2024 a zůstává bez převzatých metrik. Poslední ověřená data jsou 2025-Q1. U 2021-Q3 souhlasí název a denní datumy, ale záhlaví uvádí 2020; upozornění je v metodice. |
 | Air Bank | správně | Stránka obsahuje aktuální PDF 2026-Q2 a archiv. |
 | MONETA Money Bank | správně, ale jen částečná metrika | Stránka publikuje posledních 90 dní AISP/PISP/CISP odezvy a chybovosti, nikoli uptime. |
 | Fio banka | správně | Stránka obsahuje aktuální PDF 2026-Q2 a souvislý archiv od roku 2019. |
-| mBank | problém obsahu | Česká adresa existuje, ale při ověření byly na reportovací stránce polské hodnoty; nelze je bez dalšího považovat za česká data. |
+| mBank | veřejné reporty existují, CZ rozsah neověřen | Prověřeno všech 27 veřejných PDF. Portál podporuje EN/PL, nikoli český režim; žádný report jednoznačně neodděluje české rozhraní. Jazyk ani sídlo vydavatele samo o sobě nedokazuje zemi dat. Předchozí označení „polská data“ bylo příliš silné; správně jde o nedoložený CZ rozsah. |
 | UniCredit Bank | správně | Portál má CZ Dedicated Interface; publikuje měsíční uptime, odezvu a společnou chybovost. Tracker z měsíců skládá čtvrtletí. |
 | Banka CREDITAS | správně | Oficiální seznam obsahuje 2026-Q2. Přehled může blokovat automatické klienty, ale PDF mají předvídatelnou adresu. Sloupec „poměr výpadků“ není míra chybových API odpovědí; tracker jej proto nepřejmenovává na chybovost. |
 | Trinity Bank | správně | Stránka rozlišuje API a internetové bankovnictví; aktuální API report je 2026-Q2. |
@@ -57,8 +57,9 @@ Kontrola 15. září 2026 rozšířila historii nad posledních osm čtvrtletí.
 | Trinity Bank | 28 | 2019-Q3–2026-Q2 | Včetně všech odkazovaných stránek archivu; první report pokrývá pouze část čtvrtletí. |
 | Česká spořitelna | 1 | 2026-Q2 | Veřejný portál poskytuje poslední čtvrtletí, ne archiv dokumentů. |
 | UniCredit Bank | 1 | 2026-Q2 | Veřejný portál aktuálně vrací tři měsíce posledního čtvrtletí. |
+| Raiffeisenbank | 20 + 1 sporný | 2020-Q1–2025-Q1; sporný 2025-Q3 | Doplněno při druhém dohledávání 16. září v dynamickém katalogu; ZIP a Word soubory mají nesprávnou příponu PDF. |
 
-Čtvrtletní report nebyl doložen pro Raiffeisenbank, mBank, Partners Banku a Oberbank. MONETA publikuje jen pohyblivé 90denní okno, proto se nevydává za čtvrtletní archiv. V dashboardu se nově zobrazí všech 15 bank; banka bez hodnoty pro vybranou metriku zůstane viditelná s prázdnými poli.
+Český rozsah čtvrtletních čísel zatím není jednoznačně doložen u veřejných reportů mBank a Oberbank. Čtvrtletní report Partners Banky nebyl dohledán; doložen je 30denní PSD2 health-check. MONETA publikuje pohyblivé 90denní okno, proto se nevydává za čtvrtletní archiv. Raiffeisenbank již má doplněnou čtvrtletní historii. V dashboardu se zobrazí všech 15 bank; banka bez hodnoty pro vybranou metriku zůstane viditelná s prázdnými poli. Není to závěr, že banka reporty nezveřejňuje.
 
 Podrobné porovnání hodnot s dodaným Excelem je v [`original-data-comparison.md`](original-data-comparison.md).
 

@@ -33,10 +33,12 @@
     "id": "rb",
     "name": "Raiffeisenbank",
     "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
-    "parser": "report_links",
+    "parser": "rb",
     "scope": "main",
-    "report_pattern": "PSD2|API.*dostup|dostup.*API",
-    "note": "Dokumenty jsou nacitane dynamicky; dodany sesit obsahuje denni podklad za 2024-Q3, ale chybi overitelny verejny report. Hodnota se proto nepublikuje jako potvrzena dostupnost."
+    "history_start_period": "2020-Q1",
+    "report_search_url": "https://www.rb.cz/frontend-controller/search",
+    "report_search_queries": ["statistiky", "otevreneho-bankovnictvi", "statistiky-vykonu-Q"],
+    "note": "Verejne reporty jsou v dynamickem katalogu dokumentu. Dostupnost AISP/PISP je prumer publikovanych procent, nikoli dolozene mereni minut uptime. Report oznaceny 3Q2025 obsahuje denni datumy 2024; jeho metriky nejsou importovany."
   },
   {
     "id": "air",
@@ -75,7 +77,7 @@
     "parser": "report_links",
     "scope": "main",
     "report_pattern": "report|raport|PSD2|availability|dostupnost",
-    "note": "CZ portal pri overeni zobrazoval polska data; vysledek je proto veden jako nekonzistentni zdroj."
+    "note": "Verejny dynamicky portal nabizi reporty v EN/PL, nikoli CS. Bylo overeno vsech 27 PDF; zadny jednoznacne nevymezuje ceske rozhrani. Jazyk ani sidlo mBank S.A. samy o sobe nedokazuji zemi metrik; do potvrzeni CZ rozsahu nejsou cisla importovana."
   },
   {
     "id": "unicredit",

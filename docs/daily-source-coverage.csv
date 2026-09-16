@@ -16,22 +16,27 @@ air,Air Bank,2020-Q1,91,91,2020-01-01,2020-03-31,91,91,91,https://www.airbank.cz
 creditas,Banka CREDITAS,2020-Q1,91,91,2020-01-01,2020-03-31,91,91,91,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2020.pdf
 fio,Fio banka,2020-Q1,91,91,2020-01-01,2020-03-31,91,91,91,https://developers.fio.cz/stats/PSD2_2020Q1.pdf
 jt,J&T Banka,2020-Q1,91,91,2020-01-01,2020-03-31,91,91,91,https://assets-eu-01.kc-usercontent.com:443/23883f12-8a12-01af-3f05-426faedce691/014afa20-35b0-4e45-bcaf-bfa9ed7d62fc/Q1_2020_PSD2_unavailability.pdf
+rb,Raiffeisenbank,2020-Q1,91,91,2020-01-01,2020-03-31,91,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevrenehho-bankovnictvi.pdf
 trinity,Trinity Bank,2020-Q1,91,91,2020-01-01,2020-03-31,91,0,0,https://www.trinitybank.cz/download/811
 air,Air Bank,2020-Q2,91,91,2020-04-01,2020-06-30,91,91,91,https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2020
 creditas,Banka CREDITAS,2020-Q2,91,91,2020-04-01,2020-06-30,91,91,5,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2020.pdf
 fio,Fio banka,2020-Q2,91,91,2020-04-01,2020-06-30,91,91,91,https://developers.fio.cz/stats/PSD2_2020Q2.pdf
+rb,Raiffeisenbank,2020-Q2,91,91,2020-04-01,2020-06-30,91,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-Q2-2020.pdf
 trinity,Trinity Bank,2020-Q2,91,91,2020-04-01,2020-06-30,91,0,0,https://www.trinitybank.cz/download/905
 air,Air Bank,2020-Q3,92,92,2020-07-01,2020-09-30,92,92,92,https://www.airbank.cz/file-download/statistiky-dostupnosti-3q-2020
 creditas,Banka CREDITAS,2020-Q3,92,92,2020-07-01,2020-09-30,92,92,3,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2020.pdf
 fio,Fio banka,2020-Q3,92,92,2020-07-01,2020-09-30,92,92,92,https://developers.fio.cz/stats/PSD2_2020Q3.pdf
+rb,Raiffeisenbank,2020-Q3,92,92,2020-07-01,2020-09-30,92,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-Q3-2020.pdf
 trinity,Trinity Bank,2020-Q3,92,92,2020-07-01,2020-09-30,92,0,0,https://www.trinitybank.cz/download/1038
 air,Air Bank,2020-Q4,92,92,2020-10-01,2020-12-31,92,92,92,https://www.airbank.cz/file-download/statistiky-dostupnosti-4q-2020
 creditas,Banka CREDITAS,2020-Q4,92,92,2020-10-01,2020-12-31,92,92,6,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2020.pdf
 fio,Fio banka,2020-Q4,92,92,2020-10-01,2020-12-31,92,92,92,https://developers.fio.cz/stats/PSD2_2020Q4.pdf
+rb,Raiffeisenbank,2020-Q4,92,92,2020-10-01,2020-12-31,92,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-Q4-2020.pdf
 trinity,Trinity Bank,2020-Q4,92,92,2020-10-01,2020-12-31,92,0,0,https://www.trinitybank.cz/download/1085
 air,Air Bank,2021-Q1,90,90,2021-01-01,2021-03-31,90,90,90,https://www.airbank.cz/file-download/statistiky-dostupnosti-1q-2021
 creditas,Banka CREDITAS,2021-Q1,90,90,2021-01-01,2021-03-31,90,90,38,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2021.pdf
 fio,Fio banka,2021-Q1,90,90,2021-01-01,2021-03-31,90,90,90,https://developers.fio.cz/stats/PSD2_2021Q1.pdf
+rb,Raiffeisenbank,2021-Q1,90,90,2021-01-01,2021-03-31,90,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-Q1-2021.pdf
 trinity,Trinity Bank,2021-Q1,90,90,2021-01-01,2021-03-31,90,0,0,https://www.trinitybank.cz/download/1119
 csob,ČSOB,2021-Q1,90,90,2021-01-01,2021-03-31,0,90,90,https://www.csob.cz/documents/10710/21871290/psd2-q1-2021.xlsx
 air,Air Bank,2021-Q2,91,91,2021-04-01,2021-06-30,91,91,91,https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2021
@@ -43,69 +48,81 @@ air,Air Bank,2021-Q3,92,92,2021-07-01,2021-09-30,92,92,92,https://www.airbank.cz
 creditas,Banka CREDITAS,2021-Q3,92,91,2021-07-01,2021-09-29,91,13,64,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2021.pdf
 fio,Fio banka,2021-Q3,92,92,2021-07-01,2021-09-30,92,92,92,https://developers.fio.cz/stats/PSD2_2021Q3.pdf
 jt,J&T Banka,2021-Q3,92,68,2021-07-02,2021-09-29,68,68,68,https://assets-eu-01.kc-usercontent.com:443/23883f12-8a12-01af-3f05-426faedce691/fb831fde-7659-4d63-95da-0b69bce05875/Q3_2021_psd2_unavailability.pdf
+rb,Raiffeisenbank,2021-Q3,92,92,2021-07-01,2021-09-30,92,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-Q3-2021.pdf
 trinity,Trinity Bank,2021-Q3,92,92,2021-07-01,2021-09-30,92,0,0,https://www.trinitybank.cz/download/1240
 csob,ČSOB,2021-Q3,92,92,2021-07-01,2021-09-30,0,92,92,https://www.csob.cz/documents/10710/21871290/psd2-q3-2021.xlsx
 air,Air Bank,2021-Q4,92,92,2021-10-01,2021-12-31,92,92,92,https://www.airbank.cz/file-download/statistiky-pro-4q-2021
 creditas,Banka CREDITAS,2021-Q4,92,92,2021-10-01,2021-12-31,92,22,75,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2021.pdf
 fio,Fio banka,2021-Q4,92,92,2021-10-01,2021-12-31,92,92,92,https://developers.fio.cz/stats/PSD2_2021Q4.pdf
 jt,J&T Banka,2021-Q4,92,88,2021-10-01,2021-12-31,88,88,88,https://assets-eu-01.kc-usercontent.com:443/23883f12-8a12-01af-3f05-426faedce691/e25a7f8f-6554-4b27-b0e2-3244499297aa/Q4_2021_psd2_unavailability.pdf
+rb,Raiffeisenbank,2021-Q4,92,92,2021-10-01,2021-12-31,92,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-Q4-2021.pdf
 trinity,Trinity Bank,2021-Q4,92,92,2021-10-01,2021-12-31,92,0,0,https://www.trinitybank.cz/download/1299
 csob,ČSOB,2021-Q4,92,92,2021-10-01,2021-12-31,0,92,92,https://www.csob.cz/documents/10710/21871290/psd2-q4-2021.xlsx
 air,Air Bank,2022-Q1,90,90,2022-01-01,2022-03-31,90,90,90,https://www.airbank.cz/file-download/statistiky-dostupnosti-1q-2022
 creditas,Banka CREDITAS,2022-Q1,90,75,2022-01-01,2022-03-31,75,13,63,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2022.pdf
 fio,Fio banka,2022-Q1,90,90,2022-01-01,2022-03-31,90,90,90,https://developers.fio.cz/stats/PSD2_2022Q1.pdf
+rb,Raiffeisenbank,2022-Q1,90,90,2022-01-01,2022-03-31,90,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-Q1-2022.pdf
 trinity,Trinity Bank,2022-Q1,90,90,2022-01-01,2022-03-31,90,0,0,https://www.trinitybank.cz/download/1381
 csob,ČSOB,2022-Q1,90,90,2022-01-01,2022-03-31,0,90,90,https://www.csob.cz/documents/10710/21871290/psd2-q1-2022.xlsx
 air,Air Bank,2022-Q2,91,91,2022-04-01,2022-06-30,91,91,91,https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2022
 creditas,Banka CREDITAS,2022-Q2,91,56,2022-04-01,2022-06-30,56,14,33,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2022.pdf
 fio,Fio banka,2022-Q2,91,91,2022-04-01,2022-06-30,91,91,91,https://developers.fio.cz/stats/PSD2_2022Q2.pdf
+rb,Raiffeisenbank,2022-Q2,91,81,2022-04-01,2022-06-30,81,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-Q2-2022.pdf
 trinity,Trinity Bank,2022-Q2,91,91,2022-04-01,2022-06-30,91,0,0,https://www.trinitybank.cz/download/1445
 csob,ČSOB,2022-Q2,91,91,2022-04-01,2022-06-30,0,91,91,https://www.csob.cz/documents/10710/21871290/psd2-q2-2022.xlsx
 air,Air Bank,2022-Q3,92,92,2022-07-01,2022-09-30,92,92,92,https://www.airbank.cz/file-download/statistiky-dostupnosti-3q-2022
 creditas,Banka CREDITAS,2022-Q3,92,46,2022-07-01,2022-09-30,46,11,14,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2022.pdf
 fio,Fio banka,2022-Q3,92,92,2022-07-01,2022-09-30,92,92,92,https://developers.fio.cz/stats/PSD2_2022Q3.pdf
+rb,Raiffeisenbank,2022-Q3,92,91,2022-07-01,2022-09-29,91,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-3Q-2022.pdf
 trinity,Trinity Bank,2022-Q3,92,92,2022-07-01,2022-09-30,92,0,0,https://www.trinitybank.cz/download/1514
 csob,ČSOB,2022-Q3,92,92,2022-07-01,2022-09-30,0,92,92,https://www.csob.cz/documents/10710/21871290/psd2-q3-2022.xlsx
 air,Air Bank,2022-Q4,92,92,2022-10-01,2022-12-31,92,92,92,https://www.airbank.cz/file-download/statistiky-dostupnosti-4q-2022
 creditas,Banka CREDITAS,2022-Q4,92,50,2022-10-04,2022-12-31,49,20,31,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2022.pdf
 fio,Fio banka,2022-Q4,92,92,2022-10-01,2022-12-31,92,92,92,https://developers.fio.cz/stats/PSD2_2022Q4.pdf
 jt,J&T Banka,2022-Q4,92,92,2022-10-01,2022-12-31,92,92,92,https://assets-eu-01.kc-usercontent.com:443/23883f12-8a12-01af-3f05-426faedce691/2ec3d7ec-aa2f-4b43-ae6b-4fb460285381/Q4_2022_psd2_unavailability.pdf
+rb,Raiffeisenbank,2022-Q4,92,91,2022-10-01,2022-12-30,91,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-4Q-2022.pdf
 trinity,Trinity Bank,2022-Q4,92,92,2022-10-01,2022-12-31,92,0,0,https://www.trinitybank.cz/download/1569
 csob,ČSOB,2022-Q4,92,92,2022-10-01,2022-12-31,0,91,92,https://www.csob.cz/documents/10710/21871290/psd2-q4-2022.xlsx
 air,Air Bank,2023-Q1,90,90,2023-01-01,2023-03-31,90,90,90,https://www.airbank.cz/file-download/statistiky-dostupnosti-1q-2023
 creditas,Banka CREDITAS,2023-Q1,90,74,2023-01-02,2023-03-31,72,26,66,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2023.pdf
 fio,Fio banka,2023-Q1,90,90,2023-01-01,2023-03-31,90,90,90,https://developers.fio.cz/stats/PSD2_2023Q1.pdf
 ppf,PPF banka,2023-Q1,90,62,2023-01-01,2023-03-31,0,62,62,https://www.ppfbanka.cz/cs/document/download/7500
+rb,Raiffeisenbank,2023-Q1,90,90,2023-01-01,2023-03-31,90,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-1Q-2023.pdf
 trinity,Trinity Bank,2023-Q1,90,90,2023-01-01,2023-03-31,90,0,0,https://www.trinitybank.cz/download/1630
 csob,ČSOB,2023-Q1,90,88,2023-01-01,2023-03-31,0,88,88,https://www.csob.cz/documents/10710/21871290/psd2-q1-2023.xlsx
 air,Air Bank,2023-Q2,91,91,2023-04-01,2023-06-30,91,91,91,https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2023
 creditas,Banka CREDITAS,2023-Q2,91,85,2023-04-01,2023-06-30,85,17,83,https://www.creditas.cz/files/monitoring-mch-20230630-o.pdf
 fio,Fio banka,2023-Q2,91,91,2023-04-01,2023-06-30,91,91,91,https://developers.fio.cz/stats/PSD2_2023Q2.pdf
 ppf,PPF banka,2023-Q2,91,91,2023-04-01,2023-06-30,0,91,91,https://www.ppfbanka.cz/cs/document/download/7585
+rb,Raiffeisenbank,2023-Q2,91,91,2023-04-01,2023-06-30,91,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-2Q-2023.pdf
 trinity,Trinity Bank,2023-Q2,91,91,2023-04-01,2023-06-30,91,0,0,https://www.trinitybank.cz/download/1749
 csob,ČSOB,2023-Q2,91,91,2023-04-01,2023-06-30,0,91,91,https://www.csob.cz/documents/10710/21871290/psd2-q2-2023.xlsx
 air,Air Bank,2023-Q3,92,92,2023-07-01,2023-09-30,92,92,92,https://www.airbank.cz/file-download/statistiky-dostupnosti-3q-2023
 creditas,Banka CREDITAS,2023-Q3,92,76,2023-07-13,2023-09-30,76,35,73,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2023.pdf
 fio,Fio banka,2023-Q3,92,92,2023-07-01,2023-09-30,92,92,92,https://developers.fio.cz/stats/PSD2_2023Q3.pdf
 ppf,PPF banka,2023-Q3,92,91,2023-07-01,2023-09-30,0,91,91,https://www.ppfbanka.cz/cs/document/download/7631
+rb,Raiffeisenbank,2023-Q3,92,91,2023-07-01,2023-09-29,91,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-3Q-2023.pdf
 trinity,Trinity Bank,2023-Q3,92,92,2023-07-01,2023-09-30,92,0,0,https://www.trinitybank.cz/download/1797
 csob,ČSOB,2023-Q3,92,92,2023-07-01,2023-09-30,0,92,92,https://www.csob.cz/documents/10710/21871290/psd2-q3-2023.xlsx
 air,Air Bank,2023-Q4,92,92,2023-10-01,2023-12-31,92,92,92,https://www.airbank.cz/file-download/statistiky-dostupnosti-4q-2023
 creditas,Banka CREDITAS,2023-Q4,92,92,2023-10-01,2023-12-31,92,14,83,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2023.pdf
 fio,Fio banka,2023-Q4,92,92,2023-10-01,2023-12-31,92,92,92,https://developers.fio.cz/stats/PSD2_2023Q4.pdf
 ppf,PPF banka,2023-Q4,92,92,2023-10-01,2023-12-31,0,92,92,https://www.ppfbanka.cz/cs/document/download/7697
+rb,Raiffeisenbank,2023-Q4,92,91,2023-10-01,2023-12-30,91,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-4Q-2023.pdf
 trinity,Trinity Bank,2023-Q4,92,92,2023-10-01,2023-12-31,92,0,0,https://www.trinitybank.cz/download/1869
 csob,ČSOB,2023-Q4,92,92,2023-10-01,2023-12-31,0,92,92,https://www.csob.cz/documents/10710/21871290/psd2-q4-2023.xlsx
 air,Air Bank,2024-Q1,91,91,2024-01-01,2024-03-31,91,91,91,https://www.airbank.cz/file-download/statistiky-dostupnosti-1q-2024
 creditas,Banka CREDITAS,2024-Q1,91,91,2024-01-01,2024-03-31,91,21,73,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2024.pdf
 fio,Fio banka,2024-Q1,91,91,2024-01-01,2024-03-31,91,91,91,https://developers.fio.cz/stats/PSD2_2024Q1.pdf
 ppf,PPF banka,2024-Q1,91,91,2024-01-01,2024-03-31,0,91,91,https://www.ppfbanka.cz/cs/document/download/7819
+rb,Raiffeisenbank,2024-Q1,91,91,2024-01-01,2024-03-31,91,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-1Q-2024.pdf
 trinity,Trinity Bank,2024-Q1,91,91,2024-01-01,2024-03-31,91,0,0,https://www.trinitybank.cz/download/2021
 csob,ČSOB,2024-Q1,91,91,2024-01-01,2024-03-31,0,91,91,https://www.csob.cz/documents/10710/21871290/psd2-q1-2024.xlsx
 air,Air Bank,2024-Q2,91,91,2024-04-01,2024-06-30,91,91,91,https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2024
 creditas,Banka CREDITAS,2024-Q2,91,91,2024-04-01,2024-06-30,91,17,80,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2024.pdf
 fio,Fio banka,2024-Q2,91,91,2024-04-01,2024-06-30,91,91,91,https://developers.fio.cz/stats/PSD2_2024Q2.pdf
 ppf,PPF banka,2024-Q2,91,91,2024-04-01,2024-06-30,0,91,91,https://www.ppfbanka.cz/cs/document/download/7991
+rb,Raiffeisenbank,2024-Q2,91,91,2024-04-01,2024-06-30,91,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-2Q-2024.pdf
 trinity,Trinity Bank,2024-Q2,91,91,2024-04-01,2024-06-30,91,0,0,https://www.trinitybank.cz/download/2117
 csob,ČSOB,2024-Q2,91,91,2024-04-01,2024-06-30,0,91,91,https://www.csob.cz/documents/10710/21871290/psd2-q2-2024.xlsx
 air,Air Bank,2024-Q3,92,92,2024-07-01,2024-09-30,92,92,92,https://www.airbank.cz/file-download/statistiky-dostupnosti-3q-2024
@@ -114,6 +131,7 @@ fio,Fio banka,2024-Q3,92,92,2024-07-01,2024-09-30,92,92,92,https://developers.fi
 jt,J&T Banka,2024-Q3,92,91,2024-07-01,2024-09-30,91,91,91,https://assets-eu-01.kc-usercontent.com:443/23883f12-8a12-01af-3f05-426faedce691/09e76d44-266a-412f-bf3a-612acaba1e26/Q3-2024_psd2_unavailability.pdf
 kb,Komerční banka,2024-Q3,92,92,2024-07-01,2024-09-30,92,92,92,https://www.kb.cz/getmedia/a5f6061e-0081-4018-a97f-0f90695022ac/kb-psd2-2024-q3-cz.pdf
 ppf,PPF banka,2024-Q3,92,92,2024-07-01,2024-09-30,0,92,92,https://www.ppfbanka.cz/cs/document/download/7993
+rb,Raiffeisenbank,2024-Q3,92,92,2024-07-01,2024-09-30,92,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-3Q-2024.pdf
 trinity,Trinity Bank,2024-Q3,92,90,2024-07-01,2024-09-30,90,0,0,https://www.trinitybank.cz/download/2179
 csob,ČSOB,2024-Q3,92,92,2024-07-01,2024-09-30,0,92,92,https://www.csob.cz/documents/10710/21871290/psd2-q3-2024.xlsx
 air,Air Bank,2024-Q4,92,92,2024-10-01,2024-12-31,92,92,92,https://www.airbank.cz/file-download/statistiky-dostupnosti-4q-2024
@@ -122,6 +140,7 @@ fio,Fio banka,2024-Q4,92,92,2024-10-01,2024-12-31,92,92,92,https://developers.fi
 jt,J&T Banka,2024-Q4,92,92,2024-10-01,2024-12-31,92,92,92,https://assets-eu-01.kc-usercontent.com:443/23883f12-8a12-01af-3f05-426faedce691/d178be61-bcf8-4ad0-ac2c-c487f1a80ba0/Q4-2024_psd2_unavailability.pdf
 kb,Komerční banka,2024-Q4,92,92,2024-10-01,2024-12-31,92,92,92,https://www.kb.cz/getmedia/465ab7eb-62b6-49f7-9009-54978e40ffe7/kb-psd2-2024-q4-cz.pdf
 ppf,PPF banka,2024-Q4,92,91,2024-10-01,2024-12-30,0,91,91,https://www.ppfbanka.cz/cs/document/download/7995
+rb,Raiffeisenbank,2024-Q4,92,92,2024-10-01,2024-12-31,92,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-4Q-2024.pdf
 trinity,Trinity Bank,2024-Q4,92,92,2024-10-01,2024-12-31,92,0,0,https://www.trinitybank.cz/download/2401
 csob,ČSOB,2024-Q4,92,92,2024-10-01,2024-12-31,0,92,92,https://www.csob.cz/documents/10710/21871290/psd2-q4-2024.xlsx
 air,Air Bank,2025-Q1,90,90,2025-01-01,2025-03-31,90,90,90,https://www.airbank.cz/file-download/statistiky-dostupnosti-1q-2025
@@ -130,6 +149,7 @@ fio,Fio banka,2025-Q1,90,90,2025-01-01,2025-03-31,90,90,90,https://developers.fi
 jt,J&T Banka,2025-Q1,90,89,2025-01-01,2025-03-31,89,89,89,https://assets-eu-01.kc-usercontent.com:443/23883f12-8a12-01af-3f05-426faedce691/4ba78ea4-28e7-4397-aa4b-d60a304bca46/Q1-2025_psd2_unavailability.pdf
 kb,Komerční banka,2025-Q1,90,90,2025-01-01,2025-03-31,90,90,90,https://www.kb.cz/getmedia/534311f3-7d66-4bcd-abd6-0f04b41e008f/kb-psd2-2025-q1-cz.pdf
 ppf,PPF banka,2025-Q1,90,89,2025-01-01,2025-03-30,0,89,89,https://www.ppfbanka.cz/cs/document/download/8081
+rb,Raiffeisenbank,2025-Q1,90,90,2025-01-01,2025-03-31,90,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-1Q-2025.pdf
 trinity,Trinity Bank,2025-Q1,90,90,2025-01-01,2025-03-31,90,0,0,https://www.trinitybank.cz/download/2520
 csob,ČSOB,2025-Q1,90,90,2025-01-01,2025-03-31,0,90,90,https://www.csob.cz/documents/10710/21871290/psd2-q1-2025.xlsx
 air,Air Bank,2025-Q2,91,91,2025-04-01,2025-06-30,91,91,91,https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2025
@@ -146,6 +166,7 @@ fio,Fio banka,2025-Q3,92,92,2025-07-01,2025-09-30,92,92,92,https://developers.fi
 jt,J&T Banka,2025-Q3,92,91,2025-07-01,2025-09-30,91,91,91,https://assets-eu-01.kc-usercontent.com:443/23883f12-8a12-01af-3f05-426faedce691/4d6eab7e-7571-4256-895b-157c45599a47/Q3-2025_psd2_unavailability.pdf
 kb,Komerční banka,2025-Q3,92,92,2025-07-01,2025-09-30,92,92,92,https://www.kb.cz/getmedia/5e46e9ce-f49c-42c2-9e8d-956d1dd5923f/kb-psd2-2025-q3-cz.pdf
 ppf,PPF banka,2025-Q3,92,92,2025-07-01,2025-09-30,0,92,92,https://www.ppfbanka.cz/cs/document/download/8267
+rb,Raiffeisenbank,2025-Q3,92,0,,,0,0,0,https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-3Q-2025.pdf
 trinity,Trinity Bank,2025-Q3,92,92,2025-07-01,2025-09-30,92,0,0,https://www.trinitybank.cz/download/2754
 csob,ČSOB,2025-Q3,92,92,2025-07-01,2025-09-30,0,92,92,https://www.csob.cz/documents/10710/21871290/psd2-q3-2025.xlsx
 air,Air Bank,2025-Q4,92,92,2025-10-01,2025-12-31,92,92,92,https://www.airbank.cz/file-download/statistiky-dostupnosti-4q-2025

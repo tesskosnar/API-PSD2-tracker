@@ -1,18 +1,18 @@
 window.PSD2_DATA = {
   "archive": {
     "checked_on": "2026-09-16",
-    "daily_days": 15507,
+    "daily_days": 17319,
     "daily_from": "2019-01-01",
     "daily_to": "2026-09-15",
-    "daily_versions": 15597,
-    "documents": 232,
-    "fetches": 232,
+    "daily_versions": 17409,
+    "documents": 256,
+    "fetches": 256,
     "first_archived_on": "2026-09-16",
     "schema_version": 1,
-    "snapshots": 209
+    "snapshots": 232
   },
   "checked_on": "2026-09-16",
-  "daily_history_asset": "daily-data.js?v=dbce8f796918",
+  "daily_history_asset": "daily-data.js?v=d2f47aa5f6c7",
   "expected_period": "2026-Q2",
   "latest": [
     {
@@ -73,23 +73,23 @@ window.PSD2_DATA = {
       "status": "ok"
     },
     {
-      "aisp_availability_pct": "",
-      "aisp_error_pct": "",
+      "aisp_availability_pct": 99.9981,
+      "aisp_error_pct": 0.0016,
       "aisp_response_ms": "",
       "availability_pct": "",
       "bank": "Raiffeisenbank",
       "bank_id": "rb",
-      "latest_period": "",
-      "metric_method": "",
-      "note": "Dokumenty jsou nacitane dynamicky; dodany sesit obsahuje denni podklad za 2024-Q3, ale chybi overitelny verejny report. Hodnota se proto nepublikuje jako potvrzena dostupnost.",
-      "pisp_availability_pct": "",
-      "pisp_error_pct": "",
+      "latest_period": "2025-Q1",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; chybovost = soucet poctu chyb / soucet poctu volani x 100",
+      "note": "Verejne reporty jsou v dynamickem katalogu dokumentu. Dostupnost AISP/PISP je prumer publikovanych procent, nikoli dolozene mereni minut uptime. Report oznaceny 3Q2025 obsahuje denni datumy 2024; jeho metriky nejsou importovany. Novejsi report 2025-Q3 nebyl pouzit: obsahuje denni datumy 2024-Q3.",
+      "pisp_availability_pct": 100.0,
+      "pisp_error_pct": 0.0,
       "pisp_response_ms": "",
-      "report_url": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-1Q-2025.pdf",
       "scope": "main",
       "source_state": "ok",
       "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
-      "status": "missing"
+      "status": "outdated"
     },
     {
       "aisp_availability_pct": "",
@@ -156,8 +156,8 @@ window.PSD2_DATA = {
       "bank": "mBank",
       "bank_id": "mbank",
       "latest_period": "",
-      "metric_method": "",
-      "note": "CZ portal pri overeni zobrazoval polska data; vysledek je proto veden jako nekonzistentni zdroj.",
+      "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+      "note": "Verejny dynamicky portal nabizi reporty v EN/PL, nikoli CS. Bylo overeno vsech 27 PDF; zadny jednoznacne nevymezuje ceske rozhrani. Jazyk ani sidlo mBank S.A. samy o sobe nedokazuji zemi metrik; do potvrzeni CZ rozsahu nejsou cisla importovana.",
       "pisp_availability_pct": "",
       "pisp_error_pct": "",
       "pisp_response_ms": "",
@@ -2625,6 +2625,342 @@ window.PSD2_DATA = {
         "shared_error_pct": 0
       }
     },
+    "rb:2020-Q1": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2020-01-01",
+      "last_day": "2020-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 91,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 91,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2020-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2020-04-01",
+      "last_day": "2020-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 91,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 91,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2020-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2020-07-01",
+      "last_day": "2020-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 92,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 92,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2020-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2020-10-01",
+      "last_day": "2020-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 92,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 92,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2021-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2021-01-01",
+      "last_day": "2021-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 90,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2021-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2021-07-01",
+      "last_day": "2021-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 92,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 92,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2021-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2021-10-01",
+      "last_day": "2021-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 92,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 92,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2022-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2022-01-01",
+      "last_day": "2022-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 90,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 90,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2022-Q2": {
+      "archived_days": 81,
+      "calendar_days": 91,
+      "first_day": "2022-04-01",
+      "last_day": "2022-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 81,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 71,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2022-Q3": {
+      "archived_days": 91,
+      "calendar_days": 92,
+      "first_day": "2022-07-01",
+      "last_day": "2022-09-29",
+      "metric_days": {
+        "aisp_availability_pct": 91,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 91,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2022-Q4": {
+      "archived_days": 91,
+      "calendar_days": 92,
+      "first_day": "2022-10-01",
+      "last_day": "2022-12-30",
+      "metric_days": {
+        "aisp_availability_pct": 91,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 91,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2023-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2023-01-01",
+      "last_day": "2023-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 90,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 90,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2023-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2023-04-01",
+      "last_day": "2023-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 91,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 91,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2023-Q3": {
+      "archived_days": 91,
+      "calendar_days": 92,
+      "first_day": "2023-07-01",
+      "last_day": "2023-09-29",
+      "metric_days": {
+        "aisp_availability_pct": 91,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 91,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2023-Q4": {
+      "archived_days": 91,
+      "calendar_days": 92,
+      "first_day": "2023-10-01",
+      "last_day": "2023-12-30",
+      "metric_days": {
+        "aisp_availability_pct": 91,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 91,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2024-Q1": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2024-01-01",
+      "last_day": "2024-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 91,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 91,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2024-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2024-04-01",
+      "last_day": "2024-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 91,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 91,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2024-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2024-07-01",
+      "last_day": "2024-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 92,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 92,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2024-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2024-10-01",
+      "last_day": "2024-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 92,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 92,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2025-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2025-01-01",
+      "last_day": "2025-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 90,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 90,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "rb:2025-Q3": {
+      "archived_days": 0,
+      "calendar_days": 92,
+      "first_day": null,
+      "last_day": null,
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
     "trinity:2019-Q3": {
       "archived_days": 17,
       "calendar_days": 92,
@@ -3430,6 +3766,24 @@ window.PSD2_DATA = {
       "status": "ok"
     },
     {
+      "aisp_availability_pct": 99.423,
+      "aisp_error_pct": "",
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; odezva bez uvedene jednotky a chyby bez poctu volani se neprevadeji na ms ani procenta",
+      "period": "2020-Q1",
+      "pisp_availability_pct": 99.0789,
+      "pisp_error_pct": "",
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevrenehho-bankovnictvi.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "ok"
+    },
+    {
       "aisp_availability_pct": "",
       "aisp_error_pct": "",
       "aisp_response_ms": "",
@@ -3499,6 +3853,24 @@ window.PSD2_DATA = {
       "scope": "main",
       "source_state": "ok",
       "source_url": "https://developers.fio.cz/stats.html",
+      "status": "ok"
+    },
+    {
+      "aisp_availability_pct": 99.5301,
+      "aisp_error_pct": "",
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; odezva bez uvedene jednotky a chyby bez poctu volani se neprevadeji na ms ani procenta",
+      "period": "2020-Q2",
+      "pisp_availability_pct": 99.5627,
+      "pisp_error_pct": "",
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-Q2-2020.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
       "status": "ok"
     },
     {
@@ -3574,6 +3946,24 @@ window.PSD2_DATA = {
       "status": "ok"
     },
     {
+      "aisp_availability_pct": 98.7089,
+      "aisp_error_pct": "",
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; odezva bez uvedene jednotky a chyby bez poctu volani se neprevadeji na ms ani procenta",
+      "period": "2020-Q3",
+      "pisp_availability_pct": 98.4266,
+      "pisp_error_pct": "",
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-Q3-2020.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "ok"
+    },
+    {
       "aisp_availability_pct": "",
       "aisp_error_pct": "",
       "aisp_response_ms": "",
@@ -3646,6 +4036,24 @@ window.PSD2_DATA = {
       "status": "ok"
     },
     {
+      "aisp_availability_pct": 99.6852,
+      "aisp_error_pct": "",
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; odezva bez uvedene jednotky a chyby bez poctu volani se neprevadeji na ms ani procenta",
+      "period": "2020-Q4",
+      "pisp_availability_pct": 99.339,
+      "pisp_error_pct": "",
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-Q4-2020.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "ok"
+    },
+    {
       "aisp_availability_pct": "",
       "aisp_error_pct": "",
       "aisp_response_ms": "",
@@ -3715,6 +4123,24 @@ window.PSD2_DATA = {
       "scope": "main",
       "source_state": "ok",
       "source_url": "https://developers.fio.cz/stats.html",
+      "status": "ok"
+    },
+    {
+      "aisp_availability_pct": 99.4699,
+      "aisp_error_pct": "",
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; odezva bez uvedene jednotky a chyby bez poctu volani se neprevadeji na ms ani procenta",
+      "period": "2021-Q1",
+      "pisp_availability_pct": "",
+      "pisp_error_pct": "",
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-Q1-2021.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
       "status": "ok"
     },
     {
@@ -3916,6 +4342,24 @@ window.PSD2_DATA = {
       "status": "ok"
     },
     {
+      "aisp_availability_pct": 98.5801,
+      "aisp_error_pct": "",
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; odezva bez uvedene jednotky a chyby bez poctu volani se neprevadeji na ms ani procenta; obsah odkazu s priponou PDF je dokument Word; upozorneni: hlavicka uvadi 2020-06-01, 2020-09-30, denni datumy i katalog uvadeji 2021-Q3; datumy nebyly prepsany",
+      "period": "2021-Q3",
+      "pisp_availability_pct": 99.7073,
+      "pisp_error_pct": "",
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-Q3-2021.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "ok"
+    },
+    {
       "aisp_availability_pct": "",
       "aisp_error_pct": "",
       "aisp_response_ms": "",
@@ -4024,6 +4468,24 @@ window.PSD2_DATA = {
       "status": "ok"
     },
     {
+      "aisp_availability_pct": 99.7273,
+      "aisp_error_pct": "",
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; odezva bez uvedene jednotky a chyby bez poctu volani se neprevadeji na ms ani procenta",
+      "period": "2021-Q4",
+      "pisp_availability_pct": 99.3083,
+      "pisp_error_pct": "",
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-Q4-2021.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "ok"
+    },
+    {
       "aisp_availability_pct": "",
       "aisp_error_pct": "",
       "aisp_response_ms": "",
@@ -4111,6 +4573,24 @@ window.PSD2_DATA = {
       "scope": "main",
       "source_state": "ok",
       "source_url": "https://developers.fio.cz/stats.html",
+      "status": "ok"
+    },
+    {
+      "aisp_availability_pct": 98.7404,
+      "aisp_error_pct": "",
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; odezva bez uvedene jednotky a chyby bez poctu volani se neprevadeji na ms ani procenta; PDF ulozene uvnitr ZIP archivu",
+      "period": "2022-Q1",
+      "pisp_availability_pct": 92.2359,
+      "pisp_error_pct": "",
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-Q1-2022.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
       "status": "ok"
     },
     {
@@ -4204,6 +4684,24 @@ window.PSD2_DATA = {
       "status": "ok"
     },
     {
+      "aisp_availability_pct": 95.4268,
+      "aisp_error_pct": "",
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; odezva bez uvedene jednotky a chyby bez poctu volani se neprevadeji na ms ani procenta",
+      "period": "2022-Q2",
+      "pisp_availability_pct": 98.8421,
+      "pisp_error_pct": "",
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-Q2-2022.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "ok"
+    },
+    {
       "aisp_availability_pct": "",
       "aisp_error_pct": "",
       "aisp_response_ms": "",
@@ -4291,6 +4789,24 @@ window.PSD2_DATA = {
       "scope": "main",
       "source_state": "ok",
       "source_url": "https://developers.fio.cz/stats.html",
+      "status": "ok"
+    },
+    {
+      "aisp_availability_pct": 99.997,
+      "aisp_error_pct": 0.003,
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; chybovost = soucet poctu chyb / soucet poctu volani x 100",
+      "period": "2022-Q3",
+      "pisp_availability_pct": 100.0,
+      "pisp_error_pct": 0.0,
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-3Q-2022.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
       "status": "ok"
     },
     {
@@ -4402,6 +4918,24 @@ window.PSD2_DATA = {
       "status": "ok"
     },
     {
+      "aisp_availability_pct": 99.9995,
+      "aisp_error_pct": 0.0004,
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; chybovost = soucet poctu chyb / soucet poctu volani x 100",
+      "period": "2022-Q4",
+      "pisp_availability_pct": 99.9988,
+      "pisp_error_pct": 0.0015,
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-4Q-2022.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "ok"
+    },
+    {
       "aisp_availability_pct": "",
       "aisp_error_pct": "",
       "aisp_response_ms": "",
@@ -4508,6 +5042,24 @@ window.PSD2_DATA = {
       "source_state": "ok",
       "source_url": "https://www.ppfbanka.cz/cs/dokumenty/1868-pristupy-tretich-stran",
       "status": "partial"
+    },
+    {
+      "aisp_availability_pct": 99.8294,
+      "aisp_error_pct": 0.2129,
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; chybovost = soucet poctu chyb / soucet poctu volani x 100",
+      "period": "2023-Q1",
+      "pisp_availability_pct": 99.9394,
+      "pisp_error_pct": 0.0425,
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-1Q-2023.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "ok"
     },
     {
       "aisp_availability_pct": "",
@@ -4618,6 +5170,24 @@ window.PSD2_DATA = {
       "status": "partial"
     },
     {
+      "aisp_availability_pct": 99.9997,
+      "aisp_error_pct": 0.0004,
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; chybovost = soucet poctu chyb / soucet poctu volani x 100",
+      "period": "2023-Q2",
+      "pisp_availability_pct": 100.0,
+      "pisp_error_pct": 0.0,
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-2Q-2023.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "ok"
+    },
+    {
       "aisp_availability_pct": "",
       "aisp_error_pct": "",
       "aisp_response_ms": "",
@@ -4724,6 +5294,24 @@ window.PSD2_DATA = {
       "source_state": "ok",
       "source_url": "https://www.ppfbanka.cz/cs/dokumenty/1868-pristupy-tretich-stran",
       "status": "partial"
+    },
+    {
+      "aisp_availability_pct": 99.9982,
+      "aisp_error_pct": 0.0024,
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; chybovost = soucet poctu chyb / soucet poctu volani x 100",
+      "period": "2023-Q3",
+      "pisp_availability_pct": 99.9993,
+      "pisp_error_pct": 0.0005,
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-3Q-2023.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "ok"
     },
     {
       "aisp_availability_pct": "",
@@ -4834,6 +5422,24 @@ window.PSD2_DATA = {
       "status": "partial"
     },
     {
+      "aisp_availability_pct": 99.9942,
+      "aisp_error_pct": 0.0065,
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; chybovost = soucet poctu chyb / soucet poctu volani x 100",
+      "period": "2023-Q4",
+      "pisp_availability_pct": 99.9968,
+      "pisp_error_pct": 0.0014,
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-4Q-2023.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "ok"
+    },
+    {
       "aisp_availability_pct": "",
       "aisp_error_pct": "",
       "aisp_response_ms": "",
@@ -4942,6 +5548,24 @@ window.PSD2_DATA = {
       "status": "partial"
     },
     {
+      "aisp_availability_pct": 99.998,
+      "aisp_error_pct": 0.002,
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; chybovost = soucet poctu chyb / soucet poctu volani x 100",
+      "period": "2024-Q1",
+      "pisp_availability_pct": 99.9968,
+      "pisp_error_pct": 0.0027,
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-1Q-2024.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "ok"
+    },
+    {
       "aisp_availability_pct": "",
       "aisp_error_pct": "",
       "aisp_response_ms": "",
@@ -5048,6 +5672,24 @@ window.PSD2_DATA = {
       "source_state": "ok",
       "source_url": "https://www.ppfbanka.cz/cs/dokumenty/1868-pristupy-tretich-stran",
       "status": "partial"
+    },
+    {
+      "aisp_availability_pct": 99.9976,
+      "aisp_error_pct": 0.0021,
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; chybovost = soucet poctu chyb / soucet poctu volani x 100",
+      "period": "2024-Q2",
+      "pisp_availability_pct": 100.0,
+      "pisp_error_pct": 0.0,
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-2Q-2024.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "ok"
     },
     {
       "aisp_availability_pct": "",
@@ -5194,6 +5836,24 @@ window.PSD2_DATA = {
       "status": "partial"
     },
     {
+      "aisp_availability_pct": 99.9989,
+      "aisp_error_pct": 0.0008,
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; chybovost = soucet poctu chyb / soucet poctu volani x 100",
+      "period": "2024-Q3",
+      "pisp_availability_pct": 98.9823,
+      "pisp_error_pct": 0.6076,
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-3Q-2024.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "ok"
+    },
+    {
       "aisp_availability_pct": "",
       "aisp_error_pct": "",
       "aisp_response_ms": "",
@@ -5338,6 +5998,24 @@ window.PSD2_DATA = {
       "status": "partial"
     },
     {
+      "aisp_availability_pct": 99.9987,
+      "aisp_error_pct": 0.0007,
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; chybovost = soucet poctu chyb / soucet poctu volani x 100",
+      "period": "2024-Q4",
+      "pisp_availability_pct": 97.9726,
+      "pisp_error_pct": 1.4829,
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-4Q-2024.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "ok"
+    },
+    {
       "aisp_availability_pct": "",
       "aisp_error_pct": "",
       "aisp_response_ms": "",
@@ -5480,6 +6158,24 @@ window.PSD2_DATA = {
       "source_state": "ok",
       "source_url": "https://www.ppfbanka.cz/cs/dokumenty/1868-pristupy-tretich-stran",
       "status": "partial"
+    },
+    {
+      "aisp_availability_pct": 99.9981,
+      "aisp_error_pct": 0.0016,
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; chybovost = soucet poctu chyb / soucet poctu volani x 100",
+      "period": "2025-Q1",
+      "pisp_availability_pct": 100.0,
+      "pisp_error_pct": 0.0,
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-1Q-2025.pdf",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "ok"
     },
     {
       "aisp_availability_pct": "",
@@ -5768,6 +6464,24 @@ window.PSD2_DATA = {
       "source_state": "ok",
       "source_url": "https://www.ppfbanka.cz/cs/dokumenty/1868-pristupy-tretich-stran",
       "status": "partial"
+    },
+    {
+      "aisp_availability_pct": "",
+      "aisp_error_pct": "",
+      "aisp_response_ms": "",
+      "availability_pct": "",
+      "bank": "Raiffeisenbank",
+      "bank_id": "rb",
+      "metric_method": "verejny report nalezen; metriky nejsou pouzity: RB report oznaceny 2025-Q3 obsahuje den 2024-07-01 (2024-Q3); datumy se neprepisuji",
+      "period": "2025-Q3",
+      "pisp_availability_pct": "",
+      "pisp_error_pct": "",
+      "pisp_response_ms": "",
+      "report_url": "https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-3Q-2025.pdf",
+      "scope": "main",
+      "source_state": "report-error",
+      "source_url": "https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni",
+      "status": "blocked"
     },
     {
       "aisp_availability_pct": "",

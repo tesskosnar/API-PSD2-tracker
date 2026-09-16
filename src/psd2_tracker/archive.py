@@ -109,9 +109,13 @@ class Archive:
         latest = {}
         for (payload,) in rows:
             row = json.loads(payload)
-            if row.get("report_url") and row.get("source_state") in {"ok", "ok-direct-pdf"}:
+            has_values = lambda item: any(value not in (None, "") for field, value in item.items() if field.endswith(("_pct", "_ms")))
+            valid_state = row.get("source_state") in {"ok", "ok-direct-pdf"}
+            # Retain evidence of an invalid published report too, without ever
+            # restoring rejected or carried numeric values as measurements.
+            invalid_report = row.get("source_state") == "report-error" and not has_values(row)
+            if row.get("report_url") and (valid_state or invalid_report):
                 key = (row["bank_id"], row["period"])
-                has_values = lambda item: any(value not in (None, "") for field, value in item.items() if field.endswith(("_pct", "_ms")))
                 if key in latest and has_values(latest[key]) and not has_values(row):
                     continue
                 latest[key] = row

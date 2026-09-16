@@ -128,6 +128,8 @@
     ).length;
     document.getElementById("currentCoverage").textContent = `${current} z ${latest.length}`;
     document.getElementById("historyPoints").textContent = formatNumber(history.length, 0);
+    const numericReports = history.filter(ui.hasMetrics).length;
+    document.getElementById("historyContext").textContent = numericReports === history.length ? "součet reportovaných čtvrtletí všech bank" : `${numericReports} s údaji · ${history.length - numericReports} bez čtvrtletní hodnoty`;
     document.getElementById("bankCount").textContent = formatNumber(latest.length, 0);
     document.getElementById("periodLabel").textContent = `Poslední uzavřené období: ${formatPeriod(data.expected_period)}`;
     const checked = data.checked_on ? new Date(`${data.checked_on}T12:00:00`) : null;
@@ -234,6 +236,9 @@
     referenceScale.labels.forEach((label, index) => {
       const entry = document.createElement("span"); entry.className = `scale-band quality-${index}`; entry.textContent = label; entry.title = referenceScale.titles[index]; scaleKey.append(entry);
     });
+    const directionLabel = document.createElement("span"); directionLabel.className = "scale-direction";
+    directionLabel.textContent = "Tmavší zelená = lepší výsledek";
+    scaleKey.append(directionLabel);
     const referenceLabel = document.createElement("span"); referenceLabel.className = "scale-median";
     referenceLabel.textContent = referenceScale.median === null ? "Medián není doložený" : `Medián: ${metric.format(referenceScale.median)}`;
     referenceLabel.title = `Reference: ${referenceScale.count} doložených bankovních čtvrtletí z celé historie této metriky. Střední pásmo: medián ± medián absolutních odchylek. Banky s delší historií mají více podkladů; nejde o společný regulatorní limit.`;
@@ -336,11 +341,12 @@
           : hasPerformance
             ? "jen výkonnost"
             : hasReport
-              ? "report bez měřitelné hodnoty"
+              ? (item.source_state === "report-error" ? "report s chybou zdroje; čísla nepoužita" : "report bez použitelných metrik")
               : "bez reportu";
         cell.className = `coverage-cell ${hasAvailability ? "coverage-cell--full" : hasPerformance ? "coverage-cell--partial" : hasReport ? "coverage-cell--report" : ""}`;
         cell.setAttribute("aria-label", `${bank.bank}, ${period}: ${coverageState}${hasReport ? "; podrobnosti reportu" : ""}`);
         cell.title = cell.getAttribute("aria-label");
+        if (item?.source_state === "report-error") cell.title += ` · ${item.metric_method}`;
         if (item?.report_url) {
           cell.type = "button";
           cell.addEventListener("click", () => openCoverage(data, item));

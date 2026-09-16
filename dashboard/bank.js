@@ -28,7 +28,11 @@
   }
   function renderReport() {
     const row = selectedPeriod === "latest" ? bank : history.find(item => item.period === selectedPeriod);
-    document.getElementById("bankMethod").textContent = ui.methodNote(row);
+    document.getElementById("bankMethod").textContent = row.source_state === "report-error"
+      ? `Sporný nebo nečitelný report: čísla nejsou zařazena do srovnání. ${row.metric_method || "Podrobnosti jsou uvedeny v pokrytí a zdroji níže."}`
+      : row.metric_method?.includes("hlavicka uvadi")
+        ? "Záhlaví reportu uvádí jiné období. Denní datumy souhlasí s názvem v katalogu a nebyly přepsány; podrobnosti omezení najdete níže v metodice."
+        : ui.methodNote(row);
     const cards = document.getElementById("bankMetrics"); cards.replaceChildren();
     Object.values(ui.metrics).forEach(metric => {
       const value = metric.value(row), card = document.createElement("article"); card.className = `bank-metric-card${value === null ? " bank-metric-card--empty" : ""}`;
@@ -52,7 +56,7 @@
       button.disabled = !available(button.dataset.metric); const active = button.dataset.metric === activeMetric; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); button.title = button.disabled ? "V ověřené čtvrtletní historii není tato metrika doložená" : ui.metrics[button.dataset.metric].label;
     });
     const metric = ui.metrics[activeMetric], points = history.filter(row => metric.value(row) !== null);
-    document.getElementById("bankHistoryInfo").textContent = history.length ? `${history.length} doložených čtvrtletí · ${metric.label} (${metric.unit}) · ${metric.note}` : "Český čtvrtletní report není doložený. Pokud jsou dostupné denní hodnoty, najdete je níže.";
+    document.getElementById("bankHistoryInfo").textContent = history.length ? `${history.length} publikovaných čtvrtletních reportů · ${points.length} s údajem: ${metric.label} (${metric.unit}) · ${metric.note}` : "Český čtvrtletní report není doložený. Pokud jsou dostupné denní hodnoty, najdete je níže.";
     document.getElementById("bankHistoryMetricHeader").textContent = `${metric.label} (${metric.unit})`;
     const chart = document.getElementById("bankChart"); chart.replaceChildren(); chart.toggleAttribute("hidden", !points.length);
     if (points.length) {

@@ -763,6 +763,12 @@ def parse_report_links(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
     observation = base_observation(bank)
     response = fetcher.get(bank["source_url"])
     candidates = find_report_candidates(response.text, response.url, bank.get("report_pattern", r"PSD2|availability|dostupnost|report"))
+    if bank["id"] == "mbank":
+        # A .cz host and an EN/PL portal locale do not establish a CZ data cut.
+        # Public reports were audited, but must not become Czech observations
+        # just because the SPA later exposes static links.
+        observation.metric_method = "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata"
+        return observation
     if not candidates:
         return observation
 
@@ -786,6 +792,179 @@ def parse_report_links(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
         observation.source_state = "report-error"
         observation.note = f"{observation.note} PDF se nepodarilo zpracovat: {exc}".strip()
     return observation
+
+
+def find_rb_reports(bank: dict[str, Any], fetcher: Fetcher) -> list[tuple[str, str]]:
+    """Use the same public attachment catalogue as the bank's document UI.
+
+    Categories omit archived reports and a broad query returns only 20 hits.
+    Narrow queries cover legacy and newer names without guessing PDF paths.
+    """
+    found = {}
+    for query in bank["report_search_queries"]:
+        response = fetcher.get(bank["report_search_url"], params={
+            "searchIn": "ATTACHMENTS", "lang": "cs", "maxCountDocuments": 50, "q": query,
+        })
+        for item in response.json().get("attachmentResults", {}).get("results", []):
+            url = urljoin(bank["source_url"], item.get("url", ""))
+            if (urlparse(url).hostname != urlparse(bank["source_url"]).hostname
+                    or not re.search(r"/attachments/infopovinnost/statistiky-vykonu[^/]*\.pdf$", url, re.I)):
+                continue
+            found[url] = parse_quarter(f"{item.get('title', '')} {url}") or ""
+    return sorted(((period, url) for url, period in found.items()), reverse=True)
+
+
+def extract_rb_pdf_text(content: bytes) -> str:
+    # Coordinate-based extraction keeps legacy split digits in their cells.
+    try:
+        with pdfplumber.open(io.BytesIO(content)) as document:
+            return "\n".join(page.extract_text(x_tolerance=2, y_tolerance=3) or "" for page in document.pages)
+    except Exception as exc:
+        raise ValueError(f"RB PDF nelze precist: {type(exc).__name__}") from exc
+
+
+def rb_report_text(content: bytes) -> tuple[str, str]:
+    """The public catalogue includes ZIP/DOCX downloads labelled .pdf."""
+    if content.startswith(b"%PDF"):
+        return extract_rb_pdf_text(content), ""
+    if not content.startswith(b"PK"):
+        raise ValueError("RB odkaz nevratil PDF ani podporovany archiv")
+    with zipfile.ZipFile(io.BytesIO(content)) as packed:
+        if len(packed.infolist()) > 50 or sum(item.file_size for item in packed.infolist()) > 20_000_000:
+            raise ValueError("RB archiv prekrocil bezpecnou velikost")
+        if "word/document.xml" in packed.namelist():
+            ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
+            root = ElementTree.fromstring(packed.read("word/document.xml"))
+            parts = []
+            cell_text = lambda node: " ".join("".join(t.text or "" for t in p.findall(".//w:t", ns)) for p in node.findall(".//w:p", ns))
+            body = root.find("w:body", ns)
+            if body is None:
+                raise ValueError("RB dokument Word nema telo dokumentu")
+            for node in body:
+                if node.tag == f"{{{ns['w']}}}p":
+                    parts.append("".join(t.text or "" for t in node.findall(".//w:t", ns)))
+                elif node.tag == f"{{{ns['w']}}}tbl":
+                    parts.extend(" ".join(cell_text(cell) for cell in row.findall("w:tc", ns)) for row in node.findall("w:tr", ns))
+            return "\n".join(parts), "; obsah odkazu s priponou PDF je dokument Word"
+        pdfs = [item for item in packed.infolist() if item.filename.lower().endswith(".pdf") and not item.filename.startswith("__MACOSX/")]
+        if len(pdfs) != 1:
+            raise ValueError("RB ZIP neobsahuje jednoznacny PDF report")
+        pdf = packed.read(pdfs[0])
+        if not pdf.startswith(b"%PDF"):
+            raise ValueError("RB ZIP neobsahuje platne PDF")
+        return extract_rb_pdf_text(pdf), "; PDF ulozene uvnitr ZIP archivu"
+
+
+def parse_rb_report(bank: dict[str, Any], period: str, url: str, fetcher: Fetcher) -> Observation:
+    response = fetcher.get(url, headers={"Accept": "application/pdf,*/*;q=0.8"})
+    text, packaging_note = rb_report_text(response.content)
+    # Some legacy PDFs split the day digits ("1 1. 04. 2020").
+    text = re.sub(r"(?m)^(\d)\s+(\d)(?=\s*\.)", r"\1\2", text)
+    daily_pattern = re.compile(r"^(\d{1,2}\s*\.\s*\d{1,2}\s*\.\s*\d{4})\s+((?:[\d,.]+|[Nn]/[Aa])\s+.+)$", re.M)
+    records = list(daily_pattern.finditer(text))
+    if not records:
+        raise ValueError("RB PDF nema rozpoznane denni radky")
+    header = text[:records[0].start()]
+    first_day = datetime.strptime(re.sub(r"\s", "", records[0].group(1)), "%d.%m.%Y").date()
+    period = period or f"{first_day.year}-Q{(first_day.month - 1) // 3 + 1}"
+    services = re.findall(r"AISP|PISP", header, re.I)
+    first_service = services[0].lower() if services else ""
+    if first_service not in {"aisp", "pisp"}:
+        raise ValueError("RB PDF nema dolozene poradi AISP/PISP")
+    order = [first_service, "pisp" if first_service == "aisp" else "aisp"]
+    calls_layout = bool(re.search(r"vol[aá]n[ií]", header, re.I))
+    daily = {}
+    for match in records:
+        day = datetime.strptime(re.sub(r"\s", "", match.group(1)), "%d.%m.%Y").date()
+        actual_period = f"{day.year}-Q{(day.month - 1) // 3 + 1}"
+        if actual_period != period:
+            raise ValueError(f"RB report oznaceny {period} obsahuje den {day} ({actual_period}); datumy se neprepisuji")
+        raw = re.sub(r"(?<=\d)\s+%", "%", match.group(2))
+        row = {"date": day.isoformat(), "country_code": "CZ", "source_url": url}
+        # Anchor groups to their percentage: PDF text can split response digits
+        # ("74 4,1016") and legacy N/A rows omit the third placeholder.
+        groups = list(re.finditer(r"((?:[\d.,]+\s+){2,})([\d.,]+)%", raw))
+        for index, group in enumerate(groups):
+            service_index = index + (1 if index == 0 and "N/A" in raw[:group.start()].upper() else 0)
+            if service_index >= len(order):
+                raise ValueError(f"RB report ma nejasne sloupce pro {day}")
+            service = order[service_index]
+            row[f"{service}_availability_pct"] = parse_number(group[2])
+            if row[f"{service}_availability_pct"] is None or not 0 <= row[f"{service}_availability_pct"] <= 100:
+                raise ValueError(f"RB report ma neplatnou dostupnost pro {day}")
+            prefix = group[1].split()
+            count, errors = parse_number("".join(prefix[:-1])), parse_number(prefix[-1])
+            row[f"{service}_reported_error_count"] = errors
+            if calls_layout:
+                if count is None or errors is None or count < 0 or errors < 0 or errors > count:
+                    raise ValueError(f"RB report ma neplatne pocty volani/chyb pro {day}")
+                row[f"{service}_reported_call_count"] = count
+                row[f"{service}_error_pct"] = errors / count * 100 if count > 0 else None
+            else:
+                # Legacy headings say "odezva" but do not state a unit or
+                # the number of calls. Do not invent milliseconds or error %.
+                row[f"{service}_response_reported_without_unit"] = count
+        if day in daily and daily[day] != row:
+            raise ValueError(f"RB PDF obsahuje ruzne radky pro den {day}")
+        daily[day] = row
+    observation = base_observation(bank)
+    observation.latest_period = period
+    observation.report_url = url
+    observation.daily_metrics = list(daily.values())
+    for service in order:
+        setattr(observation, f"{service}_availability_pct", average(row.get(f"{service}_availability_pct") for row in daily.values()))
+        if calls_layout:
+            calls = sum(row.get(f"{service}_reported_call_count", 0) or 0 for row in daily.values())
+            errors = sum(row.get(f"{service}_reported_error_count", 0) or 0 for row in daily.values())
+            setattr(observation, f"{service}_error_pct", errors / calls * 100 if calls else None)
+    observation.metric_method = "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime"
+    observation.metric_method += "; chybovost = soucet poctu chyb / soucet poctu volani x 100" if calls_layout else "; odezva bez uvedene jednotky a chyby bez poctu volani se neprevadeji na ms ani procenta"
+    observation.metric_method += packaging_note
+    header_dates = re.findall(r"\d{1,2}\s*\.\s*\d{1,2}\s*\.\s*\d{4}", header)
+    conflicts = []
+    for raw_day in header_dates:
+        header_day = datetime.strptime(re.sub(r"\s", "", raw_day), "%d.%m.%Y").date()
+        if f"{header_day.year}-Q{(header_day.month - 1) // 3 + 1}" != period:
+            conflicts.append(header_day.isoformat())
+    if conflicts:
+        observation.metric_method += f"; upozorneni: hlavicka uvadi {', '.join(conflicts)}, denni datumy i katalog uvadeji {period}; datumy nebyly prepsany"
+    return finalize_status(observation, period)
+
+
+def collect_rb_history(bank: dict[str, Any], fetcher: Fetcher, periods: set[str]) -> list[Observation]:
+    observations = []
+    for period, url in find_rb_reports(bank, fetcher):
+        if period and period not in periods:
+            continue
+        try:
+            observation = parse_rb_report(bank, period, url, fetcher)
+        except (FetchError, ValueError, zipfile.BadZipFile, ElementTree.ParseError) as exc:
+            if not period:
+                continue
+            observation = base_observation(bank)
+            observation.latest_period = period
+            observation.report_url = url
+            observation.source_state = "report-error"
+            observation.metric_method = f"verejny report nalezen; metriky nejsou pouzity: {exc}"
+            observation.note += f" {exc}"
+        if observation.latest_period in periods:
+            observations.append(observation)
+    return observations
+
+
+def parse_rb(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
+    issues = []
+    for period, url in find_rb_reports(bank, fetcher):
+        try:
+            observation = parse_rb_report(bank, period, url, fetcher)
+        except (FetchError, ValueError, zipfile.BadZipFile, ElementTree.ParseError) as exc:
+            issues.append(str(exc))
+            continue
+        if has_reported_metrics(observation):
+            if issues:
+                observation.note += " Novejsi report nebyl pouzit: " + "; ".join(issues)
+            return observation
+    raise ValueError("RB nema overeny meritelny report: " + "; ".join(issues))
 
 
 def parse_csas(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
@@ -1217,6 +1396,8 @@ def collect_bank(
             observation = parse_csas(bank, fetcher)
         elif parser_name == "csob":
             observation = parse_csob(bank, fetcher)
+        elif parser_name == "rb":
+            observation = parse_rb(bank, fetcher)
         elif parser_name == "unicredit":
             observation = parse_unicredit(bank, fetcher)
         elif parser_name == "moneta":
@@ -1564,6 +1745,8 @@ def collect_timeseries(
                 observations = collect_pdf_history(bank, fetcher, wanted)
             elif bank["parser"] == "csob":
                 observations = collect_csob_history(bank, fetcher, wanted)
+            elif bank["parser"] == "rb":
+                observations = collect_rb_history(bank, fetcher, wanted)
             elif bank["parser"] == "creditas":
                 observations = collect_creditas_history(bank, fetcher, wanted)
             elif bank["parser"] == "unicredit":

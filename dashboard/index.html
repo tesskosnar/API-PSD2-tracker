@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light">
   <title>Dostupnost PSD2 API v Česku</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d2f37'/%3E%3Cpath d='M18 18h18c8 0 13 5 13 12s-5 12-13 12H27v8h-9V18zm9 8v8h8c3 0 5-1 5-4s-2-4-5-4h-8z' fill='%237cd3bd'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css?v=17">
+  <link rel="stylesheet" href="styles.css?v=18">
 </head>
 <body>
   <header class="hero">
@@ -33,7 +33,7 @@
       <article class="summary__item">
         <span class="summary__label">Bankovních čtvrtletí v historii</span>
         <strong id="historyPoints">—</strong>
-        <span class="summary__context">součet reportovaných čtvrtletí všech bank</span>
+        <span id="historyContext" class="summary__context">součet reportovaných čtvrtletí všech bank</span>
       </article>
       <article class="summary__item">
         <span class="summary__label">Sledovaný rozsah</span>
@@ -157,7 +157,7 @@
         <div class="coverage-key" aria-label="Legenda pokrytí">
           <span><i class="coverage-dot coverage-dot--full"></i>Dostupnost</span>
           <span><i class="coverage-dot coverage-dot--partial"></i>Jen výkon</span>
-          <span><i class="coverage-dot coverage-dot--report"></i>Report bez měřitelné hodnoty</span>
+          <span><i class="coverage-dot coverage-dot--report"></i>Report bez použitelných metrik</span>
           <span><i class="coverage-dot coverage-dot--missing"></i>Bez reportu</span>
         </div>
       </div>
@@ -172,8 +172,9 @@
   <footer>
     <p>PSD2 API tracker · data z oficiálních stránek bank</p>
     <nav class="footer-links" aria-label="Další zdroje">
-      <a href="https://github.com/tesskosnar/API-PSD2-tracker/blob/main/docs/expanded-data-audit.md">Rozšířený audit 15 bank</a>
-      <a href="../docs/expanded-data-changes.csv">Nově doplněné reporty</a>
+      <a href="https://github.com/tesskosnar/API-PSD2-tracker/blob/main/docs/re-audit-2026-09-16.md">Nová kontrola 15 bank</a>
+      <a href="../docs/rb-data-changes-2026-09-16.csv">Nové reporty RB</a>
+      <a href="../docs/expanded-data-changes.csv">Předchozí přírůstky</a>
       <a href="../docs/source-audit.md">Audit zdrojů</a>
       <a href="../docs/original-data-comparison.md">Porovnání s Excelem</a>
       <a href="../docs/historical-data-corrections.csv">Seznam oprav historie</a>
@@ -183,8 +184,8 @@
     </nav>
   </footer>
 
-  <script src="data.js?v=b4dbba5f6464"></script>
-  <script src="core.js?v=17"></script>
-  <script src="app.js?v=17"></script>
+  <script src="data.js?v=b4e3e91ee8a2"></script>
+  <script src="core.js?v=18"></script>
+  <script src="app.js?v=18"></script>
 </body>
 </html>
