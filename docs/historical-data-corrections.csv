@@ -1,0 +1,92 @@
+bank,period,metric,previous_tracker_value,corrected_value,report_url
+Air Bank,2019-Q1,availability_pct,100.0,99.0617,https://www.airbank.cz/file-download/statistiky-dostupnosti-1Q-2019
+Air Bank,2019-Q1,aisp_response_ms,605.0,971.4719,https://www.airbank.cz/file-download/statistiky-dostupnosti-1Q-2019
+Air Bank,2019-Q1,pisp_response_ms,74.5,124.5955,https://www.airbank.cz/file-download/statistiky-dostupnosti-1Q-2019
+Air Bank,2019-Q1,aisp_error_pct,720.005,0.034,https://www.airbank.cz/file-download/statistiky-dostupnosti-1Q-2019
+Air Bank,2019-Q1,pisp_error_pct,0.02,0.0266,https://www.airbank.cz/file-download/statistiky-dostupnosti-1Q-2019
+Banka CREDITAS,2019-Q3,aisp_error_pct,,0.355,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2019.pdf
+Banka CREDITAS,2019-Q3,pisp_error_pct,,0.355,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2019.pdf
+Banka CREDITAS,2019-Q4,aisp_error_pct,,0.0055,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2019.pdf
+Banka CREDITAS,2019-Q4,pisp_error_pct,,0.0055,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2019.pdf
+Banka CREDITAS,2020-Q1,aisp_error_pct,,0.0503,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2020.pdf
+Banka CREDITAS,2020-Q1,pisp_error_pct,,0.0503,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2020.pdf
+Banka CREDITAS,2020-Q2,aisp_response_ms,110.2418,587.989,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2020.pdf
+Banka CREDITAS,2020-Q2,pisp_response_ms,532.2222,613.6,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2020.pdf
+Banka CREDITAS,2020-Q2,aisp_error_pct,,0.0464,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2020.pdf
+Banka CREDITAS,2020-Q2,pisp_error_pct,,0.0464,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2020.pdf
+Banka CREDITAS,2020-Q3,aisp_response_ms,143.2935,380.663,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2020.pdf
+Banka CREDITAS,2020-Q3,pisp_response_ms,543.1111,344.0,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2020.pdf
+Banka CREDITAS,2020-Q3,aisp_error_pct,,0.0999,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2020.pdf
+Banka CREDITAS,2020-Q3,pisp_error_pct,,0.0999,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2020.pdf
+Banka CREDITAS,2020-Q4,aisp_response_ms,172.9022,574.3043,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2020.pdf
+Banka CREDITAS,2020-Q4,pisp_response_ms,902.8125,1580.6667,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2020.pdf
+Banka CREDITAS,2020-Q4,aisp_error_pct,,0.1072,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2020.pdf
+Banka CREDITAS,2020-Q4,pisp_error_pct,,0.1072,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2020.pdf
+Banka CREDITAS,2021-Q1,aisp_response_ms,,337.3222,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2021.pdf
+Banka CREDITAS,2021-Q1,pisp_response_ms,,667.7895,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2021.pdf
+Banka CREDITAS,2021-Q1,aisp_error_pct,,0.157,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2021.pdf
+Banka CREDITAS,2021-Q1,pisp_error_pct,,0.157,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2021.pdf
+ČSOB,2021-Q1,aisp_response_ms,0.0239,642.717,https://www.csob.cz/documents/10710/21871290/psd2-q1-2021.xlsx
+ČSOB,2021-Q1,aisp_error_pct,5652.5933,2.3899,https://www.csob.cz/documents/10710/21871290/psd2-q1-2021.xlsx
+Air Bank,2021-Q2,aisp_response_ms,72.0,67.033,https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2021
+Air Bank,2021-Q2,pisp_response_ms,30.7083,30.5495,https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2021
+Air Bank,2021-Q2,aisp_error_pct,0.0104,0.0032,https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2021
+Air Bank,2021-Q2,pisp_error_pct,0.0608,0.0544,https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2021
+Banka CREDITAS,2021-Q2,aisp_response_ms,,7087.8947,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2021.pdf
+Banka CREDITAS,2021-Q2,pisp_response_ms,,619.1212,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2021.pdf
+Banka CREDITAS,2021-Q2,aisp_error_pct,,0.0352,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2021.pdf
+Banka CREDITAS,2021-Q2,pisp_error_pct,,0.0352,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2021.pdf
+ČSOB,2021-Q2,aisp_response_ms,0.0413,605.7599,https://www.csob.cz/documents/10710/21871290/psd2-q2-2021.xlsx
+ČSOB,2021-Q2,aisp_error_pct,1966.5934,4.1281,https://www.csob.cz/documents/10710/21871290/psd2-q2-2021.xlsx
+Banka CREDITAS,2021-Q3,availability_pct,95.3846,100.0,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2021.pdf
+Banka CREDITAS,2021-Q3,aisp_response_ms,3474.1667,5521.6923,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2021.pdf
+Banka CREDITAS,2021-Q3,pisp_response_ms,1085.2258,606.9375,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2021.pdf
+Banka CREDITAS,2021-Q3,aisp_error_pct,,0.0052,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2021.pdf
+Banka CREDITAS,2021-Q3,pisp_error_pct,,0.0052,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2021.pdf
+ČSOB,2021-Q3,aisp_response_ms,0.0015,614.8331,https://www.csob.cz/documents/10710/21871290/psd2-q3-2021.xlsx
+ČSOB,2021-Q3,aisp_error_pct,1561.6848,0.1534,https://www.csob.cz/documents/10710/21871290/psd2-q3-2021.xlsx
+Banka CREDITAS,2021-Q4,aisp_response_ms,5199.0952,5078.3636,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2021.pdf
+Banka CREDITAS,2021-Q4,pisp_response_ms,547.5789,520.9733,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2021.pdf
+Banka CREDITAS,2021-Q4,aisp_error_pct,,0.0113,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2021.pdf
+Banka CREDITAS,2021-Q4,pisp_error_pct,,0.0113,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2021.pdf
+ČSOB,2021-Q4,aisp_response_ms,0.0371,672.3257,https://www.csob.cz/documents/10710/21871290/psd2-q4-2021.xlsx
+ČSOB,2021-Q4,aisp_error_pct,3202.1739,3.7063,https://www.csob.cz/documents/10710/21871290/psd2-q4-2021.xlsx
+Banka CREDITAS,2022-Q1,aisp_response_ms,7224.1,7319.2308,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2022.pdf
+Banka CREDITAS,2022-Q1,pisp_response_ms,878.9091,557.127,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2022.pdf
+Banka CREDITAS,2022-Q1,aisp_error_pct,,0.0041,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2022.pdf
+Banka CREDITAS,2022-Q1,pisp_error_pct,,0.0041,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2022.pdf
+ČSOB,2022-Q1,aisp_response_ms,0.0041,664.5287,https://www.csob.cz/documents/10710/21871290/psd2-q1-2022.xlsx
+ČSOB,2022-Q1,aisp_error_pct,61.1111,0.4142,https://www.csob.cz/documents/10710/21871290/psd2-q1-2022.xlsx
+Banka CREDITAS,2022-Q2,aisp_response_ms,1012.6667,1985.8571,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2022.pdf
+Banka CREDITAS,2022-Q2,pisp_response_ms,1019.0263,607.1212,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2022.pdf
+Banka CREDITAS,2022-Q2,aisp_error_pct,,0.0641,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2022.pdf
+Banka CREDITAS,2022-Q2,pisp_error_pct,,0.0641,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2022.pdf
+Banka CREDITAS,2022-Q3,aisp_response_ms,484.75,3664.0909,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2022.pdf
+Banka CREDITAS,2022-Q3,pisp_response_ms,2280.381,680.1429,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2022.pdf
+Banka CREDITAS,2022-Q3,aisp_error_pct,,0.0289,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2022.pdf
+Banka CREDITAS,2022-Q3,pisp_error_pct,,0.0289,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2022.pdf
+Banka CREDITAS,2022-Q4,aisp_response_ms,44.75,1734.1,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2022.pdf
+Banka CREDITAS,2022-Q4,pisp_response_ms,1196.4783,663.3226,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2022.pdf
+Banka CREDITAS,2022-Q4,aisp_error_pct,,0.0055,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2022.pdf
+Banka CREDITAS,2022-Q4,pisp_error_pct,,0.0055,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2022.pdf
+ČSOB,2022-Q4,pisp_response_ms,766.7227,767.8192,https://www.csob.cz/documents/10710/21871290/psd2-q4-2022.xlsx
+ČSOB,2022-Q4,aisp_error_pct,13.4505,13.4348,https://www.csob.cz/documents/10710/21871290/psd2-q4-2022.xlsx
+ČSOB,2022-Q4,pisp_error_pct,1.1648,1.163,https://www.csob.cz/documents/10710/21871290/psd2-q4-2022.xlsx
+Banka CREDITAS,2023-Q1,aisp_response_ms,3456.9444,2406.7692,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2023.pdf
+Banka CREDITAS,2023-Q1,pisp_response_ms,574.6111,622.2273,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2023.pdf
+Banka CREDITAS,2023-Q1,aisp_error_pct,,0.0032,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2023.pdf
+Banka CREDITAS,2023-Q1,pisp_error_pct,,0.0032,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2023.pdf
+Banka CREDITAS,2023-Q3,aisp_response_ms,2540.9706,3328.0857,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2023.pdf
+Banka CREDITAS,2023-Q3,pisp_response_ms,1328.5405,934.5479,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2023.pdf
+Banka CREDITAS,2023-Q4,aisp_response_ms,10009.2308,11443.7143,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2023.pdf
+Banka CREDITAS,2023-Q4,pisp_response_ms,999.3452,648.8313,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2023.pdf
+Banka CREDITAS,2024-Q1,aisp_response_ms,22563.3889,22218.5238,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2024.pdf
+Banka CREDITAS,2024-Q1,pisp_response_ms,1553.3158,789.0959,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-1q-2024.pdf
+Banka CREDITAS,2024-Q2,aisp_response_ms,20177.7333,21421.7647,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2024.pdf
+Banka CREDITAS,2024-Q2,pisp_response_ms,1249.0366,511.4625,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2024.pdf
+Banka CREDITAS,2024-Q3,aisp_response_ms,19303.3125,18808.2727,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2024.pdf
+Banka CREDITAS,2024-Q3,pisp_response_ms,1993.8784,626.7353,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2024.pdf
+Banka CREDITAS,2024-Q4,aisp_response_ms,6527.8,7671.5625,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2024.pdf
+Banka CREDITAS,2024-Q4,pisp_response_ms,1459.25,721.197,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2024.pdf
+Banka CREDITAS,2025-Q4,aisp_response_ms,4330.6667,5793.5,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2025.pdf
+Banka CREDITAS,2025-Q4,pisp_response_ms,886.0575,777.9651,https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-4q-2025.pdf

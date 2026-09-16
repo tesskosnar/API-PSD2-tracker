@@ -7,9 +7,11 @@ import hashlib
 import http.cookiejar
 import io
 import json
+import math
 import re
 import sys
 import time
+import unicodedata
 import zipfile
 from dataclasses import asdict, dataclass
 from datetime import date, datetime, timedelta, timezone
@@ -24,6 +26,7 @@ from xml.sax.saxutils import escape as xml_escape
 
 from lxml import html
 from pypdf import PdfReader
+import pdfplumber
 
 
 def discover_project_root() -> Path:
@@ -169,7 +172,10 @@ class Observation:
         ):
             value = getattr(self, field)
             if value is not None:
-                setattr(self, field, round(float(value), 4))
+                number = float(value)
+                if not math.isfinite(number) or number < 0 or (field.endswith("_pct") and number > 100):
+                    raise ValueError(f"Neplatna hodnota {field}: {value}")
+                setattr(self, field, round(number, 4))
         return self
 
 
@@ -409,6 +415,109 @@ def extract_pdf_text(content: bytes) -> str:
     return "\n".join(page.extract_text() or "" for page in reader.pages)
 
 
+def extract_creditas_tables(content: bytes) -> list[list[list[str | None]]]:
+    with pdfplumber.open(io.BytesIO(content)) as document:
+        tables = []
+        previous_layout = None
+        for page in document.pages:
+            page_tables = page.extract_tables()
+            usable = any(parse_number(cell) is not None
+                         for table in page_tables for row in table[1:] for cell in row[1:])
+            if usable:
+                tables.extend(page_tables)
+            else:
+                table, previous_layout = extract_borderless_creditas_table(page, previous_layout)
+                tables.append(table)
+        return tables
+
+
+def extract_borderless_creditas_table(page: Any, previous_layout: Any = None) -> tuple[list[list[str | None]], Any]:
+    """Keep empty cells in older borderless reports using PDF coordinates."""
+    words = page.extract_words()
+    days = [word for word in words if re.fullmatch(r"\d{1,2}[./]\d{1,2}[./]\d{2,4}", word["text"])]
+    if not days:
+        return [], previous_layout
+    first_top = min(word["top"] for word in days)
+    # Drawing order keeps overlapping header text intact (e.g. [%]Uptime),
+    # unlike visual word extraction. It also handles multi-line headings.
+    chars = [char for char in page.chars if char["top"] < first_top - 1]
+    heading = "".join(char["text"] for char in chars)
+    groups = []
+    for match in re.finditer(r"Date|Datum|AISP|PISP|CISP|Downtime|Uptime|Error|POM[EĚ]R[_\s]V[YÝ]PADK[UŮ]", heading, re.I):
+        label = match.group()
+        if label.lower() == "error":
+            label = "Error response rate [%]"
+        groups.append((chars[match.start()]["x0"], label))
+    if any(label.upper() == "AISP" for _, label in groups):
+        if not any(label.lower() in {"date", "datum"} for _, label in groups):
+            groups.append((min(word["x0"] for word in days), "Date"))
+        groups.sort()
+        headers = [label for _, label in groups]
+        # Numbers are right-aligned just before the next column heading.
+        boundaries = [0] + [start - 1 for start, _ in groups[1:]] + [page.width]
+        previous_layout = (headers, boundaries)
+    elif previous_layout:
+        headers, boundaries = previous_layout
+    else:
+        return [], previous_layout
+    table: list[list[str | None]] = [headers]
+    for day in days:
+        cells: list[list[str]] = [[] for _ in headers]
+        for word in sorted((word for word in words if abs(word["top"] - day["top"]) < 2), key=lambda word: word["x0"]):
+            center = (word["x0"] + word["x1"]) / 2
+            for index, (left, right) in enumerate(zip(boundaries, boundaries[1:])):
+                if left <= center < right:
+                    cells[index].append(word["text"])
+                    break
+        table.append([" ".join(cell) or None for cell in cells])
+    return table, previous_layout
+
+
+def parse_creditas_metrics(content: bytes) -> dict[str, float | str | None]:
+    columns: dict[str, int] = {}
+    values: dict[str, list[float]] = {
+        "availability_pct": [], "aisp_response_ms": [],
+        "pisp_response_ms": [], "shared_error_pct": [],
+    }
+    published_days = 0
+    for table in extract_creditas_tables(content):
+        for row in table:
+            for index, cell in enumerate(row):
+                header = " ".join(unicodedata.normalize("NFKD", cell or "").encode("ascii", "ignore").decode().upper().split())
+                if "AISP" in header:
+                    columns["aisp_response_ms"] = index
+                elif "PISP" in header:
+                    columns["pisp_response_ms"] = index
+                elif "UPTIME" in header or "DOSTUPNOST" in header or "PROVOZUSCHOPNOST" in header:
+                    columns["availability_pct"] = index
+                elif "ERROR RESPONSE" in header or "MIRA CHYB" in header:
+                    columns["shared_error_pct"] = index
+            if not row or not re.fullmatch(r"\d{1,2}[./]\d{1,2}[./]\d{2,4}", (row[0] or "").strip()):
+                continue
+            published_days += 1
+            for field, index in columns.items():
+                if index >= len(row):
+                    continue
+                value = parse_number(row[index])
+                if value is not None:
+                    values[field].append(value)
+    if not values["availability_pct"]:
+        raise ValueError("PDF CREDITAS nema rozpoznanou tabulku dennich uptime hodnot")
+    result: dict[str, float | str | None] = {
+        "availability_pct": fmean(values["availability_pct"]),
+        "aisp_response_ms": average_active_response(values["aisp_response_ms"]),
+        "pisp_response_ms": average_active_response(values["pisp_response_ms"]),
+        "aisp_error_pct": average(values["shared_error_pct"]),
+        "pisp_error_pct": average(values["shared_error_pct"]),
+        "metric_method": "prumer dennich hodnot z PDF tabulky se zachovanymi prazdnymi sloupci",
+    }
+    if values["shared_error_pct"]:
+        result["metric_method"] += "; spolecna error response rate v procentech"
+    if len(values["availability_pct"]) < published_days:
+        result["metric_method"] += f"; neuplny denni uptime: {len(values['availability_pct'])}/{published_days} dni"
+    return result
+
+
 def parse_first_xlsx_sheet(content: bytes) -> list[dict[str, str]]:
     spreadsheet_ns = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
     relationship_ns = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
@@ -465,6 +574,8 @@ def parse_first_xlsx_sheet(content: bytes) -> list[dict[str, str]]:
 
 
 def parse_pdf_metrics(content: bytes, layout: str) -> dict[str, float | str | None]:
+    if layout == "creditas":
+        return parse_creditas_metrics(content)
     text = extract_pdf_text(content)
     date_prefix = r"\d{1,2}[./]\d{1,2}[./]\d{2,4}"
     lines = [" ".join(line.split()) for line in text.splitlines()]
@@ -483,14 +594,18 @@ def parse_pdf_metrics(content: bytes, layout: str) -> dict[str, float | str | No
         pisp_responses: list[float] = []
         aisp_errors: list[float] = []
         pisp_errors: list[float] = []
-        for line in lines:
-            match = re.match(rf"^{date_prefix}\s+(\d{{1,4}})\s+(\d{{1,4}})(?:\s|$)", line)
+        # Starší PDF Air Bank neuchovávájí konce řádků. Datum je
+        # spolehlivější hranicí záznamu než konec textového řádku.
+        records = re.findall(rf"{date_prefix}\s+(.*?)(?={date_prefix}\s+|\Z)", text, re.S)
+        for record in records:
+            # The daily error columns finish the record. Page footers and
+            # headings between days must not become extra numerical cells.
+            performance = re.match(r".*?(?:[\d,.]+%\s+){2}[\d,.]+%", record, re.S)
+            line = " ".join((performance.group() if performance else record.splitlines()[0]).split())
+            match = re.match(r"^(\d{1,4})\s+(\d{1,4})(?:\s|$)", line)
             if match:
                 api_minutes.append(float(match.group(2)))
-            row_match = re.match(rf"^{date_prefix}\s+(.+)$", line)
-            if not row_match:
-                continue
-            values = [parse_number(token) for token in row_match.group(1).split()]
+            values = [parse_number(token) for token in line.split()]
             clean = [value for value in values if value is not None]
             if len(clean) < 8:
                 continue
@@ -590,74 +705,6 @@ def parse_pdf_metrics(content: bytes, layout: str) -> dict[str, float | str | No
                 aisp_error_pct=fmean(errors) * 100,
                 pisp_error_pct=fmean(errors) * 100,
                 metric_method="prumer dennich uptime; spolecna error response rate prevedena z podilu na procenta",
-            )
-        return result
-
-    if layout == "creditas":
-        uptimes: list[float] = []
-        aisp_responses: list[float] = []
-        pisp_responses: list[float] = []
-        record_pattern = re.compile(
-            rf"(?ms)^[ \t]*({date_prefix})\s+(.*?)(?=^[ \t]*{date_prefix}\s+|\Z)"
-        )
-        value_pattern = re.compile(r"\d+(?: \d{3})*,\d{2}")
-        for record in record_pattern.finditer(text):
-            values = [parse_number(value) for value in value_pattern.findall(record.group(2))]
-            clean = [value for value in values if value is not None]
-            if len(clean) < 3:
-                continue
-            uptimes.append(clean[-2])
-            responses = clean[:-3]
-            if len(responses) >= 2:
-                aisp_responses.append(responses[0])
-                pisp_responses.append(responses[1])
-            elif len(responses) == 1:
-                # CREDITAS nechává AISP prázdné ve dnech bez AISP volání,
-                # zatímco PISP zůstá vyplněné. Jediná odezva je proto PISP.
-                pisp_responses.append(responses[0])
-        if not uptimes:
-            # Reporty 2019–2020 používají celá čísla odezvy a znak %.
-            # Počet odezev se liší podle toho, zda daný den proběhlo
-            # AISP, PISP a CISP volání; první dvě pozice jsou AISP/PISP.
-            legacy_row = re.compile(
-                rf"^{date_prefix}\s+(?P<responses>.*?)\s+(?P<uptime>[\d,.]+)%"
-            )
-            integer_token = re.compile(r"\d+")
-            for line in lines:
-                match = legacy_row.match(line)
-                if not match:
-                    continue
-                uptime = parse_number(match.group("uptime"))
-                tokens = integer_token.findall(match.group("responses"))
-                responses: list[float | None] = []
-                token_index = 0
-                while token_index < len(tokens):
-                    token = tokens[token_index]
-                    if (
-                        len(token) <= 2
-                        and token_index + 1 < len(tokens)
-                        and len(tokens[token_index + 1]) == 3
-                        and (len(tokens) - token_index >= 3 or responses)
-                    ):
-                        token = f"{token}{tokens[token_index + 1]}"
-                        token_index += 1
-                    responses.append(parse_number(token))
-                    token_index += 1
-                clean_responses = [value for value in responses if value is not None]
-                if uptime is not None:
-                    uptimes.append(uptime)
-                if clean_responses:
-                    aisp_responses.append(clean_responses[0])
-                if len(clean_responses) >= 2:
-                    pisp_responses.append(clean_responses[1])
-        if uptimes:
-            result["availability_pct"] = fmean(uptimes)
-            result["aisp_response_ms"] = average_active_response(aisp_responses)
-            result["pisp_response_ms"] = average_active_response(pisp_responses)
-            result["metric_method"] = (
-                "aritmeticky prumer dennich uptime hodnot"
-                if value_pattern.search(text)
-                else "aritmeticky prumer dennich uptime hodnot; starsi PDF format"
             )
         return result
 
@@ -777,11 +824,56 @@ def parse_csas(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
 
 def apply_csob_workbook(observation: Observation, content: bytes) -> Observation:
     rows = parse_first_xlsx_sheet(content)
-    data_rows = [row for row in rows if parse_number(row.get("C")) is not None]
-    observation.aisp_response_ms = average_active_response(parse_number(row.get("C")) for row in data_rows)
-    observation.pisp_response_ms = average_active_response(parse_number(row.get("F")) for row in data_rows)
-    aisp_error_ratio = average(parse_number(row.get("D")) for row in data_rows)
-    pisp_error_ratio = average(parse_number(row.get("G")) for row in data_rows)
+    columns: dict[str, str] = {}
+    service_groups: dict[str, str] = {}
+    for row in rows[:10]:
+        for column, value in row.items():
+            header = " ".join(value.upper().split())
+            if header == "PSD2 CISP":
+                service_groups[column] = "cisp"
+            for service in ("AISP", "PISP"):
+                if service not in header:
+                    continue
+                prefix = service.lower()
+                if "RESPONSE" in header:
+                    columns.setdefault(f"{prefix}_response", column)
+                elif "ERROR" in header or "FAILURE" in header:
+                    columns.setdefault(f"{prefix}_error", column)
+                elif header == f"PSD2 {service}" and len(column) == 1:
+                    # Starší pivotové reporty mají dvouřádkové záhlaví
+                    # a nemají sloupec Calls před odezvou.
+                    columns[f"{prefix}_response"] = column
+                    columns[f"{prefix}_error"] = chr(ord(column) + 1)
+                    service_groups[column] = prefix
+    # Some reports put the service in a merged cell above Calls/Response/Error.
+    # Resolve the leaf header within that service's column group.
+    for row in rows[:10]:
+        for column, value in row.items():
+            header = " ".join(value.upper().split())
+            preceding = [start for start in service_groups if start <= column]
+            if not preceding or "PSD2" in header:
+                continue
+            prefix = service_groups[max(preceding)]
+            if prefix == "cisp":
+                continue
+            if "RESPONSE TIME" in header:
+                columns[f"{prefix}_response"] = column
+            elif "ERROR RATE" in header or "FAILURE RATE" in header:
+                columns[f"{prefix}_error"] = column
+    if len(columns) != 4:
+        raise ValueError("XLSX nema rozpoznane AISP/PISP sloupce odezvy a chybovosti")
+    data_rows = []
+    for row in rows:
+        day = row.get("A", "")
+        serial = parse_number(day)
+        if (serial is not None and 30000 <= serial <= 70000) or re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+            data_rows.append(row)
+    if not data_rows:
+        raise ValueError("XLSX neobsahuje rozpoznane denni zaznamy")
+    observation.aisp_response_ms = average_active_response(parse_number(row.get(columns["aisp_response"])) for row in data_rows)
+    observation.pisp_response_ms = average_active_response(parse_number(row.get(columns["pisp_response"])) for row in data_rows)
+    aisp_error_ratio = average(parse_number(row.get(columns["aisp_error"])) for row in data_rows)
+    pisp_error_ratio = average(parse_number(row.get(columns["pisp_error"])) for row in data_rows)
     observation.aisp_error_pct = aisp_error_ratio * 100 if aisp_error_ratio is not None else None
     observation.pisp_error_pct = pisp_error_ratio * 100 if pisp_error_ratio is not None else None
     observation.metric_method = "prumer dennich XLSX hodnot; chybovost prevedena z podilu na procenta; uptime chybi"
@@ -843,7 +935,7 @@ def parse_unicredit_quarters(bank: dict[str, Any], fetcher: Fetcher) -> list[Obs
         error = average(parse_number(row.get("error_response_rate")) for row in selected)
         observation.aisp_error_pct = error
         observation.pisp_error_pct = error
-        observation.metric_method = "prumer mesicnich hodnot CZ Dedicated Interface"
+        observation.metric_method = "prumer mesicnich hodnot CZ Dedicated Interface; spolecna error response rate v procentech"
         observations.append(observation)
     return observations
 
@@ -999,6 +1091,8 @@ def finalize_status(observation: Observation, expected_period: str) -> Observati
         )
     )
     observation.status = "ok" if has_availability else "partial"
+    if "neuplny denni uptime" in observation.metric_method:
+        observation.status = "partial"
     return observation.rounded()
 
 
@@ -1252,7 +1346,9 @@ def collect_timeseries(
             continue
         bank_periods = periods_by_bank.get(bank["id"], periods)
         wanted = bank_periods if refresh else {
-            period for period in bank_periods if (bank["id"], period) not in rows
+            period for period in bank_periods
+            if (bank["id"], period) not in rows
+            or rows[(bank["id"], period)].get("source_state") not in {"ok", "ok-direct-pdf"}
         }
         if not wanted:
             continue

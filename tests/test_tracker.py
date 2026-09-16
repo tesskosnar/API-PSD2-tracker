@@ -14,6 +14,7 @@ from psd2_tracker.tracker import (
     carry_previous,
     collect_timeseries,
     extract_balanced_json,
+    extract_borderless_creditas_table,
     expected_report_period,
     finalize_status,
     parse_pdf_metrics,
@@ -27,6 +28,11 @@ from psd2_tracker.tracker import (
 
 
 class TrackerTests(unittest.TestCase):
+    def test_invalid_percentage_cannot_be_published(self):
+        observation = Observation(bank_id="x", bank="X", scope="main", source_url="https://example.test", latest_period="2026-Q2", aisp_error_pct=720)
+        with self.assertRaisesRegex(ValueError, "Neplatna hodnota"):
+            finalize_status(observation, "2026-Q2")
+
     def test_failed_source_keeps_previous_metrics_but_stays_blocked(self):
         current = Observation(
             bank_id="x",
@@ -110,30 +116,44 @@ class TrackerTests(unittest.TestCase):
         self.assertAlmostEqual(result["availability_pct"], 99.85)
 
     def test_creditas_pdf_layout_uses_penultimate_trailing_value(self):
-        text = """
-        01.04.2026 194,00 685,00
-
-        0,00 100,00 0,19
-        02.04.2026 194,00 683,00 1,00 99,00 0,36
-        03.04.2026 728,00 0,00 100,00 0,00
-        """
-        with patch("psd2_tracker.tracker.extract_pdf_text", return_value=text):
+        tables = [[
+            ["Datum", "AISP average time [ms]", "PISP average time [ms]", "CISP average time [ms]", "Downtime [%]", "Uptime [%]", "Poměr výpadků"],
+            ["01.04.2026", "194,00", "685,00", None, "0,00", "100,00", "0,19"],
+            ["02.04.2026", "194,00", "683,00", None, "1,00", "99,00", "0,36"],
+            ["03.04.2026", None, "728,00", None, "0,00", "100,00", "0,00"],
+        ]]
+        with patch("psd2_tracker.tracker.extract_creditas_tables", return_value=tables):
             result = parse_pdf_metrics(b"fake", "creditas")
         self.assertAlmostEqual(result["availability_pct"], (100 + 99 + 100) / 3)
         self.assertAlmostEqual(result["aisp_response_ms"], 194)
         self.assertAlmostEqual(result["pisp_response_ms"], (685 + 683 + 728) / 3)
+        self.assertIsNone(result["aisp_error_pct"])
 
     def test_creditas_legacy_pdf_layout(self):
-        text = """
-        01.07.2019 645 653 96% 3,740% 0,09%
-        02.07.2019 1 816 347 100% 0,41%
-        03.07.2019 81 569 98% 2,00% 0,02%
-        """
-        with patch("psd2_tracker.tracker.extract_pdf_text", return_value=text):
+        tables = [[
+            ["Date", "AISP average time [ms]", "PISP average time [ms]", "CISP average time [ms]", "Uptime [%]", "Downtime [%]", "Error response rate [%]"],
+            ["01.07.2019", "645", "653", None, "96%", "3,740%", "0,09%"],
+            ["02.07.2019", "1 816", "347", None, "100%", None, "0,41%"],
+            ["03.07.2019", "81", "569", None, "98%", "2,00%", "0,02%"],
+        ]]
+        with patch("psd2_tracker.tracker.extract_creditas_tables", return_value=tables):
             result = parse_pdf_metrics(b"fake", "creditas")
         self.assertAlmostEqual(result["availability_pct"], 98)
         self.assertAlmostEqual(result["aisp_response_ms"], (645 + 1816 + 81) / 3)
         self.assertAlmostEqual(result["pisp_response_ms"], (653 + 347 + 569) / 3)
+        self.assertAlmostEqual(result["aisp_error_pct"], (0.09 + 0.41 + 0.02) / 3)
+
+    def test_creditas_empty_error_does_not_shift_uptime(self):
+        tables = [[
+            ["Date", "AISP average time [ms]", "PISP average time [ms]", "CISP average time [ms]", "Downtime [%]", "Uptime [%]", "Error response rate [%]"],
+            ["01.07.2021", "129", None, None, "0,00", "100,00", None],
+            ["02.07.2021", None, "573", None, "0,00", "100,00", "0,01"],
+        ]]
+        with patch("psd2_tracker.tracker.extract_creditas_tables", return_value=tables):
+            result = parse_pdf_metrics(b"fake", "creditas")
+        self.assertEqual(result["availability_pct"], 100)
+        self.assertEqual(result["aisp_response_ms"], 129)
+        self.assertEqual(result["pisp_response_ms"], 573)
 
     def test_jt_pdf_layout_reads_uptime_from_tail(self):
         text = """
@@ -160,11 +180,84 @@ class TrackerTests(unittest.TestCase):
 
     def test_csob_xlsx_error_ratio_is_converted_to_percent(self):
         observation = Observation(bank_id="csob", bank="ČSOB", scope="main", source_url="https://example.test")
-        rows = [{"C": "200", "D": "0.05", "F": "300", "G": "0.01"}]
+        rows = [
+            {"C": "PSD2 AISP › Response time", "D": "PSD2 AISP › Error rate", "F": "PSD2 PISP › Response time", "G": "PSD2 PISP › Error rate"},
+            {"A": "46113", "C": "200", "D": "0.05", "F": "300", "G": "0.01"},
+        ]
         with patch("psd2_tracker.tracker.parse_first_xlsx_sheet", return_value=rows):
             result = apply_csob_workbook(observation, b"fake")
         self.assertEqual(result.aisp_error_pct, 5)
         self.assertEqual(result.pisp_error_pct, 1)
+
+    def test_csob_legacy_columns_and_total_row(self):
+        observation = Observation(bank_id="csob", bank="ČSOB", scope="main", source_url="https://example.test")
+        rows = [
+            {"B": "PSD2 AISP", "D": "PSD2 CISP", "F": "PSD2 PISP"},
+            {"A": "2021-01-01", "B": "650", "C": "0.06", "D": "836", "F": "740", "G": "0.02"},
+            {"A": "Celkový součet", "B": "9999", "C": "1", "F": "9999", "G": "1"},
+        ]
+        with patch("psd2_tracker.tracker.parse_first_xlsx_sheet", return_value=rows):
+            result = apply_csob_workbook(observation, b"fake")
+        self.assertEqual(result.aisp_response_ms, 650)
+        self.assertEqual(result.pisp_response_ms, 740)
+        self.assertEqual(result.aisp_error_pct, 6)
+        self.assertEqual(result.pisp_error_pct, 2)
+
+    def test_csob_merged_headers_include_calls(self):
+        observation = Observation(bank_id="csob", bank="ČSOB", scope="main", source_url="https://example.test")
+        rows = [
+            {"B": "PSD2 AISP", "E": "PSD2 PISP"},
+            {"B": "Call", "C": "Response time", "D": "Error rate", "E": "Call", "F": "Response time", "G": "Error rate"},
+            {"A": "44743", "B": "220.261", "C": "730.571", "D": "0.05", "E": "4.458", "F": "797.422", "G": "0.01"},
+        ]
+        with patch("psd2_tracker.tracker.parse_first_xlsx_sheet", return_value=rows):
+            result = apply_csob_workbook(observation, b"fake")
+        self.assertEqual(result.aisp_response_ms, 730.571)
+        self.assertEqual(result.pisp_response_ms, 797.422)
+        self.assertEqual(result.aisp_error_pct, 5)
+        self.assertEqual(result.pisp_error_pct, 1)
+
+    def test_standard_minutes_ignores_page_footer_numbers(self):
+        text = "1.4.2026 1440 1440 0 0 323 332 363 0,04% 0,14% 0,00%\nKomerční banka 33 969 114 07 45317054 2 / 4\n2.4.2026 1440 1440 0 0 349 363 361 0,01% 0,14% 0,00%"
+        with patch("psd2_tracker.tracker.extract_pdf_text", return_value=text):
+            result = parse_pdf_metrics(b"fake", "standard_minutes_kb")
+        self.assertEqual(result["aisp_response_ms"], 336)
+        self.assertAlmostEqual(result["aisp_error_pct"], .025)
+
+    def test_creditas_borderless_preserves_empty_columns_and_page_layout(self):
+        from types import SimpleNamespace
+        header = "DateAISP average time [ms]PISP average time [ms]CISP average time [ms]Downtime [%]Uptime [%]Error response rate [%]"
+        starts = {"Date": 50, "AISP": 110, "PISP": 230, "CISP": 350, "Downtime": 470, "Uptime": 535, "Error": 620}
+        chars = []
+        column_start = 50
+        for index, char in enumerate(header):
+            for label, start in starts.items():
+                if header.startswith(label, index):
+                    column_start = start
+            chars.append({"text": char, "x0": column_start, "top": 58})
+        words = [
+            {"text": "01.10.2021", "x0": 55, "x1": 105, "top": 72},
+            {"text": "30", "x0": 185, "x1": 195, "top": 72},
+            {"text": "782,00", "x0": 199, "x1": 229, "top": 72},
+            {"text": "0,00", "x0": 511, "x1": 531, "top": 72},
+            {"text": "100,00", "x0": 584, "x1": 615, "top": 72},
+            {"text": "0,03", "x0": 718, "x1": 738, "top": 72},
+        ]
+        page = SimpleNamespace(chars=chars, width=842, extract_words=lambda: words)
+        table, layout = extract_borderless_creditas_table(page)
+        self.assertEqual(table[1], ["01.10.2021", "30 782,00", None, None, "0,00", "100,00", "0,03"])
+        page.chars = []
+        self.assertEqual(extract_borderless_creditas_table(page, layout)[0][1], table[1])
+
+    def test_air_archive_without_line_breaks(self):
+        text = "Den Response 01.01.19 1440 1440 56 115 1 0,00% 0,03% 0,00% 02.01.19 1410 1410 30 30 25 989 1 0,10% 0,09% 0,00%"
+        with patch("psd2_tracker.tracker.extract_pdf_text", return_value=text):
+            result = parse_pdf_metrics(b"fake", "standard_minutes_air")
+        self.assertAlmostEqual(result["availability_pct"], (1440 + 1410) / 2880 * 100)
+        self.assertEqual(result["aisp_response_ms"], 552)
+        self.assertEqual(result["pisp_response_ms"], 40.5)
+        self.assertEqual(result["aisp_error_pct"], 0.06)
+        self.assertEqual(result["pisp_error_pct"], 0.05)
 
     def test_history_requires_a_report_link(self):
         bank = {"id": "rb", "name": "Raiffeisenbank", "scope": "main", "parser": "report_links", "source_url": "https://example.test"}
@@ -172,6 +265,15 @@ class TrackerTests(unittest.TestCase):
         cached = [{"bank_id": "rb", "bank": "Raiffeisenbank", "period": "2024-Q3", "availability_pct": 100, "report_url": ""}]
         rows = collect_timeseries([bank], object(), [latest], "2026-Q2", cached)
         self.assertEqual(rows, [])
+
+    def test_failed_historical_report_is_retried(self):
+        bank = {"id": "air", "name": "Air Bank", "scope": "main", "parser": "pdf_links", "source_url": "https://example.test", "history_start_period": "2026-Q2"}
+        cached = [{"bank_id": "air", "bank": "Air Bank", "scope": "main", "period": "2026-Q2", "source_state": "report-error", "report_url": "https://example.test/report.pdf"}]
+        recovered = Observation(bank_id="air", bank="Air Bank", scope="main", source_url=bank["source_url"], latest_period="2026-Q2", report_url=cached[0]["report_url"], availability_pct=99.9)
+        with patch("psd2_tracker.tracker.collect_pdf_history", return_value=[recovered]) as collect:
+            rows = collect_timeseries([bank], object(), [], "2026-Q2", cached)
+        collect.assert_called_once()
+        self.assertEqual(rows[0]["availability_pct"], 99.9)
 
     def test_public_report_is_kept_even_without_measurable_traffic(self):
         cached = [{"bank_id": "ppf", "bank": "PPF banka", "period": "2025-Q1", "report_url": "https://example.test/report.pdf", "aisp_error_pct": "0", "pisp_error_pct": "0"}]

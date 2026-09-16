@@ -10,6 +10,8 @@ Kontrola běží každé úterý pomocí GitHub Actions a také ručně přes `A
 
 Graf se při týdenní aktualizaci obnovuje automaticky. Zobrazuje jen banky s doloženými reporty; chybějící čtvrtletí nepřemosťuje. Podrobnější interaktivní přehled, přepínání metrik, pokrytí zdroji a odkazy na jednotlivé reporty je připravený pro GitHub Pages na adrese `https://tesskosnar.github.io/API-PSD2-tracker/`.
 
+Dashboard zahrnuje všech 15 bank z původního sešitu. Kontrola 16. září 2026 dohledala 144 bankovních období od roku 2019. Čtvrtletní srovnání ve výchozím stavu ukazuje poslední dva roky; lze zvolit jeden rok, celou historii nebo přesné čtvrtletí od–do. Banky s reportem ve vybraném období jsou nejdříve abecedně, banky bez reportu za nimi také abecedně. [Porovnání s původním Excelem](docs/original-data-comparison.md) a [přesný seznam oprav historického importu](docs/historical-data-corrections.csv) vysvětlují rozdíly v datech.
+
 GitHub Pages je nutné jednou povolit v `Settings → Pages → Source: GitHub Actions`. Publikace se potom obnoví po každém úspěšném běhu týdenního trackeru a lze ji spustit také ručně v `Actions → Publikace dashboardu na GitHub Pages`.
 
 > **Soukromí:** GitHub Pages je veřejně dostupný web i tehdy, když zdrojový repozitář zůstane soukromý. Zapnutí Pages proto znamená zveřejnění dashboardu a dat, která zobrazuje.
@@ -26,7 +28,7 @@ Souhrn hlavního seznamu: **8 s aktuální dostupností**, **2 s částečnými 
 | Komerční banka | OK | 2026-Q2 | 97.1856 % | 378.5604 ms / 408.4945 ms | [stránka](https://www.kb.cz/cs/dostupnost-sluzeb-internetoveho-a-otevreneho-bankovnictvi-api) · [report](https://www.kb.cz/getmedia/956647de-9725-4cf0-9975-52c1e3462491/kb-psd2-2026-q2-cz.pdf) |
 | Raiffeisenbank | Nenalezen report | — | — | — / — | [stránka](https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni) |
 | Air Bank | OK | 2026-Q2 | 98.9736 % | 62.8242 ms / 72.7143 ms | [stránka](https://www.airbank.cz/aplikace-tretich-stran/) · [report](https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2026) |
-| MONETA Money Bank | Částečná data | rolling-90d-to-2026-09-14 | — | 498.7889 ms / 149.6556 ms | [stránka](https://www.moneta.cz/otevrene-bankovnictvi) |
+| MONETA Money Bank | Částečná data | rolling-90d-to-2026-09-15 | — | 498.5111 ms / 149.3667 ms | [stránka](https://www.moneta.cz/otevrene-bankovnictvi) |
 | Fio banka | OK | 2026-Q2 | 99.9809 % | 22.7143 ms / 16 ms | [stránka](https://developers.fio.cz/stats.html) · [report](https://developers.fio.cz/stats/PSD2_2026Q2.pdf) |
 | mBank | Nenalezen report | — | — | — / — | [stránka](https://developer.api.mbank.cz/reports) |
 | UniCredit Bank | OK | 2026-Q2 | 100 % | 345.29 ms / 248.6567 ms | [stránka](https://developer.unicredit.eu/report?view=kpi) |

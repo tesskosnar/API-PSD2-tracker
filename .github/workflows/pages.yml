@@ -8,6 +8,7 @@ on:
       - "data/timeseries.csv"
       - "docs/source-audit.md"
       - "docs/original-data-comparison.md"
+      - "docs/historical-data-corrections.csv"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
   workflow_run:
@@ -43,9 +44,11 @@ jobs:
           cp data/timeseries.csv _site/timeseries.csv
           cp docs/source-audit.md _site/source-audit.md
           cp docs/original-data-comparison.md _site/original-data-comparison.md
+          cp docs/historical-data-corrections.csv _site/historical-data-corrections.csv
           sed -i.bak \
             -e 's#../docs/source-audit.md#source-audit.md#' \
             -e 's#../docs/original-data-comparison.md#original-data-comparison.md#' \
+            -e 's#../docs/historical-data-corrections.csv#historical-data-corrections.csv#' \
             -e 's#../data/timeseries.csv#timeseries.csv#' \
             _site/index.html
           rm _site/index.html.bak

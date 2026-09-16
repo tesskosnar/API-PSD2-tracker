@@ -30,6 +30,9 @@ jobs:
       - name: Instalace trackeru
         run: python -m pip install .
 
+      - name: Kontrola zpracování reportů
+        run: python -m unittest discover -s tests -v
+
       - name: Kontrola bank
         run: psd2-tracker --config config/banks.json --data-dir data --readme README.md
 

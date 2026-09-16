@@ -4,7 +4,9 @@
   const data = window.PSD2_DATA || { latest: [], timeseries: [], expected_period: "" };
   const latest = data.latest.filter(item => item.scope === "main");
   const history = data.timeseries.filter(item => item.scope === "main");
-  const periods = [...new Set(history.map(item => item.period))].sort();
+  const allPeriods = [...new Set(history.map(item => item.period))].sort();
+  let periods = allPeriods.slice(-8);
+  let visibleHistory = history.filter(item => periods.includes(item.period));
   const metrics = {
     availability: {
       label: "Dostupnost API",
@@ -32,14 +34,21 @@
       unit: "%",
       value: item => item.metric_method?.includes("spolecna error response rate") ? null : numberOrNull(item.aisp_error_pct),
       format: value => `${formatNumber(value, value > 0 && value < 0.01 ? 4 : 3)} %`,
-      note: "Nižší hodnota je lepší. Barva řadí hodnoty; přesné procento je vždy uvedené v políčku. Společná chybovost J&T se sem nemíchá."
+      note: "Nižší hodnota je lepší. Společná chybovost služeb má vlastní metriku a sem se nemíchá."
     },
     pispError: {
       label: "Chybovost PISP",
       unit: "%",
       value: item => item.metric_method?.includes("spolecna error response rate") ? null : numberOrNull(item.pisp_error_pct),
       format: value => `${formatNumber(value, value > 0 && value < 0.01 ? 4 : 3)} %`,
-      note: "Nižší hodnota je lepší. Barva řadí hodnoty; přesné procento je vždy uvedené v políčku. Společná chybovost J&T se sem nemíchá."
+      note: "Nižší hodnota je lepší. Společná chybovost služeb má vlastní metriku a sem se nemíchá."
+    },
+    sharedError: {
+      label: "Společná chybovost",
+      unit: "%",
+      value: item => item.metric_method?.includes("spolecna error response rate") ? numberOrNull(item.aisp_error_pct) : null,
+      format: value => `${formatNumber(value, value > 0 && value < 0.01 ? 4 : 3)} %`,
+      note: "Chybovost zveřejněná společně pro PSD2 služby. Nelze ji vydávat za samostatnou míru AISP nebo PISP."
     }
   };
 
@@ -107,10 +116,58 @@
   function bankCoverage(metricKey) {
     const metric = metrics[metricKey];
     const counts = new Map(latest.map(item => [item.bank, 0]));
-    history.forEach(item => {
+    visibleHistory.forEach(item => {
       if (metric.value(item) !== null) counts.set(item.bank, (counts.get(item.bank) || 0) + 1);
     });
-    return [...counts.entries()].sort((a, b) => a[0].localeCompare(b[0], "cs"));
+    const withReport = new Set(visibleHistory.filter(item => item.report_url).map(item => item.bank));
+    return [...counts.entries()].sort((a, b) =>
+      Number(withReport.has(b[0])) - Number(withReport.has(a[0])) || a[0].localeCompare(b[0], "cs"));
+  }
+
+  function setPeriodRange(from, to) {
+    periods = allPeriods.filter(period => period >= from && period <= to);
+    visibleHistory = history.filter(item => periods.includes(item.period));
+    document.getElementById("periodFrom").value = from;
+    document.getElementById("periodTo").value = to;
+    document.querySelectorAll("[data-period-count]").forEach(button => {
+      const count = Number(button.dataset.periodCount);
+      const preset = count ? allPeriods.slice(-count) : allPeriods;
+      const active = from === preset[0] && to === preset.at(-1);
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+    document.getElementById("periodRangeInfo").textContent =
+      `${formatPeriod(from)} – ${formatPeriod(to)} · ${periods.length} čtvrtletí`;
+    renderLegend();
+    renderGrid();
+  }
+
+  function initializePeriodControls() {
+    ["periodFrom", "periodTo"].forEach(id => {
+      const select = document.getElementById(id);
+      allPeriods.forEach(period => {
+        const option = document.createElement("option");
+        option.value = period;
+        option.textContent = period.replace(/^(\d{4})-Q([1-4])$/, "$2. čtvrtletí $1");
+        select.append(option);
+      });
+      select.addEventListener("change", () => {
+        let from = document.getElementById("periodFrom").value;
+        let to = document.getElementById("periodTo").value;
+        if (from > to) {
+          if (id === "periodFrom") to = from; else from = to;
+        }
+        setPeriodRange(from, to);
+      });
+    });
+    document.querySelectorAll("[data-period-count]").forEach(button => {
+      button.addEventListener("click", () => {
+        const count = Number(button.dataset.periodCount);
+        const preset = count ? allPeriods.slice(-count) : allPeriods;
+        setPeriodRange(preset[0], preset.at(-1));
+      });
+    });
+    if (periods.length) setPeriodRange(periods[0], periods.at(-1));
   }
 
   function resetBankSelection() {
@@ -157,7 +214,7 @@
     table.hidden = false;
     empty.hidden = true;
 
-    const distinctValues = [...new Set(history.map(metric.value).filter(value => value !== null))].sort((a, b) => a - b);
+    const distinctValues = [...new Set(visibleHistory.map(metric.value).filter(value => value !== null))].sort((a, b) => a - b);
     const shade = value => distinctValues.length < 2
       ? 3
       : 1 + Math.round(distinctValues.indexOf(value) / (distinctValues.length - 1) * 4);
@@ -179,9 +236,17 @@
       name.scope = "row";
       name.className = "metric-grid__bank";
       name.textContent = bank;
+      const reports = visibleHistory.filter(item => item.bank === bank && item.report_url);
+      if (!reports.some(item => metric.value(item) !== null)) {
+        const status = document.createElement("small");
+        status.className = "metric-grid__status";
+        status.textContent = reports.length ? "Metrika není doložená" : "Bez reportu v období";
+        name.append(status);
+        if (!reports.length) row.className = "metric-grid__row--no-report";
+      }
       row.append(name);
       periods.forEach(period => {
-        const item = history.find(point => point.bank === bank && point.period === period);
+        const item = visibleHistory.find(point => point.bank === bank && point.period === period);
         const value = item ? metric.value(item) : null;
         const cell = document.createElement("td");
         cell.className = value === null ? "metric-grid__cell metric-grid__cell--empty" : `metric-grid__cell metric-grid__cell--${shade(value)}`;
@@ -189,6 +254,7 @@
         content.className = "metric-grid__value";
         content.textContent = value === null ? "—" : metric.format(value);
         content.title = `${bank} · ${formatPeriod(period)} · ${metric.label}: ${content.textContent}`;
+        if (item?.metric_method) content.title += ` · ${item.metric_method}`;
         if (content.tagName === "A") {
           content.href = item.report_url;
           content.target = "_blank";
@@ -207,7 +273,7 @@
     const table = document.getElementById("coverageTable");
     const thead = document.createElement("thead");
     const headRow = document.createElement("tr");
-    ["Banka", ...periods].forEach(label => {
+    ["Banka", ...allPeriods].forEach(label => {
       const th = document.createElement("th");
       th.textContent = label;
       headRow.append(th);
@@ -219,7 +285,7 @@
       const name = document.createElement("td");
       name.textContent = bank.bank;
       tr.append(name);
-      periods.forEach(period => {
+      allPeriods.forEach(period => {
         const td = document.createElement("td");
         const item = history.find(row => row.bank_id === bank.bank_id && row.period === period);
         const cell = document.createElement(item?.report_url ? "a" : "span");
@@ -332,7 +398,6 @@
       item.classList.toggle("active", isActive);
       item.setAttribute("aria-pressed", String(isActive));
     });
-    resetBankSelection();
     renderLegend();
     renderGrid();
   });
@@ -361,6 +426,5 @@
   renderCoverage();
   renderLatest();
   resetBankSelection();
-  renderLegend();
-  renderGrid();
+  initializePeriodControls();
 })();

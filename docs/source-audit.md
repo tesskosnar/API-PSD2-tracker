@@ -1,6 +1,6 @@
 # Audit zdrojů PSD2 statistik
 
-Původní seznam je ze sešitu dodaného k 9. září 2026. První audit proběhl 11. září; znovu ověřeno 15. září 2026 automatickým sběrem a u sporných adres kontrolou oficiálních webů bank. Hodnocení rozlišuje dostupnost **publikovaného reportu** od dostupnosti samotného PSD2 API.
+Původní seznam je ze sešitu dodaného k 9. září 2026. První audit proběhl 11. září; poslední sběr a kontrola historických reportů proběhly 16. září 2026. U sporných adres byly kontrolovány oficiální weby bank. Hodnocení rozlišuje dostupnost **publikovaného reportu** od dostupnosti samotného PSD2 API.
 
 | Banka | Výsledek ověření | Nejdůležitější zjištění |
 |---|---|---|
@@ -59,6 +59,14 @@ Kontrola 15. září 2026 prošla celé archivy na oficiálních stránkách, ne
 Čtvrtletní report nebyl doložen pro Raiffeisenbank, mBank, Partners Banku a Oberbank. MONETA publikuje jen pohyblivé 90denní okno, proto se nevydává za čtvrtletní archiv. V dashboardu se nově zobrazí všech 15 bank; banka bez hodnoty pro vybranou metriku zůstane viditelná s prázdnými poli.
 
 Podrobné porovnání hodnot s dodaným Excelem je v [`original-data-comparison.md`](original-data-comparison.md).
+
+### Dodatečná kontrola zpracování 16. září
+
+Všech 142 nalezených archivních PDF/XLSX bylo znovu načteno. U Air Bank, ČSOB a CREDITAS byly opraveny odlišné historické formáty tabulek. Přesný rozdíl proti předchozí verzi trackeru je v [`historical-data-corrections.csv`](historical-data-corrections.csv); důvody popisuje [porovnání dat](original-data-comparison.md#opravy-nově-rozšířené-historie-trackeru). Původní Excel se nezměnil.
+
+Některé reporty CREDITAS obsahují prázdné dny i ve sloupci uptime. Takové čtvrtletí je označeno jako částečné a metodika uvádí počet doložených denních hodnot; prázdné dny se nedoplňují hodnotou 100 %. Například [2023-Q3](https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2023.pdf) obsahuje uptime jen pro 76 z 92 dnů.
+
+Čtvrtletní srovnání zobrazuje ve výchozím stavu posledních osm čtvrtletí. Volby 1 rok, 2 roky, celá historie a přesné čtvrtletí od–do mění pouze zobrazení, nikoli uložená data. Banky s reportem ve zvoleném období jsou nejdříve abecedně, banky bez reportu potom také abecedně. Sekce Úplný report nadále ukazuje celý archiv a všechny banky čistě abecedně.
 
 ## Opravené nebo sporné body
 

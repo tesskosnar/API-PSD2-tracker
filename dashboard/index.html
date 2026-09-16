@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light">
   <title>Dostupnost PSD2 API v Česku</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d2f37'/%3E%3Cpath d='M18 18h18c8 0 13 5 13 12s-5 12-13 12H27v8h-9V18zm9 8v8h8c3 0 5-1 5-4s-2-4-5-4h-8z' fill='%237cd3bd'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css?v=10">
+  <link rel="stylesheet" href="styles.css?v=11">
 </head>
 <body>
   <header class="hero">
@@ -53,11 +53,28 @@
             <button type="button" class="metric-button" data-metric="pispResponse" aria-pressed="false">Odezva PISP</button>
             <button type="button" class="metric-button" data-metric="aispError" aria-pressed="false">Chybovost AISP</button>
             <button type="button" class="metric-button" data-metric="pispError" aria-pressed="false">Chybovost PISP</button>
+            <button type="button" class="metric-button" data-metric="sharedError" aria-pressed="false">Společná chybovost</button>
           </div>
         </div>
       </div>
+      <div class="period-controls">
+        <div>
+          <span class="metric-filter__label">Zobrazené období</span>
+          <div class="period-presets" role="group" aria-label="Rychlý výběr období">
+            <button type="button" data-period-count="4" aria-pressed="false">1 rok</button>
+            <button type="button" data-period-count="8" class="active" aria-pressed="true">2 roky</button>
+            <button type="button" data-period-count="0" aria-pressed="false">Celá historie</button>
+          </div>
+        </div>
+        <div class="period-custom">
+          <label>Od <select id="periodFrom" aria-label="Počáteční čtvrtletí"></select></label>
+          <span class="period-custom__dash" aria-hidden="true">—</span>
+          <label>Do <select id="periodTo" aria-label="Koncové čtvrtletí"></select></label>
+        </div>
+      </div>
+      <p id="periodRangeInfo" class="period-range-info" aria-live="polite"></p>
       <div id="chartLegend" class="chart-legend" aria-label="Zobrazené banky"></div>
-      <p class="scroll-hint">Další čtvrtletí posuň doprava →</p>
+      <p class="scroll-hint">Širší časový přehled lze posouvat vodorovně →</p>
       <div class="chart-shell table-scroll">
         <table id="metricGrid" class="metric-grid" aria-label="Hodnoty vybrané metriky po bankách a čtvrtletích"></table>
         <p id="chartEmpty" class="empty-state" hidden>Pro vybrané banky nejsou k této metrice data.</p>
@@ -102,7 +119,7 @@
     <section class="panel" aria-labelledby="coverageTitle">
       <div class="section-heading">
         <div>
-          <p class="section-kicker">Úplnost reportů</p>
+          <p class="section-kicker">Úplný report</p>
           <h2 id="coverageTitle">Přehled publikovaných reportů</h2>
         </div>
         <div class="coverage-key" aria-label="Legenda pokrytí">
@@ -125,12 +142,13 @@
     <nav class="footer-links" aria-label="Další zdroje">
       <a href="../docs/source-audit.md">Audit zdrojů</a>
       <a href="../docs/original-data-comparison.md">Porovnání s Excelem</a>
+      <a href="../docs/historical-data-corrections.csv">Seznam oprav historie</a>
       <a href="../data/timeseries.csv">Stáhnout časovou řadu</a>
       <a href="https://eur-lex.europa.eu/legal-content/CS/TXT/?uri=CELEX:32018R0389">Regulatorní základ</a>
     </nav>
   </footer>
 
-  <script src="data.js?v=92384efb13a6"></script>
-  <script src="app.js?v=10"></script>
+  <script src="data.js?v=a7ce01a210bc"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>

@@ -17,7 +17,7 @@ V listu `shrnutí` je 15 bank a stejných 15 bank je v hlavním rozsahu trackeru
 | Komerční banka | Všechny čtyři výkonnostní hodnoty i dostupnost 97,1856 % jsou shodné po zaokrouhlení. | Bez věcné změny. |
 | Raiffeisenbank | Ručních 100 % a chybovosti z Excelu nejsou publikovány jako potvrzený bod. | Poznámka souhrnu tvrdí 3Q 2025, ale datový list obsahuje 3Q 2024; veřejný report se nepodařilo doložit. |
 | Air Bank | Dostupnost a odezvy jsou shodné. Chybovost je v trackeru 0,0066 / 0,0075 %, zatímco souhrn Excelu obsahuje 0,000066 / 0,000075. | Importované PDF hodnoty jsou v Excelu uložené jako podíl, ale souhrnný vzorec je nepřevedl na procentní body. Tracker zobrazuje procenta podle označení v reportu banky. |
-| MONETA Money Bank | Hodnoty se změnily z 500,2444 / 150,8889 ms a 0,1767 / 0,0078 % na 498,7889 / 149,6556 ms a 0,1733 / 0,0089 %. | Nejde o stejné čtvrtletí. Excel končí 9. 9. 2026, aktuální veřejné klouzavé 90denní okno končí 14. 9. 2026. |
+| MONETA Money Bank | Hodnoty se změnily z 500,2444 / 150,8889 ms a 0,1767 / 0,0078 % na 498,5111 / 149,3667 ms a 0,1722 / 0,0089 %. | Nejde o stejné čtvrtletí. Excel končí 9. 9. 2026, aktuální veřejné klouzavé 90denní okno končí 15. 9. 2026; zkontrolováno 16. 9. 2026. |
 | Fio banka | Dostupnost 99,9809 %, odezvy i chybovosti jsou shodné po zaokrouhlení. | Bez věcné změny. |
 | mBank | Bez čísel v Excelu i trackeru. | Český portál při kontrole zobrazoval polská data; ta se nepřebírají jako české hodnoty. |
 | UniCredit Bank | Dostupnost 100 %, odezvy 345,29 / 248,6567 ms a společná chybovost 0,1567 % jsou shodné. | Bez věcné změny; z měsíců se skládá stejné čtvrtletí. |
@@ -26,6 +26,16 @@ V listu `shrnutí` je 15 bank a stejných 15 bank je v hlavním rozsahu trackeru
 | Partners Banka | Bez čísel v Excelu i trackeru. | Veřejný report nenalezen. |
 | Oberbank | Bez čísel v Excelu i trackeru. | Veřejná stránka funguje, ale její odkaz na statistiku směřuje na interní hostname. |
 | J&T Banka | Dostupnost 99,7801 %, odezvy 387,1698 / 1 482 ms a společná chybovost 0,0879 % jsou shodné. | Tracker pouze označuje, že chybovost je v reportu společná pro služby, nikoli samostatná pro AISP a PISP. |
-| PPF banka | AISP odezva 1 833,6 ms a chybovost 100 % jsou shodné; období zůstá 1Q 2026. | Do průměru chybovosti se nezapočítávají dny bez jediného volání. |
+| PPF banka | AISP odezva 1 833,6 ms a chybovost 100 % jsou shodné; období zůstává 1Q 2026. | Do průměru chybovosti se nezapočítávají dny bez jediného volání. |
 
 Všechna čísla v CSV/JSON jsou zaokrouhlena na nejvýše čtyři desetinná místa. Tracker navíc doplňuje stav zdroje, přímý odkaz na report, období a popis metodiky; tyto sloupce v původním souhrnu nebyly.
+
+## Opravy nově rozšířené historie trackeru
+
+Při kontrole 16. září byly opraveny také chyby importu starších reportů v rozšířené historii zveřejněné 15. září. Tyto opravy nejsou změnami dodaného Excelu. Přesný seznam 91 změněných nebo doplněných číselných polí oproti verzi `eda47b6` obsahuje [`historical-data-corrections.csv`](historical-data-corrections.csv): u každé položky je banka, čtvrtletí, metrika, předchozí hodnota trackeru, opravená hodnota a původní veřejný report. Prázdná předchozí hodnota znamená nově doplněný údaj.
+
+- Air Bank: starší PDF neměla spolehlivé konce řádků; denní záznamy se nyní oddělují podle data a konce sloupců chybovosti, nikoli podle řádku textu.
+- ČSOB: historická XLSX používají více variant záhlaví, někdy se sloupcem Calls a někdy bez něj. Odezva a chybovost se přiřazují podle záhlaví a skupiny služby; souhrnné řádky se nezapočítávají. Převod chybovosti na procenta potvrzuje i procentní formát buněk všech 22 reportů.
+- Banka CREDITAS: v tabulkách se zachovávají prázdné sloupce a oddělovače tisíců; pořadí Uptime/Downtime se určuje podle záhlaví. Starší skutečná „Error response rate“ je doplněna jako společná chybovost, ale pozdější „poměr výpadků“ se za tuto metriku nevydává. Průměry neúplných denních záznamů jsou výslovně označené v metodice.
+
+UniCredit a J&T mají v dashboardu společnou chybovost oddělenou od samostatných AISP/PISP metrik. Procentní metriky mimo rozsah 0–100 % zpracování nově odmítne.
