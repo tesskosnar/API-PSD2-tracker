@@ -137,14 +137,7 @@
   }
 
   function bankCoverage(metricKey) {
-    const metric = metrics[metricKey];
-    const counts = new Map(latest.map(item => [item.bank, 0]));
-    visibleHistory.forEach(item => {
-      if (metric.value(item) !== null) counts.set(item.bank, (counts.get(item.bank) || 0) + 1);
-    });
-    const withReport = new Set(visibleHistory.filter(item => item.report_url).map(item => item.bank));
-    return [...counts.entries()].sort((a, b) =>
-      Number(withReport.has(b[0])) - Number(withReport.has(a[0])) || a[0].localeCompare(b[0], "cs"));
+    return ui.bankMetricCoverage(latest, visibleHistory, metricKey);
   }
 
   function setPeriodRange(from, to) {
@@ -214,7 +207,7 @@
       button.setAttribute("aria-pressed", selectedBanks.has(bank) ? "true" : "false");
       button.title = count
         ? `${bank}: ${count} doložených období pro tuto metriku`
-        : `${bank}: pro tuto metriku zatím není doložená historie`;
+        : `${bank}: pro tuto metriku nejsou ve zvoleném období doložené hodnoty`;
       const swatch = document.createElement("span");
       swatch.className = "legend-swatch";
       const label = document.createElement("span");
@@ -246,7 +239,8 @@
     referenceLabel.title = `Reference: ${referenceScale.count} doložených bankovních čtvrtletí z celé historie této metriky. Střední pásmo: medián ± medián absolutních odchylek. Banky s delší historií mají více podkladů; nejde o společný regulatorní limit.`;
     scaleKey.append(referenceLabel);
 
-    const banks = bankCoverage(activeMetric).map(([bank]) => bank).filter(bank => selectedBanks.has(bank));
+    const bankEntries = bankCoverage(activeMetric).filter(([bank]) => selectedBanks.has(bank));
+    const banks = bankEntries.map(([bank]) => bank);
     if (!banks.length) {
       table.hidden = true;
       empty.hidden = false;
@@ -266,8 +260,19 @@
     thead.append(headRow);
 
     const tbody = document.createElement("tbody");
-    banks.forEach(bank => {
+    let missingSeparator = false;
+    bankEntries.forEach(([bank, count]) => {
+      if (!count && !missingSeparator) {
+        const divider = document.createElement("tr"); divider.className = "metric-grid__divider latest-divider";
+        const cell = document.createElement("td"); cell.colSpan = periods.length + 1;
+        const label = document.createElement("span");
+        label.textContent = `Bez údaje pro metriku: ${metric.label} ve zvoleném období · ${bankEntries.filter(([, value]) => !value).length} bank`;
+        cell.append(label); divider.append(cell); tbody.append(divider); missingSeparator = true;
+      }
       const row = document.createElement("tr");
+      row.dataset.bank = latest.find(item => item.bank === bank).bank_id;
+      row.dataset.hasValues = String(count > 0);
+      if (!count) row.className = "metric-grid__row--no-data";
       const name = document.createElement("th");
       name.scope = "row";
       name.className = "metric-grid__bank";
@@ -278,7 +283,6 @@
         status.className = "metric-grid__status";
         status.textContent = reports.length ? "Metrika není doložená" : "Bez reportu v období";
         name.append(status);
-        if (!reports.length) row.className = "metric-grid__row--no-report";
       }
       row.append(name);
       periods.forEach(period => {

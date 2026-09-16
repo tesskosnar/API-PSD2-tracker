@@ -73,6 +73,14 @@
     : row.bank_id === "moneta" ? "Pohyblivý 90denní přehled odezvy a chybovosti, nikoli měření dostupnosti za celé vybrané čtvrtletí."
       : "Banky používají různé publikované metodiky. Shodné období samo o sobě nezaručuje shodný způsob měření.";
   const hasMetrics = row => Object.values(metrics).some(metric => metric.value(row) !== null);
+  function bankMetricCoverage(banks, history, metricKey) {
+    const metric = metrics[metricKey];
+    const counts = new Map(banks.map(row => [row.bank, 0]));
+    for (const row of history) {
+      if (counts.has(row.bank) && metric.value(row) !== null) counts.set(row.bank, counts.get(row.bank) + 1);
+    }
+    return [...counts.entries()].sort((a, b) => Number(b[1] > 0) - Number(a[1] > 0) || a[0].localeCompare(b[0], "cs"));
+  }
   function comparisonRows(latest, history, mode, quarter) {
     if (mode === "latest") return latest.map(row => ({ ...row, comparison_group: row.bank_id === "partners" ? "healthcheck" : /^rolling-/.test(row.latest_period || "") ? "rolling" : row.latest_period === quarter ? "quarter" : /^\d{4}-Q[1-4]$/.test(row.latest_period || "") ? "older" : "missing" }));
     return latest.map(row => {
@@ -142,7 +150,7 @@
     dialog.addEventListener("click", event => { if (event.target === dialog && (event.clientX < dialog.getBoundingClientRect().left || event.clientX > dialog.getBoundingClientRect().right || event.clientY < dialog.getBoundingClientRect().top || event.clientY > dialog.getBoundingClientRect().bottom)) dialog.close(); });
     return (data, row) => { coverageContent(content, data, row); const link = document.createElement("a"); link.href = bankUrl(row.bank_id, row.period); link.className = "bank-detail-link"; link.textContent = "Celý detail banky →"; content.append(link); dialog.showModal(); };
   }
-  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, methodNote, hasMetrics, comparisonRows, bankUrl, reportUrl, csv, download, share, appendMetricButtons, coverageContent, createCoverageDialog };
+  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, methodNote, hasMetrics, bankMetricCoverage, comparisonRows, bankUrl, reportUrl, csv, download, share, appendMetricButtons, coverageContent, createCoverageDialog };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.PSD2_UI = api;
 })(typeof window === "undefined" ? globalThis : window);

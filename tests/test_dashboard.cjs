@@ -66,6 +66,19 @@ test('shared error stays separate from individual services', () => {
   assert.equal(ui.metrics.pispError.value(row),null);
   assert.equal(ui.metrics.sharedError.value(row),.3);
 });
+test('history orders banks by actual selected metric values, then Czech alphabet', () => {
+  const banks=[{bank:'Air Bank'},{bank:'ČSOB'},{bank:'Fio banka'},{bank:'Trinity Bank'}];
+  const history=[
+    {bank:'Air Bank',period:'2026-Q2',report_url:'air',availability_pct:99},
+    {bank:'ČSOB',period:'2026-Q2',report_url:'csob',aisp_response_ms:200},
+    {bank:'Fio banka',period:'2026-Q2',report_url:'fio',availability_pct:99,aisp_response_ms:0},
+    {bank:'Trinity Bank',period:'2026-Q2',report_url:'trinity',availability_pct:99},
+  ];
+  assert.deepEqual(ui.bankMetricCoverage(banks,history,'availability'),[['Air Bank',1],['Fio banka',1],['Trinity Bank',1],['ČSOB',0]]);
+  assert.deepEqual(ui.bankMetricCoverage(banks,history,'aispResponse'),[['ČSOB',1],['Fio banka',1],['Air Bank',0],['Trinity Bank',0]]);
+  assert.deepEqual(ui.bankMetricCoverage(banks,history.filter(row=>row.bank==='Air Bank'),'aispResponse'),[['Air Bank',0],['ČSOB',0],['Fio banka',0],['Trinity Bank',0]]);
+  assert.deepEqual(ui.bankMetricCoverage(banks,history,'aispAvailability'),[['Air Bank',0],['ČSOB',0],['Fio banka',0],['Trinity Bank',0]]);
+});
 test('CSV quotes Czech text, nulls and formula-like values safely', () => {
   assert.equal(ui.csv(['banka','hodnota'],[['Česká "banka"',null],['=formula',0]]),'\ufeff"banka","hodnota"\r\n"Česká ""banka""",""\r\n"\'=formula","0"');
 });
