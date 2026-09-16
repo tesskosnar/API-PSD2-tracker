@@ -10,7 +10,7 @@ Kontrola běží každé úterý pomocí GitHub Actions a také ručně přes `A
 
 Graf se při týdenní aktualizaci obnovuje automaticky. Zobrazuje jen banky s doloženými reporty; chybějící čtvrtletí nepřemosťuje. Podrobnější interaktivní přehled, přepínání metrik, pokrytí zdroji a odkazy na jednotlivé reporty je připravený pro GitHub Pages na adrese `https://tesskosnar.github.io/API-PSD2-tracker/`.
 
-Dashboard zahrnuje všech 15 bank z původního sešitu. Kontrola 16. září 2026 dohledala 144 bankovních období od roku 2019. Čtvrtletní srovnání ve výchozím stavu ukazuje poslední dva roky; lze zvolit jeden rok, celou historii nebo přesné čtvrtletí od–do. Banky s reportem ve vybraném období jsou nejdříve abecedně, banky bez reportu za nimi také abecedně. [Porovnání s původním Excelem](docs/original-data-comparison.md) a [přesný seznam oprav historického importu](docs/historical-data-corrections.csv) vysvětlují rozdíly v datech.
+Dashboard zahrnuje všech 15 bank z původního sešitu. Rozšířená kontrola 16. září 2026 dohledala **173 bankovních čtvrtletí a 15 507 denních záznamů za 12 bank** od roku 2019. [Rozšířený audit všech bank](docs/expanded-data-audit.md) uvádí přírůstky i české zdroje, které stále chybějí. Původních 144 čtvrtletních záznamů se při tomto rozšíření číselně nezměnilo. Čtvrtletní srovnání ve výchozím stavu ukazuje poslední dva roky; rozsah lze upravit dvěma posuvníky nebo rychlou volbou. Banky s reportem jsou nejdříve abecedně, banky bez reportu za nimi také abecedně. [Porovnání s původním Excelem](docs/original-data-comparison.md) a [přesný seznam starších oprav](docs/historical-data-corrections.csv) vysvětlují dřívější rozdíly.
 
 GitHub Pages je nutné jednou povolit v `Settings → Pages → Source: GitHub Actions`. Publikace se potom obnoví po každém úspěšném běhu týdenního trackeru a lze ji spustit také ručně v `Actions → Publikace dashboardu na GitHub Pages`.
 
@@ -19,7 +19,7 @@ GitHub Pages je nutné jednou povolit v `Settings → Pages → Source: GitHub A
 <!-- TRACKER:START -->
 Očekávané poslední zveřejněné období: **2026-Q2** (po 45denní lhůtě na publikaci).
 
-Souhrn hlavního seznamu: **8 s aktuální dostupností**, **2 s částečnými daty**, **1 zastaralé**, **4 bez nalezeného reportu**, **0 blokováno**.
+Souhrn hlavního seznamu: **8 s aktuální dostupností**, **3 s částečnými daty**, **1 zastaralé**, **3 bez nalezeného reportu**, **0 blokováno**.
 
 | Banka | Stav | Poslední období | Dostupnost | Odezva AISP / PISP | Zdroj |
 |---|---|---:|---:|---:|---|
@@ -34,8 +34,8 @@ Souhrn hlavního seznamu: **8 s aktuální dostupností**, **2 s částečnými 
 | UniCredit Bank | OK | 2026-Q2 | 100 % | 345.29 ms / 248.6567 ms | [stránka](https://developer.unicredit.eu/report?view=kpi) |
 | Banka CREDITAS | OK | 2026-Q2 | 99.956 % | 1819.5176 ms / 938.0659 ms | [stránka](https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti) · [report](https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf) |
 | Trinity Bank | OK | 2026-Q2 | 99.9951 % | — / — | [stránka](https://www.trinitybank.cz/otevrene-bankovnictvi/) · [report](https://www.trinitybank.cz/download/3036) |
-| Partners Banka | Nenalezen report | — | — | — / — | [stránka](https://psd2.partnersbanka.cz/) |
-| Oberbank | Nenalezen report | — | — | — / — | [stránka](https://www.oberbank.cz/xs2a-interface) |
+| Partners Banka | Částečná data | rolling-30d-to-2026-09-15 | 99.986 % | — / — | [stránka](https://jakbezi.partnersbanka.cz/) |
+| Oberbank | Nenalezen report | — | — | — / — | [stránka](https://www.oberbank.cz/xs2a-interface) · [report](https://www.oberbank.cz/documents/20195/21703/obkglobal_xs2a_statistik.pdf/ed74f6e3-961a-a810-31ed-0df88ef05b56) |
 | J&T Banka | OK | 2026-Q2 | 99.7801 % | 387.1698 ms / 1482 ms | [stránka](https://www.jtbank.cz/informacni-povinnost) · [report](https://assets-eu-01.kc-usercontent.com:443/23883f12-8a12-01af-3f05-426faedce691/69bbf441-3b3b-4519-998b-10ec11b07591/Q2-2026_psd2_unavailability.pdf) |
 | PPF banka | Zastaralé | 2026-Q1 | — | 1833.6 ms / — | [stránka](https://www.ppfbanka.cz/cs/dokumenty/1868-pristupy-tretich-stran) · [report](https://www.ppfbanka.cz/cs/document/download/8437) |
 
@@ -49,7 +49,7 @@ Souhrn hlavního seznamu: **8 s aktuální dostupností**, **2 s částečnými 
 ## Co znamená stav
 
 - **OK**: pro očekávané čtvrtletí byla automaticky načtena hodnota dostupnosti.
-- **Částečná data**: banka zveřejnila report nebo výkonnostní metriky, ale chybí uptime nebo zatím není podporován její formát.
+- **Částečná data**: banka zveřejnila výkonnostní metriky bez uptime, neúplný report nebo doplňkový denní health-check, který není čtvrtletním RTS reportem.
 - **Zastaralé**: poslední nalezený report je starší než očekávané čtvrtletí.
 - **Nenalezen report**: oficiální PSD2 stránka existuje, ale tracker na ní nenašel statistiky.
 - **Zdroj blokuje automatizaci**: stránka vrátila chybu, blokaci nebo se změnil její formát. To samo o sobě **neznamená výpadek bankovního API**.

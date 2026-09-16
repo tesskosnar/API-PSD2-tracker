@@ -1,13 +1,13 @@
 (() => {
   "use strict";
   const data = window.PSD2_DATA || {};
-  const history = data.daily_history || [];
+  const history = window.PSD2_DAILY_DATA || data.daily_history || [];
   const bank = document.querySelector("#archiveBank");
   const from = document.querySelector("#archiveFrom");
   const to = document.querySelector("#archiveTo");
   const chart = document.querySelector("#dailyChart");
   let metric = "aisp_response_ms";
-  const labels = { aisp_response_ms: "Odezva AISP", pisp_response_ms: "Odezva PISP", aisp_error_pct: "Chybovost AISP", pisp_error_pct: "Chybovost PISP" };
+  const labels = { availability_pct: "Dostupnost", aisp_availability_pct: "Dostupnost AISP", pisp_availability_pct: "Dostupnost PISP", aisp_response_ms: "Odezva AISP", pisp_response_ms: "Odezva PISP", aisp_error_pct: "Chybovost AISP", pisp_error_pct: "Chybovost PISP", shared_error_pct: "Společná chybovost" };
   const format = (value, digits = 2) => value === "" || value === null || value === undefined ? "—" : new Intl.NumberFormat("cs-CZ", { maximumFractionDigits: digits }).format(Number(value));
   const day = value => new Date(`${value}T00:00:00Z`);
   const dateLabel = value => new Intl.DateTimeFormat("cs-CZ", { timeZone: "UTC" }).format(day(value));
@@ -15,6 +15,7 @@
   const number = value => value === "" || value === null || value === undefined ? null : Number(value);
   const bankNames = new Map(history.map(row => [row.bank_id, row.bank]));
   for (const [id, name] of [...bankNames].sort((a,b) => a[1].localeCompare(b[1], "cs"))) bank.add(new Option(name, id));
+  if (bankNames.has("moneta")) bank.value = "moneta";
   document.querySelector("#archiveMeta").textContent = data.archive?.checked_on ? `Poslední sběr ${dateLabel(data.archive.checked_on)}` : "Archiv se naplní při nejbližším sběru";
 
   function setRange(full = false) {
@@ -35,6 +36,14 @@
     return el;
   }
   function render() {
+    const available = key => history.some(row => row.bank_id === bank.value && number(row[key]) !== null);
+    if (!available(metric)) metric = Object.keys(labels).find(available) || "availability_pct";
+    document.querySelectorAll("[data-daily-metric]").forEach(button => {
+      button.disabled = !available(button.dataset.dailyMetric);
+      button.classList.toggle("active", button.dataset.dailyMetric === metric);
+      button.setAttribute("aria-pressed", String(button.dataset.dailyMetric === metric));
+      button.title = button.disabled ? "Banka tuto denní metriku nepublikuje" : labels[button.dataset.dailyMetric];
+    });
     const rows = history.filter(row => row.bank_id === bank.value && row.date >= from.value && row.date <= to.value).sort((a,b) => a.date.localeCompare(b.date));
     const points = rows.filter(row => Number.isFinite(number(row[metric])));
     chart.replaceChildren();
@@ -48,7 +57,7 @@
       const min = Math.min(...points.map(row => number(row[metric])));
       const max = Math.max(...points.map(row => number(row[metric])));
       const padding = (max - min) * .1 || Math.max(max * .05, 1);
-      const low = Math.max(0, min - padding), high = max + padding;
+      const low = Math.max(0, min - padding), high = metric.includes("availability") ? Math.min(100, max + padding) : max + padding;
       const start = day(from.value).getTime(), end = day(to.value).getTime();
       const x = row => 80 + (day(row.date).getTime() - start) / (end - start || 86400000) * (right - 80);
       const y = row => 285 - (number(row[metric]) - low) / (high - low) * 250;
@@ -76,6 +85,7 @@
       }
     }
     const tbody = document.querySelector("#dailyRows");
+    document.querySelector("#dailyMethod").textContent = bank.value === "partners" ? "Partners: publikované hodnoty PSD2 health-check. Nejde o čtvrtletní RTS statistiku a neporovnáváme je jako takovou." : bank.value === "ppf" ? "PPF: publikované nuly často znamenají dny bez volání, nikoli okamžitou odezvu. Uptime banka v reportu neuvádí." : "";
     tbody.replaceChildren();
     document.querySelector("#dailyTableSummary").textContent = `Jednotlivé uložené dny (${rows.length})`;
     for (const row of [...rows].reverse()) {

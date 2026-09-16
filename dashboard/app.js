@@ -76,9 +76,13 @@
   function formatPeriod(period) {
     const match = /^(\d{4})-Q([1-4])$/.exec(period || "");
     if (match) return `${match[2]}. čtvrtletí ${match[1]}`;
-    const rolling = /^rolling-90d-to-(\d{4})-(\d{2})-(\d{2})$/.exec(period || "");
-    if (rolling) return `90 dní do ${Number(rolling[3])}. ${Number(rolling[2])}. ${rolling[1]}`;
+    const rolling = /^rolling-(\d+)d-to-(\d{4})-(\d{2})-(\d{2})$/.exec(period || "");
+    if (rolling) return `${rolling[1]} dní do ${Number(rolling[4])}. ${Number(rolling[3])}. ${rolling[2]}`;
     return period || "—";
+  }
+
+  function shortPeriod(period) {
+    return (period || "").replace(/^(\d{4})-Q([1-4])$/, "$2Q$1");
   }
 
   function statusLabel(status) {
@@ -94,20 +98,32 @@
     const cell = document.createElement("td");
     cell.className = "latest-period";
     const quarter = /^(\d{4})-Q([1-4])$/.exec(period || "");
-    const rolling = /^rolling-90d-to-(\d{4})-(\d{2})-(\d{2})$/.exec(period || "");
+    const rolling = /^rolling-(\d+)d-to-(\d{4})-(\d{2})-(\d{2})$/.exec(period || "");
     if (quarter) {
-      cell.textContent = `${quarter[2]}Q${quarter[1]}`;
+      const label = document.createElement("span");
+      label.className = "period-quarter";
+      label.textContent = shortPeriod(period);
+      cell.append(label);
+      if (period < data.expected_period) {
+        cell.classList.add("latest-period--older");
+        const note = document.createElement("small");
+        note.className = "period-note";
+        note.textContent = "Poslední dostupné";
+        cell.append(note);
+        cell.title = `Starší report: ${formatPeriod(period)}. Pro ${formatPeriod(data.expected_period)} není novější report doložený.`;
+      }
     } else if (rolling) {
-      const end = new Date(Date.UTC(Number(rolling[1]), Number(rolling[2]) - 1, Number(rolling[3])));
+      const count = Number(rolling[1]);
+      const end = new Date(Date.UTC(Number(rolling[2]), Number(rolling[3]) - 1, Number(rolling[4])));
       const start = new Date(end);
-      start.setUTCDate(start.getUTCDate() - 89);
+      start.setUTCDate(start.getUTCDate() - count + 1);
       const shortDate = date => `${date.getUTCDate()}. ${date.getUTCMonth() + 1}. ${date.getUTCFullYear()}`;
       const endLabel = document.createElement("span");
       endLabel.textContent = shortDate(end);
       const note = document.createElement("small");
       note.className = "period-note";
-      note.textContent = "90denní přehled";
-      const range = `${shortDate(start)} – ${shortDate(end)} (90 dní včetně obou krajních dnů)`;
+      note.textContent = count === 30 ? "30 dní · health-check" : `${count}denní přehled`;
+      const range = `${shortDate(start)} – ${shortDate(end)} (${count} dní včetně obou krajních dnů)${count === 30 ? "; PSD2 health-check, nikoli čtvrtletní RTS report" : ""}`;
       cell.title = range;
       cell.setAttribute("aria-label", range);
       cell.append(endLabel, note);
@@ -157,8 +173,19 @@
   function setPeriodRange(from, to) {
     periods = allPeriods.filter(period => period >= from && period <= to);
     visibleHistory = history.filter(item => periods.includes(item.period));
-    document.getElementById("periodFrom").value = from;
-    document.getElementById("periodTo").value = to;
+    const fromIndex = allPeriods.indexOf(from), toIndex = allPeriods.indexOf(to);
+    document.getElementById("periodFrom").value = fromIndex;
+    document.getElementById("periodTo").value = toIndex;
+    document.getElementById("periodFromLabel").textContent = shortPeriod(from);
+    document.getElementById("periodToLabel").textContent = shortPeriod(to);
+    document.getElementById("periodFrom").setAttribute("aria-valuetext", formatPeriod(from));
+    document.getElementById("periodTo").setAttribute("aria-valuetext", formatPeriod(to));
+    const maximum = Math.max(1, allPeriods.length - 1);
+    const fill = document.getElementById("periodSliderFill");
+    fill.style.left = `${fromIndex / maximum * 100}%`;
+    fill.style.width = `${(toIndex - fromIndex) / maximum * 100}%`;
+    // When handles coincide, the earlier half of the track stays reachable.
+    document.getElementById("periodFrom").style.zIndex = fromIndex === toIndex && fromIndex > maximum / 2 ? "4" : "2";
     document.querySelectorAll("[data-period-count]").forEach(button => {
       const count = Number(button.dataset.periodCount);
       const preset = count ? allPeriods.slice(-count) : allPeriods;
@@ -167,29 +194,24 @@
       button.setAttribute("aria-pressed", String(active));
     });
     document.getElementById("periodRangeInfo").textContent =
-      `${formatPeriod(from)} – ${formatPeriod(to)} · ${periods.length} čtvrtletí`;
+      `${shortPeriod(from)} – ${shortPeriod(to)} · ${periods.length} čtvrtletí · Posunutím krajních bodů upravíte rozsah`;
     renderLegend();
     renderGrid();
   }
 
   function initializePeriodControls() {
     ["periodFrom", "periodTo"].forEach(id => {
-      const select = document.getElementById(id);
-      allPeriods.forEach(period => {
-        const option = document.createElement("option");
-        option.value = period;
-        option.textContent = period.replace(/^(\d{4})-Q([1-4])$/, "$2. čtvrtletí $1");
-        select.append(option);
-      });
-      select.addEventListener("change", () => {
-        let from = document.getElementById("periodFrom").value;
-        let to = document.getElementById("periodTo").value;
-        if (from > to) {
-          if (id === "periodFrom") to = from; else from = to;
-        }
-        setPeriodRange(from, to);
+      const slider = document.getElementById(id);
+      slider.max = Math.max(0, allPeriods.length - 1);
+      slider.addEventListener("input", () => {
+        let from = Number(document.getElementById("periodFrom").value);
+        let to = Number(document.getElementById("periodTo").value);
+        if (from > to) { if (id === "periodFrom") from = to; else to = from; }
+        setPeriodRange(allPeriods[from], allPeriods[to]);
       });
     });
+    document.getElementById("periodEarliest").textContent = shortPeriod(allPeriods[0]);
+    document.getElementById("periodLatest").textContent = shortPeriod(allPeriods.at(-1));
     document.querySelectorAll("[data-period-count]").forEach(button => {
       button.addEventListener("click", () => {
         const count = Number(button.dataset.periodCount);
@@ -251,7 +273,7 @@
 
     const thead = document.createElement("thead");
     const headRow = document.createElement("tr");
-    ["Banka", ...periods.map(period => period.replace("-", " "))].forEach((label, index) => {
+    ["Banka", ...periods.map(shortPeriod)].forEach((label, index) => {
       const th = document.createElement("th");
       th.textContent = label;
       if (index === 0) th.className = "metric-grid__bank";
@@ -303,7 +325,7 @@
     const table = document.getElementById("coverageTable");
     const thead = document.createElement("thead");
     const headRow = document.createElement("tr");
-    ["Banka", ...allPeriods].forEach(label => {
+    ["Banka", ...allPeriods.map(shortPeriod)].forEach(label => {
       const th = document.createElement("th");
       th.textContent = label;
       headRow.append(th);
@@ -353,6 +375,24 @@
     const status = document.getElementById("statusFilter").value;
     const rows = latest.filter(item => normalize(item.bank).includes(search) && (!status || item.status === status));
     document.getElementById("latestCount").textContent = `Zobrazeno ${rows.length} z ${latest.length} bank`;
+    const sortMetric = latestSort.key && latestSort.key !== "bank" ? metrics[latestSort.key] : null;
+    const withValue = sortMetric ? rows.filter(item => sortMetric.value(item) !== null) : rows;
+    const older = withValue.filter(item => /^\d{4}-Q[1-4]$/.test(item.latest_period) && item.latest_period < data.expected_period);
+    const context = document.getElementById("latestContext");
+    context.replaceChildren();
+    const sortInfo = document.createElement("strong");
+    sortInfo.textContent = sortMetric ? `${sortMetric.label} · ${latestSort.direction === "asc" ? "Od nejnižší" : "Od nejvyšší"} hodnoty` : "Nejnovější dostupné údaje každé banky";
+    context.append(sortInfo);
+    if (sortMetric) {
+      const counts = document.createElement("span");
+      counts.textContent = `${withValue.length} s hodnotou · ${rows.length - withValue.length} bez údaje`;
+      context.append(counts);
+    }
+    const periodInfo = document.createElement("span");
+    periodInfo.className = "latest-context__period";
+    periodInfo.textContent = `${shortPeriod(data.expected_period)} + denní přehledy${older.length ? ` · ${older.length} ${older.length === 1 ? "starší report zvýrazněn" : "starší reporty zvýrazněny"}` : ""}`;
+    context.append(periodInfo);
+    document.querySelectorAll("#latestTable [data-sort]").forEach(button => button.closest("th").classList.toggle("sorted-metric", Boolean(sortMetric) && button.dataset.sort === latestSort.key));
     if (latestSort.key) {
       rows.sort((a, b) => {
         if (latestSort.key === "bank") return a.bank.localeCompare(b.bank, "cs") * (latestSort.direction === "asc" ? 1 : -1);
@@ -374,9 +414,24 @@
       row.append(cell);
       tbody.append(row);
     }
+    let missingSeparator = false;
     rows.forEach(item => {
+      const missing = sortMetric && sortMetric.value(item) === null;
+      if (missing && !missingSeparator) {
+        const divider = document.createElement("tr");
+        divider.className = "latest-divider";
+        const cell = document.createElement("td");
+        cell.colSpan = 10;
+        const label = document.createElement("span");
+        label.textContent = `Bez údaje pro metriku: ${sortMetric.label} · ${rows.length - withValue.length} bank`;
+        cell.append(label);
+        divider.append(cell);
+        tbody.append(divider);
+        missingSeparator = true;
+      }
       const tr = document.createElement("tr");
       tr.dataset.bank = item.bank_id;
+      if (missing) tr.classList.add("latest-row--missing-metric");
       const name = document.createElement("th");
       name.scope = "row";
       name.className = "latest-bank";
@@ -388,6 +443,8 @@
       state.append(badge);
       const availability = document.createElement("td");
       availability.className = "latest-availability";
+      if (latestSort.key === "availability") availability.classList.add("sorted-metric");
+      availability.dataset.value = availabilityValue(item) === null ? "" : String(availabilityValue(item));
       if (numberOrNull(item.availability_pct) === null && availabilityValue(item) !== null) {
         [["AISP", item.aisp_availability_pct], ["PISP", item.pisp_availability_pct]].forEach(([service, raw]) => {
           const line = document.createElement("span");
@@ -409,6 +466,10 @@
         cell.dataset.value = value === null ? "" : String(value);
         cell.title = `${metrics[key].label}: ${value === null ? "údaj není doložený" : metrics[key].format(value)}`;
         if (value === null) cell.classList.add("numeric-metric--empty");
+        if (sortMetric && latestSort.key === key) {
+          cell.classList.add("sorted-metric");
+          if (value === null) cell.textContent = "Bez údaje";
+        }
         tr.append(cell);
       });
       const sourceCell = document.createElement("td");

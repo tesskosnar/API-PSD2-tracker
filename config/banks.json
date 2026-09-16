@@ -108,7 +108,8 @@
     "source_url": "https://www.trinitybank.cz/otevrene-bankovnictvi/",
     "parser": "pdf_links",
     "scope": "main",
-    "history_start_period": "2025-Q4",
+    "history_start_period": "2019-Q3",
+    "history_follow_next": true,
     "report_pattern": "Dostupnost.*API.*Q[1-4].*20[0-9]{2}",
     "pdf_layout": "trinity",
     "note": "Tracker vybira pouze API report, nikoli paralelni report internetoveho bankovnictvi."
@@ -116,19 +117,21 @@
   {
     "id": "partners",
     "name": "Partners Banka",
-    "source_url": "https://psd2.partnersbanka.cz/",
-    "parser": "report_links",
+    "source_url": "https://jakbezi.partnersbanka.cz/",
+    "documentation_url": "https://psd2.partnersbanka.cz/",
+    "parser": "partners",
     "scope": "main",
     "report_pattern": "statistik|availability|dostupnost|performance|report",
-    "note": "Na vyvojarskem portalu nebyla dohledana sekce se statistikami dostupnosti."
+    "note": "Oficialni stavovy web publikuje denni PSD2 health-check za poslednich 30 dni; nejde o ctvrtletni RTS statistiku."
   },
   {
     "id": "oberbank",
     "name": "Oberbank",
     "source_url": "https://www.oberbank.cz/xs2a-interface",
     "parser": "oberbank",
+    "statistics_url": "https://www.oberbank.cz/documents/20195/21703/obkglobal_xs2a_statistik.pdf/ed74f6e3-961a-a810-31ed-0df88ef05b56",
     "scope": "main",
-    "note": "Verejna stranka funguje, ale odkaz Zverejneni statistiky XS2A smeruje na interni/neplatny hostname."
+    "note": "Opraveny verejny odkaz vraci produkcni report Oberbank AG, ale bez oddeleni ceske pobocky. Cisla proto nejsou zahrnuta do CZ datasetu."
   },
   {
     "id": "jt",
@@ -147,7 +150,8 @@
     "source_url": "https://www.ppfbanka.cz/cs/dokumenty/1868-pristupy-tretich-stran",
     "parser": "pdf_links",
     "scope": "main",
-    "history_start_period": "2024-Q1",
+    "history_start_period": "2023-Q1",
+    "history_source_urls": ["https://www.ppfbanka.cz/cs/dokumenty/1868-pristupy-tretich-stran?category_id=1868&archive=archive"],
     "report_pattern": "Statistiky dostupnosti PSD2 API",
     "pdf_layout": "ppf",
     "note": "PDF publikuje odezvu a chybovost, ale ne uptime; k 2026-09-11 byl nejnovější pouze 2026-Q1."

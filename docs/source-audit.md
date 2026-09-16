@@ -2,6 +2,8 @@
 
 Původní seznam je ze sešitu dodaného k 9. září 2026. První audit proběhl 11. září; poslední sběr a kontrola historických reportů proběhly 16. září 2026. U sporných adres byly kontrolovány oficiální weby bank. Hodnocení rozlišuje dostupnost **publikovaného reportu** od dostupnosti samotného PSD2 API.
 
+**Nejnovější rozšíření 16. září:** 173 čtvrtletních záznamů (+29) a 15 507 denních záznamů za 12 bank. Původních 144 čtvrtletních záznamů se číselně nezměnilo. [Úplný audit všech 15 bank a seznam přírůstků](expanded-data-audit.md). Níže jsou zachovány také výsledky předchozích kontrol pro srovnání.
+
 | Banka | Výsledek ověření | Nejdůležitější zjištění |
 |---|---|---|
 | Česká spořitelna | správně | Stránka je JavaScriptový portál; pod ní je veřejné JSON API s denními hodnotami AISP/PISP. Tracker načítá konfiguraci a veřejný klíč přímo z portálu, takže není závislý na natvrdo uloženém klíči. |
@@ -15,15 +17,15 @@ Původní seznam je ze sešitu dodaného k 9. září 2026. První audit proběh
 | UniCredit Bank | správně | Portál má CZ Dedicated Interface; publikuje měsíční uptime, odezvu a společnou chybovost. Tracker z měsíců skládá čtvrtletí. |
 | Banka CREDITAS | správně | Oficiální seznam obsahuje 2026-Q2. Přehled může blokovat automatické klienty, ale PDF mají předvídatelnou adresu. Sloupec „poměr výpadků“ není míra chybových API odpovědí; tracker jej proto nepřejmenovává na chybovost. |
 | Trinity Bank | správně | Stránka rozlišuje API a internetové bankovnictví; aktuální API report je 2026-Q2. |
-| Partners Banka | report nenalezen | Vývojářský portál funguje, ale sekce se statistikami dostupnosti nebyla nalezena. |
-| Oberbank | původní poznámka byla nepřesná | Veřejná XS2A stránka funguje. Odkaz „Zveřejnění statistiky XS2A“ ale směřuje na interní hostname `redaktionsproduktion-oberbank-at:12080`, takže je pro veřejnost chybně nastaven. |
+| Partners Banka | doplněn denní health-check | Nově ověřený oficiální stavový web obsahuje 30 denních PSD2 hodnot. Nejde o čtvrtletní RTS report; ten nadále není doložen. |
+| Oberbank | proklik opraven, CZ řez nedoložen | Stejná cesta na veřejné doméně vrací produkční PDF Oberbank AG bez oddělení ČR. Odkaz opraven, čísla do českého datasetu nepřevzata. |
 | J&T Banka | správně | Webová aplikace obsahuje aktuální PSD2 PDF 2026-Q2 v datech stránky. „Error response rate“ je společná pro služby, nikoli samostatně AISP a PISP; v PDF je zapsaná jako podíl. |
 | PPF banka | správně, ale zastarale/neúplně | Nejnovější nalezený report je 2026-Q1 a PDF neobsahuje uptime, pouze odezvu a chybovost. Většina dnů má 0 volání a 0 % chyb; průměr chybovosti dává smysl jen pro dny se skutečnými voláními. |
 | Národní rozvojová banka | kandidát chyběl v sešitu | Oficiální stránka potvrzuje PSD2 API, ale statistický report nebyl dohledán. Před zařazením do hlavního srovnání je vhodné potvrdit, zda vede relevantní online platební účty a má povinnost publikovat srovnávané rozhraní. |
 
 ## Co se změnilo proti minulé kontrole
 
-Všech 15 původních bankovních stránek zůstává v trackeru na stejné adrese. U Komerční banky byl odstraněn pouze kotvicí fragment a u PPF banky nadbytečný dotazový řetězec; obě adresy vedou na stejnou stránku. Národní rozvojová banka je nadále jen oddělený kandidát mimo původní seznam.
+Při kontrolách 11.–14. září zůstávalo všech 15 původních bankovních stránek na stejné adrese. U Komerční banky byl odstraněn pouze kotvicí fragment a u PPF banky nadbytečný dotazový řetězec; obě adresy vedou na stejnou stránku. Rozšíření 16. září nově přidává stavový web Partners jako hlavní zdroj, archivní stránku PPF, průchod dalšími stránkami Trinity a opravený proklik Oberbank. Národní rozvojová banka je nadále jen oddělený kandidát mimo původní seznam.
 
 | Zdroj | Původní sešit / audit 11. 9. | Kontrola 14. 9. | Dopad na tracker |
 |---|---|---|---|
@@ -41,7 +43,7 @@ U ostatních bank se mezi sběry 13. a 14. září nezměnil odkaz na report ani
 
 ## Veřejné reporty dohledané zpětně
 
-Kontrola 15. září 2026 prošla celé archivy na oficiálních stránkách, ne jen posledních osm čtvrtletí. Dataset nyní obsahuje 142 archivních PDF/XLSX a dvě aktuální období z veřejných online portálů, celkem 144 doložených bankovních období.
+Kontrola 15. září 2026 rozšířila historii nad posledních osm čtvrtletí. Tehdejší dataset obsahoval 142 archivních PDF/XLSX a dvě aktuální období z veřejných online portálů, celkem 144 doložených bankovních období. Nová kontrola 16. září doplnila dříve přehlédnutý samostatný archiv PPF a stránkování Trinity; aktuální počty jsou níže.
 
 | Banka | Počet | Veřejný rozsah | Poznámka |
 |---|---:|---|---|
@@ -50,9 +52,9 @@ Kontrola 15. září 2026 prošla celé archivy na oficiálních stránkách, ne
 | Fio banka | 28 | 2019-Q3–2026-Q2 | Souvislý archiv PDF. |
 | ČSOB | 22 | 2021-Q1–2026-Q2 | Souvislý archiv XLSX, bez uptime. |
 | J&T Banka | 14 | 2019-Q2–2026-Q2 | Veřejný archiv má mezi roky mezery; tracker je nedoplňuje odhadem. |
-| PPF banka | 9 | 2024-Q1–2026-Q1 | Souvislý archiv PDF, bez uptime. |
+| PPF banka | 13 | 2023-Q1–2026-Q1 | Aktuální seznam i samostatný archiv PDF, bez uptime. |
 | Komerční banka | 8 | 2024-Q3–2026-Q2 | Tolik dokumentů dnes uvádí oficiální stránka. |
-| Trinity Bank | 3 | 2025-Q4–2026-Q2 | Tolik API reportů dnes uvádí oficiální stránka. |
+| Trinity Bank | 28 | 2019-Q3–2026-Q2 | Včetně všech odkazovaných stránek archivu; první report pokrývá pouze část čtvrtletí. |
 | Česká spořitelna | 1 | 2026-Q2 | Veřejný portál poskytuje poslední čtvrtletí, ne archiv dokumentů. |
 | UniCredit Bank | 1 | 2026-Q2 | Veřejný portál aktuálně vrací tři měsíce posledního čtvrtletí. |
 

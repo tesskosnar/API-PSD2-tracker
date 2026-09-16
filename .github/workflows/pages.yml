@@ -11,6 +11,9 @@ on:
       - "docs/source-audit.md"
       - "docs/original-data-comparison.md"
       - "docs/historical-data-corrections.csv"
+      - "docs/expanded-data-*.md"
+      - "docs/expanded-data-changes.csv"
+      - "docs/daily-source-coverage.csv"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
   workflow_run:
@@ -43,16 +46,19 @@ jobs:
         run: |
           mkdir -p _site
           cp dashboard/index.html dashboard/app.js dashboard/report.html dashboard/report.js dashboard/archive.html dashboard/archive.js dashboard/data.js dashboard/styles.css _site/
+          cp dashboard/daily-data.js _site/daily-data.js
           cp data/timeseries.csv _site/timeseries.csv
           cp data/daily-history.csv _site/daily-history.csv
           cp docs/data-archive.md _site/data-archive.md
           cp docs/source-audit.md _site/source-audit.md
           cp docs/original-data-comparison.md _site/original-data-comparison.md
           cp docs/historical-data-corrections.csv _site/historical-data-corrections.csv
+          cp docs/expanded-data-changes.csv docs/daily-source-coverage.csv docs/expanded-data-audit.md _site/
           sed -i.bak \
             -e 's#../docs/source-audit.md#source-audit.md#' \
             -e 's#../docs/original-data-comparison.md#original-data-comparison.md#' \
             -e 's#../docs/historical-data-corrections.csv#historical-data-corrections.csv#' \
+            -e 's#../docs/expanded-data-changes.csv#expanded-data-changes.csv#' \
             -e 's#../data/timeseries.csv#timeseries.csv#' \
             _site/index.html
           rm _site/index.html.bak

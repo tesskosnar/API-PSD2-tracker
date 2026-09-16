@@ -75,9 +75,10 @@ class ArchiveTests(unittest.TestCase):
         self.assertEqual(self.archive.quarterly_rows()[0]["availability_pct"], 99.9)
         self.archive.record_daily(self.daily("2026-09-15", 250))
         write_dashboard_data([], [], "2026-Q2", date(2026, 9, 16), self.root / "data.js", archive=self.archive)
-        self.assertIn('"daily_history"', (self.root / "data.js").read_text())
+        self.assertIn('"daily_history_asset"', (self.root / "data.js").read_text())
+        self.assertIn('"aisp_response_ms"', (self.root / "daily-data.js").read_text())
         write_dashboard_data([], [], "2026-Q2", date(2026, 9, 16), self.root / "data.js")
-        self.assertIn('"daily_history"', (self.root / "data.js").read_text())
+        self.assertIn('"daily_history_asset"', (self.root / "data.js").read_text())
         self.archive.export(self.root)
         self.assertTrue((self.root / "daily-history.csv").exists())
 

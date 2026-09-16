@@ -1,12 +1,12 @@
 {
   "checked_on": "2026-09-16",
-  "daily_days": 90,
-  "daily_from": "2026-06-18",
+  "daily_days": 15507,
+  "daily_from": "2019-01-01",
   "daily_to": "2026-09-15",
-  "daily_versions": 90,
-  "documents": 160,
-  "fetches": 160,
+  "daily_versions": 15597,
+  "documents": 232,
+  "fetches": 232,
   "first_archived_on": "2026-09-16",
   "schema_version": 1,
-  "snapshots": 178
+  "snapshots": 209
 }

@@ -23,6 +23,7 @@ from urllib.parse import urlencode, urljoin, urlparse, urlsplit, urlunsplit
 from urllib.request import HTTPCookieProcessor, Request, build_opener
 from xml.etree import ElementTree
 from xml.sax.saxutils import escape as xml_escape
+from zoneinfo import ZoneInfo
 
 from lxml import html
 from pypdf import PdfReader
@@ -674,7 +675,7 @@ def parse_pdf_metrics(content: bytes, layout: str) -> dict[str, float | str | No
         uptimes: list[float] = []
         for line in lines:
             match = re.match(
-                rf"^\S+\s+{date_prefix}\s+\d+\s+[\d,.]+%\s+([\d,.]+)%",
+                rf"^\S+\s+{date_prefix}\s+\d+\s+[\d,.]+%?\s+([\d,.]+)%?(?:\s|$)",
                 line,
             )
             if match:
@@ -761,11 +762,7 @@ def base_observation(bank: dict[str, Any]) -> Observation:
 def parse_report_links(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
     observation = base_observation(bank)
     response = fetcher.get(bank["source_url"])
-    candidates = find_report_candidates(
-        response.text,
-        response.url,
-        bank.get("report_pattern", r"PSD2|availability|dostupnost|report"),
-    )
+    candidates = find_report_candidates(response.text, response.url, bank.get("report_pattern", r"PSD2|availability|dostupnost|report"))
     if not candidates:
         return observation
 
@@ -784,6 +781,7 @@ def parse_report_links(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
         metrics = parse_pdf_metrics(report.content, layout)
         for key, value in metrics.items():
             setattr(observation, key, value)
+        observation.daily_metrics = [{**row, "source_url": report_url} for row in parse_pdf_daily(report.content, layout, period)]
     except (FetchError, ValueError) as exc:
         observation.source_state = "report-error"
         observation.note = f"{observation.note} PDF se nepodarilo zpracovat: {exc}".strip()
@@ -827,6 +825,20 @@ def parse_csas(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
     observation.aisp_availability_pct = average(by_scope["aisp"])
     observation.pisp_availability_pct = average(by_scope["pisp"])
     observation.metric_method = "prumer dennich hodnot z verejneho JSON podle AISP/PISP"
+    daily = {}
+    for item in items:
+        scopes = {str(scope).lower() for scope in item.get("api", {}).get("scopes", [])}
+        for entry in item.get("statusHistory", []):
+            value = parse_number(entry.get("availability"))
+            if value is None or not entry.get("from"):
+                continue
+            # Bank reports midnight in Prague, represented as the preceding UTC day.
+            day = datetime.fromisoformat(entry["from"].replace("Z", "+00:00")).astimezone(ZoneInfo("Europe/Prague")).date().isoformat()
+            row = daily.setdefault(day, {"aisp": [], "pisp": []})
+            for scope in row:
+                if scope in scopes:
+                    row[scope].append(value * 100)
+    observation.daily_metrics = [{"date": day, "aisp_availability_pct": average(values["aisp"]), "pisp_availability_pct": average(values["pisp"]), "country_code": "CZ", "metric_method": observation.metric_method} for day, values in sorted(daily.items())]
     return observation
 
 
@@ -885,6 +897,11 @@ def apply_csob_workbook(observation: Observation, content: bytes) -> Observation
     observation.aisp_error_pct = aisp_error_ratio * 100 if aisp_error_ratio is not None else None
     observation.pisp_error_pct = pisp_error_ratio * 100 if pisp_error_ratio is not None else None
     observation.metric_method = "prumer dennich XLSX hodnot; chybovost prevedena z podilu na procenta; uptime chybi"
+    observation.daily_metrics = []
+    for row in data_rows:
+        raw = row["A"]
+        day = raw if re.fullmatch(r"\d{4}-\d{2}-\d{2}", raw) else (date(1899, 12, 30) + timedelta(days=int(float(raw)))).isoformat()
+        observation.daily_metrics.append({"date": day, "aisp_response_ms": parse_number(row.get(columns["aisp_response"])), "pisp_response_ms": parse_number(row.get(columns["pisp_response"])), "aisp_error_pct": (value * 100 if (value := parse_number(row.get(columns["aisp_error"]))) is not None else None), "pisp_error_pct": (value * 100 if (value := parse_number(row.get(columns["pisp_error"]))) is not None else None), "country_code": "CZ", "metric_method": observation.metric_method, "source_url": observation.report_url or observation.source_url})
     return observation
 
 
@@ -933,6 +950,9 @@ def parse_unicredit_quarters(bank: dict[str, Any], fetcher: Fetcher) -> list[Obs
     if not dated:
         raise ValueError("UniCredit JSON nema datovane CZ zaznamy")
     observations: list[Observation] = []
+    daily_source = extract_balanced_json(response.text, "var kpiDataDaily =") if "var kpiDataDaily =" in response.text else {}
+    daily_country = daily_source.get(country_code, {}).get("Dedicated Interface", {})
+    daily_rows = [row for month in daily_country.values() if isinstance(month, dict) for row in month.values() if isinstance(row, dict) and row.get("date")]
     for year, quarter in sorted({(year, quarter) for year, quarter, _, _ in dated}):
         selected_months = sorted((month, row) for y, q, month, row in dated if y == year and q == quarter)
         selected = [row for _, row in selected_months]
@@ -946,6 +966,11 @@ def parse_unicredit_quarters(bank: dict[str, Any], fetcher: Fetcher) -> list[Obs
         observation.aisp_error_pct = error
         observation.pisp_error_pct = error
         observation.metric_method = "prumer mesicnich hodnot CZ Dedicated Interface; spolecna error response rate v procentech"
+        observation.daily_metrics = []
+        for row in daily_rows:
+            day = datetime.strptime(row["date"], "%m-%d-%Y").date()
+            if day.year == year and (day.month - 1) // 3 + 1 == quarter:
+                observation.daily_metrics.append({"date": day.isoformat(), "availability_pct": parse_number(row.get("uptime")), "aisp_response_ms": parse_number(row.get("ais")), "pisp_response_ms": parse_number(row.get("pis")), "shared_error_pct": parse_number(row.get("error_response_rate")), "country_code": "CZ", "metric_method": "publikovana denni hodnota CZ Dedicated Interface; spolecna error response rate v procentech"})
         observation.report_details = {
             "country_code": country_code,
             "country": "UniCredit Bank Czech Republic",
@@ -1052,7 +1077,45 @@ def parse_creditas(bank: dict[str, Any], fetcher: Fetcher, today: date) -> Obser
         metrics = parse_pdf_metrics(response.content, bank["pdf_layout"])
         for key, value in metrics.items():
             setattr(observation, key, value)
+        observation.daily_metrics = [{**row, "source_url": report_url} for row in parse_pdf_daily(response.content, bank["pdf_layout"], period)]
         return observation
+    return observation
+
+
+def parse_partners(bank: dict[str, Any], fetcher: Fetcher, today: date) -> Observation:
+    observation = base_observation(bank)
+    response = fetcher.get(bank["source_url"])
+    document = html.fromstring(response.content)
+    charts = document.xpath('//div[contains(@class,"card")][.//h5[normalize-space(text())="PSD2 status"]]//canvas/@data-symfony--ux-chartjs--chart-view-value')
+    selected = None
+    for raw in charts:
+        chart = json.loads(raw).get("data", {})
+        labels = chart.get("labels", [])
+        if len(labels) == 30 and all(re.fullmatch(r"\d{1,2}\.\d{1,2}\.", label) for label in labels):
+            selected = chart
+            break
+    if not selected:
+        raise ValueError("Partners nema rozpoznany 30denni PSD2 graf")
+    datasets = selected.get("datasets", [])
+    if len(datasets) != 1 or datasets[0].get("label") != "Dostupnost [%]":
+        raise ValueError("Partners PSD2 graf nema overenou metriku")
+    values = datasets[0].get("data", [])
+    if len(values) != 30:
+        raise ValueError("Partners PSD2 graf ma nesouhlasne pocty dnu a hodnot")
+    observation.daily_metrics = []
+    for label, raw in zip(selected["labels"], values):
+        day, month = [int(part) for part in label.rstrip(".").split(".")]
+        candidate = date(today.year, month, day)
+        if candidate >= today:
+            candidate = date(today.year - 1, month, day)
+        observation.daily_metrics.append({"date": candidate.isoformat(), "availability_pct": parse_number(raw), "country_code": "CZ", "metric_method": "publikovana denni dostupnost PSD2 health-check; nikoli ctvrtletni RTS report"})
+    dates = [date.fromisoformat(row["date"]) for row in observation.daily_metrics]
+    if any(b - a != timedelta(days=1) for a, b in zip(dates, dates[1:])) or today - dates[-1] > timedelta(days=7):
+        raise ValueError("Partners PSD2 graf nema aktualni souvisle datumy")
+    observation.latest_period = f"rolling-30d-to-{dates[-1].isoformat()}"
+    observation.report_url = bank["source_url"]
+    observation.availability_pct = average(row["availability_pct"] for row in observation.daily_metrics)
+    observation.metric_method = "prumer 30 publikovanych dennich PSD2 health-check hodnot; nikoli ctvrtletni RTS report"
     return observation
 
 
@@ -1070,6 +1133,10 @@ def parse_oberbank(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
         if "redaktionsproduktion" in hostname or ":12080" in href:
             observation.metric_method = "odkaz na statistiku je chybne publikovan"
         break
+    if bank.get("statistics_url"):
+        observation.report_url = bank["statistics_url"]
+        fetcher.get(observation.report_url)
+        observation.metric_method = "verejny produkcni report Oberbank AG napric trhy; CZ data nejsou oddelena, proto metriky nejsou prevzaty"
     return observation
 
 
@@ -1130,6 +1197,8 @@ def finalize_status(observation: Observation, expected_period: str) -> Observati
     observation.status = "ok" if has_availability else "partial"
     if "neuplny denni uptime" in observation.metric_method:
         observation.status = "partial"
+    if "health-check" in observation.metric_method:
+        observation.status = "partial"
     return observation.rounded()
 
 
@@ -1156,6 +1225,8 @@ def collect_bank(
             observation = parse_creditas(bank, fetcher, today)
         elif parser_name == "oberbank":
             observation = parse_oberbank(bank, fetcher)
+        elif parser_name == "partners":
+            observation = parse_partners(bank, fetcher, today)
         else:
             raise ValueError(f"Neznamy parser: {parser_name}")
     except FetchError as exc:
@@ -1200,6 +1271,79 @@ def row_has_metrics(row: dict[str, Any]) -> bool:
     return any(row.get(field) not in (None, "") for field in TIMESERIES_FIELDS if field.endswith(("_pct", "_ms")))
 
 
+def parse_pdf_daily(content: bytes, layout: str, period: str) -> list[dict[str, Any]]:
+    """Additional daily detail; the existing quarterly calculation stays independent."""
+    if layout == "creditas":
+        columns = {}
+        daily = []
+        for table in extract_creditas_tables(content):
+            for cells in table:
+                for index, cell in enumerate(cells):
+                    header = " ".join(unicodedata.normalize("NFKD", cell or "").encode("ascii", "ignore").decode().upper().split())
+                    if "AISP" in header: columns["aisp_response_ms"] = index
+                    elif "PISP" in header: columns["pisp_response_ms"] = index
+                    elif "UPTIME" in header or "DOSTUPNOST" in header or "PROVOZUSCHOPNOST" in header: columns["availability_pct"] = index
+                    elif "ERROR RESPONSE" in header or "MIRA CHYB" in header: columns["shared_error_pct"] = index
+                raw = (cells[0] or "").strip() if cells else ""
+                if not re.fullmatch(r"\d{1,2}[./]\d{1,2}[./]\d{2,4}", raw): continue
+                normalized = raw.replace("/", ".")
+                day = datetime.strptime(normalized, "%d.%m.%y" if len(normalized.split(".")[-1]) == 2 else "%d.%m.%Y").date()
+                if f"{day.year}-Q{(day.month-1)//3+1}" != period: raise ValueError(f"Den {day} nesouhlasi s obdobim {period}")
+                daily.append({"date": day.isoformat(), "country_code": "CZ", "metric_method": "publikovane denni hodnoty PDF se zachovanymi prazdnymi sloupci; pomer vypadku neni chybovost", **{field: parse_number(cells[index]) if index < len(cells) else None for field, index in columns.items()}})
+        if len({row["date"] for row in daily}) != len(daily): raise ValueError("Duplicitni den v PDF CREDITAS")
+        return sorted(daily, key=lambda row: row["date"])
+    text = extract_pdf_text(content)
+    date_prefix = r"\d{1,2}[./]\d{1,2}[./]\d{2,4}"
+    records = []
+    if layout.startswith("standard_minutes"):
+        records = re.findall(rf"({date_prefix})\s+(.*?)(?={date_prefix}\s+|\Z)", text, re.S)
+    else:
+        for line in text.splitlines():
+            pattern = rf"^\S+\s+({date_prefix})\s+(.+)$" if layout == "trinity" else rf"^({date_prefix})\s+(.+)$"
+            if match := re.match(pattern, " ".join(line.split())):
+                records.append(match.groups())
+    days = {}
+    for raw_date, raw_values in records:
+        raw_date = raw_date.replace("/", ".")
+        day = datetime.strptime(raw_date, "%d.%m.%y" if len(raw_date.split(".")[-1]) == 2 else "%d.%m.%Y").date()
+        if f"{day.year}-Q{(day.month - 1) // 3 + 1}" != period:
+            raise ValueError(f"Den {day} nesouhlasi s obdobim {period}")
+        if layout.startswith("standard_minutes"):
+            end = re.match(r".*?(?:[\d,.]+%\s+){2}[\d,.]+%", raw_values, re.S)
+            raw_values = " ".join((end.group() if end else raw_values.splitlines()[0]).split())
+        values = [parse_number(token) for token in raw_values.split()]
+        row = {"date": day.isoformat(), "country_code": "CZ"}
+        if layout.startswith("standard_minutes"):
+            clean = [v for v in values if v is not None]
+            if len(clean) < 8 or len(values) < 2 or values[1] is None: continue
+            row["availability_pct"] = values[1] / 1440 * 100
+            responses, errors = clean[-6:-3], clean[-3:]
+            ais, pis = (1, 0) if layout == "standard_minutes_air" else (0, 1)
+            row.update(aisp_response_ms=responses[ais], pisp_response_ms=responses[pis], aisp_error_pct=errors[ais], pisp_error_pct=errors[pis])
+            row["metric_method"] = "denni provoz API / 1440 minut; publikovana odezva a chybovost"
+        elif layout == "fio":
+            if len(values) < 8 or any(v is None for v in values[:8]): continue
+            row.update(availability_pct=values[0] / (values[0] + values[1]) * 100 if values[0] + values[1] else None, pisp_response_ms=values[2], pisp_error_pct=values[3], aisp_response_ms=values[4], aisp_error_pct=values[5], metric_method="denni PSD2 provoz / (provoz + vypadek); publikovana odezva a chybovost")
+        elif layout == "jt":
+            if len(values) < 6 or any(v is None for v in values[-3:]): continue
+            row.update(pisp_response_ms=values[0], aisp_response_ms=values[1], shared_error_pct=values[-3] * 100, availability_pct=values[-2], metric_method="denni uptime; spolecna chybovost prevedena z podilu na procenta")
+        elif layout == "ppf":
+            if len(values) < 6 or any(v is None for v in values[:6]): continue
+            row.update(aisp_response_ms=values[0], aisp_error_pct=values[1], pisp_response_ms=values[2], pisp_error_pct=values[3], metric_method="publikovane denni hodnoty vcetne nul ve dnech bez volani; uptime chybi")
+        elif layout == "trinity":
+            if len(values) < 3 or values[2] is None: continue
+            days.setdefault(day.isoformat(), []).append(values[2])
+            continue
+        else: continue
+        if row["date"] in days:
+            if days[row["date"]] == row: continue
+            raise ValueError(f"Konfliktni duplicitni den {day}")
+        days[row["date"]] = row
+    if layout == "trinity":
+        return [{"date": day, "country_code": "CZ", "availability_pct": average(values), "metric_method": "prumer publikovane denni dostupnosti PSD2 sluzeb"} for day, values in sorted(days.items())]
+    return [row for _, row in sorted(days.items())]
+
+
 def parse_pdf_observation(
     bank: dict[str, Any], period: str, report_url: str, fetcher: Fetcher
 ) -> Observation:
@@ -1215,18 +1359,29 @@ def parse_pdf_observation(
     metrics = parse_pdf_metrics(report.content, bank["pdf_layout"])
     for key, value in metrics.items():
         setattr(observation, key, value)
+    observation.daily_metrics = [{**row, "source_url": report_url} for row in parse_pdf_daily(report.content, bank["pdf_layout"], period)]
     return finalize_status(observation, period)
 
 
 def collect_pdf_history(
     bank: dict[str, Any], fetcher: Fetcher, periods: set[str]
 ) -> list[Observation]:
-    response = fetcher.get(bank["source_url"])
-    candidates = find_report_candidates(
-        response.text,
-        response.url,
-        bank.get("report_pattern", r"PSD2|availability|dostupnost|report"),
-    )
+    candidates = []
+    pending = [bank["source_url"], *bank.get("history_source_urls", [])]
+    visited = set()
+    while pending and len(visited) < 30:
+        source_url = pending.pop(0)
+        if source_url in visited:
+            continue
+        visited.add(source_url)
+        response = fetcher.get(source_url)
+        candidates.extend(find_report_candidates(response.text, response.url, bank.get("report_pattern", r"PSD2|availability|dostupnost|report")))
+        if bank.get("history_follow_next"):
+            document = html.fromstring(response.content)
+            for href in document.xpath('//a[@rel="next"]/@href'):
+                url = urljoin(response.url, href)
+                if urlparse(url).hostname == urlparse(bank["source_url"]).hostname and url not in visited:
+                    pending.append(url)
     observations: list[Observation] = []
     seen: set[str] = set()
     for _, period, report_url, _ in candidates:
@@ -1421,6 +1576,8 @@ def collect_timeseries(
             else:
                 observations = []
             for observation in observations:
+                if isinstance(fetcher, Fetcher) and fetcher.archive:
+                    fetcher.archive.record_daily(observation)
                 if observation.report_url:
                     row = timeseries_row(observation)
                     key = (observation.bank_id, observation.latest_period)
@@ -1487,11 +1644,15 @@ def write_dashboard_data(
         "timeseries": timeseries,
         "source_details": source_details,
     }
+    daily_version = None
     if archive:
-        payload["daily_history"] = archive.daily_rows()
+        daily_source = "window.PSD2_DAILY_DATA = " + stable_json(archive.daily_rows())
+        (output_path.parent / "daily-data.js").write_text(daily_source, encoding="utf-8")
+        daily_version = hashlib.sha256(daily_source.encode()).hexdigest()[:12]
+        payload["daily_history_asset"] = f"daily-data.js?v={daily_version}"
         payload["archive"] = archive.summary()
     elif isinstance(previous, dict):
-        for key in ("daily_history", "archive"):
+        for key in ("daily_history", "daily_history_asset", "archive"):
             if key in previous:
                 payload[key] = previous[key]
     source = "window.PSD2_DATA = " + stable_json(payload)
@@ -1506,6 +1667,8 @@ def write_dashboard_data(
             f'<script src="data.js?v={cache_version}"></script>',
             content,
         )
+        if daily_version and index_path.name == "archive.html":
+            updated = re.sub(r'<script src="daily-data\.js(?:\?v=[^"]+)?"></script>', f'<script src="daily-data.js?v={daily_version}"></script>', updated)
         if updated != content:
             index_path.write_text(updated, encoding="utf-8")
 

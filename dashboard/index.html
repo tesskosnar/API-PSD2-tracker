@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light">
   <title>Dostupnost PSD2 API v Česku</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d2f37'/%3E%3Cpath d='M18 18h18c8 0 13 5 13 12s-5 12-13 12H27v8h-9V18zm9 8v8h8c3 0 5-1 5-4s-2-4-5-4h-8z' fill='%237cd3bd'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css?v=13">
+  <link rel="stylesheet" href="styles.css?v=14">
 </head>
 <body>
   <header class="hero">
@@ -67,9 +67,13 @@
           </div>
         </div>
         <div class="period-custom">
-          <label>Od <select id="periodFrom" aria-label="Počáteční čtvrtletí"></select></label>
-          <span class="period-custom__dash" aria-hidden="true">—</span>
-          <label>Do <select id="periodTo" aria-label="Koncové čtvrtletí"></select></label>
+          <div class="period-slider-labels"><span>Od <output id="periodFromLabel" for="periodFrom"></output></span><span>Do <output id="periodToLabel" for="periodTo"></output></span></div>
+          <div class="period-slider" id="periodSlider">
+            <div class="period-slider-track"><span id="periodSliderFill"></span></div>
+            <input id="periodFrom" type="range" min="0" step="1" aria-label="Počáteční čtvrtletí">
+            <input id="periodTo" type="range" min="0" step="1" aria-label="Koncové čtvrtletí">
+          </div>
+          <div class="period-slider-extents"><span id="periodEarliest"></span><span id="periodLatest"></span></div>
         </div>
       </div>
       <p id="periodRangeInfo" class="period-range-info" aria-live="polite"></p>
@@ -104,6 +108,7 @@
         </div>
       </div>
       <p id="latestCount" class="latest-count" aria-live="polite"></p>
+      <div id="latestContext" class="latest-context" aria-live="polite"></div>
       <div class="table-scroll">
         <table class="data-table" id="latestTable" aria-label="Poslední stav bank; sloupce lze řadit šipkou">
           <thead>
@@ -152,6 +157,8 @@
   <footer>
     <p>PSD2 API tracker · data z oficiálních stránek bank</p>
     <nav class="footer-links" aria-label="Další zdroje">
+      <a href="https://github.com/tesskosnar/API-PSD2-tracker/blob/main/docs/expanded-data-audit.md">Rozšířený audit 15 bank</a>
+      <a href="../docs/expanded-data-changes.csv">Nově doplněné reporty</a>
       <a href="../docs/source-audit.md">Audit zdrojů</a>
       <a href="../docs/original-data-comparison.md">Porovnání s Excelem</a>
       <a href="../docs/historical-data-corrections.csv">Seznam oprav historie</a>
@@ -161,7 +168,7 @@
     </nav>
   </footer>
 
-  <script src="data.js?v=a18ab5678c9c"></script>
-  <script src="app.js?v=12"></script>
+  <script src="data.js?v=339aabac46ed"></script>
+  <script src="app.js?v=14"></script>
 </body>
 </html>

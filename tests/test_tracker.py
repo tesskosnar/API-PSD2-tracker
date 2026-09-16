@@ -20,6 +20,9 @@ from psd2_tracker.tracker import (
     expected_report_period,
     finalize_status,
     parse_pdf_metrics,
+    parse_pdf_daily,
+    parse_partners,
+    collect_pdf_history,
     parse_first_xlsx_sheet,
     parse_quarter,
     parse_unicredit_quarters,
@@ -32,6 +35,67 @@ from psd2_tracker.tracker import (
 
 
 class TrackerTests(unittest.TestCase):
+    def test_trinity_legacy_percent_without_sign_is_supported(self):
+        text = "Tar_01_PSD_API 01.10.2021 7200 8,3 91,7 n/a n/a\nTar_02_PSD_API 01.10.2021 7200 8,3 91,7 n/a n/a"
+        with patch("psd2_tracker.tracker.extract_pdf_text", return_value=text):
+            self.assertEqual(parse_pdf_metrics(b"", "trinity")["availability_pct"], 91.7)
+            daily = parse_pdf_daily(b"", "trinity", "2021-Q4")
+        self.assertEqual(len(daily), 1)
+        self.assertEqual(daily[0]["availability_pct"], 91.7)
+
+    def test_daily_air_services_and_duplicate_source_line(self):
+        line = "01/01/24 1440 1440 46 52 1 0,01% 0,02% 0,00%"
+        with patch("psd2_tracker.tracker.extract_pdf_text", return_value=line+"\n"+line):
+            daily = parse_pdf_daily(b"", "standard_minutes_air", "2024-Q1")
+        self.assertEqual(len(daily), 1)
+        self.assertEqual(daily[0]["aisp_response_ms"], 52)
+        self.assertEqual(daily[0]["pisp_response_ms"], 46)
+        self.assertEqual(daily[0]["aisp_error_pct"], .02)
+        self.assertEqual(daily[0]["availability_pct"], 100)
+
+    def test_daily_conflicting_duplicates_and_foreign_period_are_rejected(self):
+        text = "01.04.2026 1 2 3 4 5 6\n01.04.2026 2 2 3 4 5 6"
+        with patch("psd2_tracker.tracker.extract_pdf_text", return_value=text):
+            with self.assertRaisesRegex(ValueError, "Konfliktni"):
+                parse_pdf_daily(b"", "ppf", "2026-Q2")
+            with self.assertRaisesRegex(ValueError, "nesouhlasi"):
+                parse_pdf_daily(b"", "ppf", "2026-Q1")
+
+    def test_creditas_daily_keeps_empty_metrics_and_never_uses_downtime_as_error(self):
+        tables = [[['Date','AISP','PISP','Uptime','POMER_VYPADKU'],['01.04.2026','123',None,'99.5','0.5']]]
+        with patch("psd2_tracker.tracker.extract_creditas_tables", return_value=tables):
+            daily = parse_pdf_daily(b"", "creditas", "2026-Q2")
+        self.assertEqual(daily[0]['aisp_response_ms'],123)
+        self.assertIsNone(daily[0]['pisp_response_ms'])
+        self.assertEqual(daily[0]['availability_pct'],99.5)
+        self.assertNotIn('shared_error_pct',daily[0])
+
+    def test_pdf_archive_follows_only_same_host_next_link(self):
+        bank = {"id":"x", "name":"X", "scope":"main", "source_url":"https://example.test/reports", "history_follow_next":True}
+        pages = {
+            bank["source_url"]: '<a rel="next" href="?page=2">Next</a><a rel="next" href="https://foreign.test/reports">No</a>',
+            bank["source_url"]+"?page=2": '<a href="2025-q1.pdf">PSD2 report Q1 2025</a>'
+        }
+        fetcher = SimpleNamespace(get=lambda url: SimpleNamespace(text=pages[url],content=pages[url].encode(),url=url))
+        item = Observation(bank_id="x",bank="X",scope="main",source_url=bank["source_url"])
+        with patch("psd2_tracker.tracker.parse_pdf_observation", return_value=item) as parse:
+            collect_pdf_history(bank, fetcher, {"2025-Q1"})
+        self.assertEqual(parse.call_args.args[1], "2025-Q1")
+
+    def test_partners_daily_healthcheck_is_not_quarterly_rts_report(self):
+        from datetime import timedelta
+        from html import escape
+        days=[date(2026,9,15)-timedelta(days=29-index) for index in range(30)]
+        chart={"data":{"labels":[f"{day.day}.{day.month}." for day in days],"datasets":[{"label":"Dostupnost [%]","data":[99.9]*30}]}}
+        source=f'<div class="card"><h5>PSD2 status</h5><canvas data-symfony--ux-chartjs--chart-view-value="{escape(json.dumps(chart),quote=True)}"></canvas></div>'
+        bank={"id":"partners","name":"Partners", "source_url":"https://example.test"}
+        item=parse_partners(bank,SimpleNamespace(get=lambda url:SimpleNamespace(content=source.encode())),date(2026,9,16))
+        item=finalize_status(item,"2026-Q2")
+        self.assertEqual(item.latest_period,"rolling-30d-to-2026-09-15")
+        self.assertEqual(item.status,"partial")
+        self.assertEqual(len(item.daily_metrics),30)
+        self.assertEqual(item.availability_pct,99.9)
+
     def test_invalid_percentage_cannot_be_published(self):
         observation = Observation(bank_id="x", bank="X", scope="main", source_url="https://example.test", latest_period="2026-Q2", aisp_error_pct=720)
         with self.assertRaisesRegex(ValueError, "Neplatna hodnota"):

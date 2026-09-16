@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 
-DAILY_FIELDS = ["bank_id", "bank", "date", "aisp_response_ms", "pisp_response_ms", "aisp_error_pct", "pisp_error_pct", "source_url", "first_seen_on", "last_seen_on", "versions"]
+DAILY_FIELDS = ["bank_id", "bank", "date", "availability_pct", "aisp_availability_pct", "pisp_availability_pct", "aisp_response_ms", "pisp_response_ms", "aisp_error_pct", "pisp_error_pct", "shared_error_pct", "country_code", "metric_method", "source_url", "first_seen_on", "last_seen_on", "versions"]
 
 
 def canonical(value: Any) -> str:
@@ -88,7 +88,7 @@ class Archive:
             return
         with self.connect() as db:
             for record in observation.daily_metrics or []:
-                row = {"bank_id": observation.bank_id, "bank": observation.bank, "source_url": observation.source_url, **record}
+                row = {"bank_id": observation.bank_id, "bank": observation.bank, "source_url": observation.report_url or observation.source_url, "country_code": "CZ", "metric_method": observation.metric_method, **record}
                 date.fromisoformat(row["date"])
                 values = {key: value for key, value in row.items() if key.endswith(("_pct", "_ms"))}
                 if not any(value is not None for value in values.values()):
