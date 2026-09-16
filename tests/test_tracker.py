@@ -1,10 +1,12 @@
 import unittest
+import json
 import zipfile
 from datetime import date
 from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
+from types import SimpleNamespace
 from xml.etree import ElementTree
 
 from psd2_tracker.tracker import (
@@ -20,10 +22,12 @@ from psd2_tracker.tracker import (
     parse_pdf_metrics,
     parse_first_xlsx_sheet,
     parse_quarter,
+    parse_unicredit_quarters,
     previous_quarter,
     quarter_range,
     recent_quarters,
     write_trend_svg,
+    write_dashboard_data,
 )
 
 
@@ -70,6 +74,56 @@ class TrackerTests(unittest.TestCase):
             extract_balanced_json(source, "var kpiData = {"),
             {"CZ": {"Dedicated Interface": {}}},
         )
+
+    def test_unicredit_accepts_both_formats_and_selects_czech_entity(self):
+        month = {"year": 2026, "date": "APRIL", "uptime": "100", "ais": "329.75", "pis": "220.24", "error_response_rate": "0.07"}
+        data = {"IT": {"Dedicated Interface": {"0": {**month, "ais": "999"}}}, "SK-B": {"Dedicated Interface": {"0": {**month, "ais": "888"}}}, "CZ": {"Dedicated Interface": {"0": {**month, "ais": "777"}}}, "CZ-B": {"Dedicated Interface": {"0": month}}}
+        bank = {"id": "unicredit", "name": "UniCredit Bank", "scope": "main", "source_url": "https://example.test/report"}
+        for source in (f"var kpiData = {json.dumps(data)};", f"var kpiData = JSON.parse('{json.dumps(data)}');"):
+            with self.subTest(source_format=source[:30]):
+                fetcher = SimpleNamespace(get=lambda url: SimpleNamespace(text=source))
+                result = parse_unicredit_quarters(bank, fetcher)[0]
+                self.assertEqual(result.aisp_response_ms, 329.75)
+                self.assertEqual(result.report_details["country_code"], "CZ-B")
+                self.assertEqual(result.report_details["months"][0]["month"], "2026-04")
+
+    def test_unicredit_never_falls_back_to_foreign_country(self):
+        bank = {"id": "unicredit", "name": "UniCredit Bank", "scope": "main", "source_url": "https://example.test/report"}
+        fetcher = SimpleNamespace(get=lambda url: SimpleNamespace(text='var kpiData = {"SK-B":{"Dedicated Interface":{}}};'))
+        with self.assertRaisesRegex(ValueError, "CZ Dedicated Interface"):
+            parse_unicredit_quarters(bank, fetcher)
+
+    def test_unicredit_czech_quarter_averages_published_months(self):
+        months = [
+            {"year": 2026, "date": "APRIL", "uptime": 100, "ais": 329.75, "pis": 220.24, "error_response_rate": .07},
+            {"year": 2026, "date": "MAY", "uptime": 100, "ais": 367.37, "pis": 299.84, "error_response_rate": .2},
+            {"year": 2026, "date": "JUNE", "uptime": 100, "ais": 338.75, "pis": 225.89, "error_response_rate": .2},
+        ]
+        bank = {"id": "unicredit", "name": "UniCredit Bank", "scope": "main", "source_url": "https://example.test/report"}
+        source = "var kpiData = " + json.dumps({"CZ": {"Dedicated Interface": {str(i): month for i, month in enumerate(months)}}})
+        result = parse_unicredit_quarters(bank, SimpleNamespace(get=lambda url: SimpleNamespace(text=source)))[0].rounded()
+        self.assertEqual(result.latest_period, "2026-Q2")
+        self.assertEqual(result.availability_pct, 100)
+        self.assertEqual(result.aisp_response_ms, 345.29)
+        self.assertEqual(result.pisp_response_ms, 248.6567)
+        self.assertEqual(result.aisp_error_pct, .1567)
+        self.assertEqual(result.report_details["country_code"], "CZ")
+
+    def test_dashboard_preserves_archived_source_details_and_refreshes_both_pages(self):
+        observation = Observation(bank_id="unicredit", bank="UniCredit Bank", scope="main", source_url="https://example.test", latest_period="2026-Q2", report_details={"country_code": "CZ-B"})
+        with TemporaryDirectory() as directory:
+            output = Path(directory) / "data.js"
+            for filename in ("index.html", "report.html"):
+                (output.parent / filename).write_text('<script src="data.js"></script>', encoding="utf-8")
+            write_dashboard_data([observation], [], "2026-Q2", date(2026, 9, 16), output)
+            observation.latest_period = "2026-Q3"
+            observation.report_details = None
+            write_dashboard_data([observation], [], "2026-Q3", date(2026, 10, 16), output)
+            payload = json.loads(output.read_text().removeprefix("window.PSD2_DATA = "))
+            self.assertEqual(payload["source_details"]["unicredit:2026-Q2"]["country_code"], "CZ-B")
+            self.assertNotIn("report_details", payload["latest"][0])
+            self.assertEqual((output.parent / "index.html").read_text(), (output.parent / "report.html").read_text())
+            self.assertIn('data.js?v=', (output.parent / "report.html").read_text())
 
     def test_parse_quarter_variants(self):
         cases = {

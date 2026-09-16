@@ -307,6 +307,38 @@ window.PSD2_DATA = {
       "status": "missing"
     }
   ],
+  "source_details": {
+    "unicredit:2026-Q2": {
+      "checked_on": "2026-09-16",
+      "country": "UniCredit Bank Czech Republic",
+      "country_code": "CZ-B",
+      "months": [
+        {
+          "aisp_response_ms": 329.75,
+          "availability_pct": 100.0,
+          "month": "2026-04",
+          "pisp_response_ms": 220.24,
+          "shared_error_pct": 0.07
+        },
+        {
+          "aisp_response_ms": 367.37,
+          "availability_pct": 100.0,
+          "month": "2026-05",
+          "pisp_response_ms": 299.84,
+          "shared_error_pct": 0.2
+        },
+        {
+          "aisp_response_ms": 338.75,
+          "availability_pct": 100.0,
+          "month": "2026-06",
+          "pisp_response_ms": 225.89,
+          "shared_error_pct": 0.2
+        }
+      ],
+      "service": "Dedicated Interface",
+      "source_url": "https://developer.unicredit.eu/report?view=kpi"
+    }
+  },
   "timeseries": [
     {
       "aisp_availability_pct": "",

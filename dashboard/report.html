@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>UniCredit · český PSD2 report</title>
+  <link rel="stylesheet" href="styles.css?v=12">
+</head>
+<body class="report-page">
+  <header class="hero">
+    <div class="hero__inner">
+      <a class="report-back" href="index.html">← Zpět na přehled bank</a>
+      <h1>UniCredit Bank · ČR</h1>
+      <div class="hero__meta"><span id="reportPeriod">Český PSD2 report</span><span>Dedicated Interface</span><span id="reportChecked"></span></div>
+    </div>
+  </header>
+  <main>
+    <section class="panel" aria-labelledby="sourceTitle">
+      <div class="section-heading">
+        <div><p class="section-kicker">České rozhraní</p><h2 id="sourceTitle">Ověřený přepis veřejného reportu</h2></div>
+        <a class="report-source-button" id="officialSource" href="https://developer.unicredit.eu/report?view=kpi" target="_blank" rel="noopener noreferrer">Oficiální portál UniCredit ↗</a>
+      </div>
+      <p class="report-explanation">Portál banky se standardně otevírá na Itálii; přímý odkaz s předvolenou ČR se nepodařilo ověřit. V portálu vyberte <strong>Legal Entity → UniCredit Bank Czech Republic</strong> a <strong>Product → Dedicated Interface</strong>. Níže jsou výhradně české údaje z této sekce, nikoli italské ani slovenské hodnoty.</p>
+      <p id="reportEmpty" class="empty-state" hidden>Pro vybrané období není uložený český report. Použijte oficiální portál banky.</p>
+      <div id="reportContent">
+        <div id="reportSummary" class="report-summary" aria-label="Čtvrtletní hodnoty"></div>
+        <h3>Měsíční podklady</h3>
+        <div class="table-scroll">
+          <table class="report-months">
+            <thead><tr><th scope="col">Období</th><th scope="col">Dostupnost <small>%</small></th><th scope="col">Odezva AISP <small>ms</small></th><th scope="col">Odezva PISP <small>ms</small></th><th scope="col">Společná chybovost <small>%</small></th></tr></thead>
+            <tbody id="reportMonths"></tbody>
+          </table>
+        </div>
+        <p class="chart-note">Čtvrtletní hodnoty jsou aritmetický průměr publikovaných měsíčních hodnot. Odezva vynechává nulové hodnoty; společná chybovost není samostatná chybovost AISP či PISP. Toto je detail trackeru, nikoli stránka provozovaná bankou.</p>
+      </div>
+    </section>
+  </main>
+  <footer><p>PSD2 API tracker · data z oficiálních stránek bank</p></footer>
+  <script src="data.js?v=6434f6d2a053"></script>
+  <script src="report.js?v=12"></script>
+</body>
+</html>

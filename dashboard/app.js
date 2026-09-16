@@ -85,6 +85,36 @@
     return ({ ok: "Aktuální", partial: "Částečná data", outdated: "Zastaralé", missing: "Bez reportu", blocked: "Zdroj blokován" })[status] || status;
   }
 
+  function sourceUrl(item) {
+    if (item.bank_id === "unicredit") return `report.html?bank=unicredit&period=${encodeURIComponent(item.period || item.latest_period || "")}`;
+    return item.report_url || item.source_url;
+  }
+
+  function latestPeriodCell(period) {
+    const cell = document.createElement("td");
+    cell.className = "latest-period";
+    const quarter = /^(\d{4})-Q([1-4])$/.exec(period || "");
+    const rolling = /^rolling-90d-to-(\d{4})-(\d{2})-(\d{2})$/.exec(period || "");
+    if (quarter) {
+      cell.textContent = `${quarter[2]}Q${quarter[1]}`;
+    } else if (rolling) {
+      const end = new Date(Date.UTC(Number(rolling[1]), Number(rolling[2]) - 1, Number(rolling[3])));
+      const start = new Date(end);
+      start.setUTCDate(start.getUTCDate() - 89);
+      const shortDate = date => `${date.getUTCDate()}. ${date.getUTCMonth() + 1}. ${date.getUTCFullYear()}`;
+      const endLabel = document.createElement("span");
+      endLabel.textContent = shortDate(end);
+      const note = document.createElement("small");
+      note.className = "period-note";
+      note.textContent = "90denní přehled";
+      const range = `${shortDate(start)} – ${shortDate(end)} (90 dní včetně obou krajních dnů)`;
+      cell.title = range;
+      cell.setAttribute("aria-label", range);
+      cell.append(endLabel, note);
+    } else cell.textContent = "—";
+    return cell;
+  }
+
   function displayAvailability(item) {
     const overall = numberOrNull(item.availability_pct);
     if (overall !== null) return `${formatNumber(overall, 3)} %`;
@@ -256,7 +286,7 @@
         content.title = `${bank} · ${formatPeriod(period)} · ${metric.label}: ${content.textContent}`;
         if (item?.metric_method) content.title += ` · ${item.metric_method}`;
         if (content.tagName === "A") {
-          content.href = item.report_url;
+          content.href = sourceUrl(item);
           content.target = "_blank";
           content.rel = "noopener noreferrer";
           content.title += " · otevřít report";
@@ -303,7 +333,7 @@
         cell.setAttribute("aria-label", `${bank.bank}, ${period}: ${coverageState}${hasReport ? "; otevřít report" : ""}`);
         cell.title = cell.getAttribute("aria-label");
         if (item?.report_url) {
-          cell.href = item.report_url;
+          cell.href = sourceUrl(item);
           cell.target = "_blank";
           cell.rel = "noopener noreferrer";
         }
@@ -318,71 +348,77 @@
   function renderLatest() {
     const tbody = document.getElementById("latestRows");
     tbody.replaceChildren();
-    const pairedCell = (aisp, pisp, unit, shared = false) => {
-      const cell = document.createElement("td");
-      cell.className = "paired-metric";
-      if (shared && aisp !== null) {
-        const line = document.createElement("span");
-        line.textContent = `Společná: ${formatNumber(aisp, unit === "%" ? 3 : 1)} ${unit}`;
-        cell.append(line);
-        return cell;
-      }
-      [["AISP", aisp], ["PISP", pisp]].forEach(([label, value]) => {
-        const line = document.createElement("span");
-        const tag = document.createElement("small");
-        tag.textContent = label;
-        line.append(tag, document.createTextNode(value === null ? "—" : `${formatNumber(value, unit === "%" ? 3 : 1)} ${unit}`));
-        cell.append(line);
-      });
-      return cell;
-    };
-    const sortValue = (item, key) => {
-      const fields = key === "response"
-        ? [item.aisp_response_ms, item.pisp_response_ms]
-        : [item.aisp_error_pct, item.pisp_error_pct];
-      const values = fields.map(numberOrNull).filter(value => value !== null);
-      return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
-    };
-    const rows = [...latest];
+    const normalize = value => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("cs");
+    const search = normalize(document.getElementById("bankSearch").value.trim());
+    const status = document.getElementById("statusFilter").value;
+    const rows = latest.filter(item => normalize(item.bank).includes(search) && (!status || item.status === status));
+    document.getElementById("latestCount").textContent = `Zobrazeno ${rows.length} z ${latest.length} bank`;
     if (latestSort.key) {
       rows.sort((a, b) => {
-        const aValue = sortValue(a, latestSort.key);
-        const bValue = sortValue(b, latestSort.key);
+        if (latestSort.key === "bank") return a.bank.localeCompare(b.bank, "cs") * (latestSort.direction === "asc" ? 1 : -1);
+        const aValue = metrics[latestSort.key].value(a);
+        const bValue = metrics[latestSort.key].value(b);
         if (aValue === null && bValue === null) return a.bank.localeCompare(b.bank, "cs");
         if (aValue === null) return 1;
         if (bValue === null) return -1;
         const difference = latestSort.direction === "asc" ? aValue - bValue : bValue - aValue;
         return difference || a.bank.localeCompare(b.bank, "cs");
       });
+    } else rows.sort((a, b) => a.bank.localeCompare(b.bank, "cs"));
+    if (!rows.length) {
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.colSpan = 10;
+      cell.className = "empty-state";
+      cell.textContent = "Výběru neodpovídá žádná banka. Změňte hledání nebo stav.";
+      row.append(cell);
+      tbody.append(row);
     }
     rows.forEach(item => {
       const tr = document.createElement("tr");
-      const source = item.report_url || item.source_url;
-      const cells = [
-        item.bank,
-        statusLabel(item.status),
-        formatPeriod(item.latest_period),
-        displayAvailability(item)
-      ];
-      cells.forEach((value, index) => {
-        const td = document.createElement("td");
-        if (index === 1) {
-          const span = document.createElement("span");
-          span.className = `status status--${item.status}`;
-          span.textContent = value;
-          td.append(span);
-        } else td.textContent = value;
-        tr.append(td);
+      tr.dataset.bank = item.bank_id;
+      const name = document.createElement("th");
+      name.scope = "row";
+      name.className = "latest-bank";
+      name.textContent = item.bank;
+      const state = document.createElement("td");
+      const badge = document.createElement("span");
+      badge.className = `status status--${item.status}`;
+      badge.textContent = statusLabel(item.status);
+      state.append(badge);
+      const availability = document.createElement("td");
+      availability.className = "latest-availability";
+      if (numberOrNull(item.availability_pct) === null && availabilityValue(item) !== null) {
+        [["AISP", item.aisp_availability_pct], ["PISP", item.pisp_availability_pct]].forEach(([service, raw]) => {
+          const line = document.createElement("span");
+          line.className = "availability-service";
+          const tag = document.createElement("small");
+          tag.textContent = service;
+          const value = numberOrNull(raw);
+          line.append(tag, document.createTextNode(value === null ? "—" : `${formatNumber(value, 3)} %`));
+          availability.append(line);
+        });
+      } else availability.textContent = displayAvailability(item);
+      tr.append(name, state, latestPeriodCell(item.latest_period), availability);
+      ["aispResponse", "pispResponse", "aispError", "pispError", "sharedError"].forEach((key, index) => {
+        const cell = document.createElement("td");
+        cell.className = `numeric-metric${index === 0 || index === 2 ? " numeric-metric--group-start" : ""}${key === "sharedError" ? " numeric-metric--shared" : ""}`;
+        const value = metrics[key].value(item);
+        const digits = key.endsWith("Response") ? 1 : value > 0 && value < .01 ? 4 : 3;
+        cell.textContent = value === null ? "—" : formatNumber(value, digits);
+        cell.dataset.value = value === null ? "" : String(value);
+        cell.title = `${metrics[key].label}: ${value === null ? "údaj není doložený" : metrics[key].format(value)}`;
+        if (value === null) cell.classList.add("numeric-metric--empty");
+        tr.append(cell);
       });
-      tr.append(pairedCell(numberOrNull(item.aisp_response_ms), numberOrNull(item.pisp_response_ms), "ms"));
-      tr.append(pairedCell(numberOrNull(item.aisp_error_pct), numberOrNull(item.pisp_error_pct), "%", item.metric_method?.includes("spolecna error response rate")));
       const sourceCell = document.createElement("td");
+      sourceCell.className = "latest-source";
       const link = document.createElement("a");
-      link.href = source;
+      link.href = sourceUrl(item);
       link.target = "_blank";
       link.rel = "noopener noreferrer";
       link.className = "source-link";
-      link.textContent = item.report_url && item.report_url !== item.source_url ? "Report ↗" : "Stránka ↗";
+      link.textContent = item.bank_id === "unicredit" ? "CZ detail ↗" : item.report_url && item.report_url !== item.source_url ? "Report ↗" : "Stránka ↗";
       sourceCell.append(link);
       tr.append(sourceCell);
       tbody.append(tr);
@@ -407,7 +443,7 @@
       const key = button.dataset.sort;
       latestSort = latestSort.key === key
         ? { key, direction: latestSort.direction === "asc" ? "desc" : "asc" }
-        : { key, direction: "asc" };
+        : { key, direction: key === "availability" ? "desc" : "asc" };
       document.querySelectorAll("button[data-sort]").forEach(item => {
         const isActive = item.dataset.sort === latestSort.key;
         item.classList.toggle("active", isActive);
@@ -421,6 +457,9 @@
       renderLatest();
     });
   });
+
+  document.getElementById("bankSearch").addEventListener("input", renderLatest);
+  document.getElementById("statusFilter").addEventListener("change", renderLatest);
 
   updateSummary();
   renderCoverage();

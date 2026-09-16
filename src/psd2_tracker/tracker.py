@@ -159,6 +159,7 @@ class Observation:
     pisp_error_pct: float | None = None
     metric_method: str = ""
     note: str = ""
+    report_details: dict[str, Any] | None = None
 
     def rounded(self) -> "Observation":
         for field in (
@@ -910,8 +911,9 @@ def parse_csob(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
 
 def parse_unicredit_quarters(bank: dict[str, Any], fetcher: Fetcher) -> list[Observation]:
     response = fetcher.get(bank["source_url"])
-    data = extract_balanced_json(response.text, "var kpiData = {")
-    country = data.get("CZ-B") or data.get("CZ")
+    data = extract_balanced_json(response.text, "var kpiData =")
+    country_code = "CZ-B" if data.get("CZ-B") else "CZ"
+    country = data.get(country_code)
     if not country or "Dedicated Interface" not in country:
         raise ValueError("UniCredit JSON neobsahuje CZ Dedicated Interface")
     rows = list(country["Dedicated Interface"].values())
@@ -925,7 +927,8 @@ def parse_unicredit_quarters(bank: dict[str, Any], fetcher: Fetcher) -> list[Obs
         raise ValueError("UniCredit JSON nema datovane CZ zaznamy")
     observations: list[Observation] = []
     for year, quarter in sorted({(year, quarter) for year, quarter, _, _ in dated}):
-        selected = [row for y, q, _, row in dated if y == year and q == quarter]
+        selected_months = sorted((month, row) for y, q, month, row in dated if y == year and q == quarter)
+        selected = [row for _, row in selected_months]
         observation = base_observation(bank)
         observation.latest_period = f"{year}-Q{quarter}"
         observation.report_url = bank["source_url"]
@@ -936,6 +939,23 @@ def parse_unicredit_quarters(bank: dict[str, Any], fetcher: Fetcher) -> list[Obs
         observation.aisp_error_pct = error
         observation.pisp_error_pct = error
         observation.metric_method = "prumer mesicnich hodnot CZ Dedicated Interface; spolecna error response rate v procentech"
+        observation.report_details = {
+            "country_code": country_code,
+            "country": "UniCredit Bank Czech Republic",
+            "service": "Dedicated Interface",
+            "source_url": bank["source_url"],
+            "checked_on": date.today().isoformat(),
+            "months": [
+                {
+                    "month": f"{year}-{month:02d}",
+                    "availability_pct": parse_number(row.get("uptime")),
+                    "aisp_response_ms": parse_number(row.get("ais")),
+                    "pisp_response_ms": parse_number(row.get("pis")),
+                    "shared_error_pct": parse_number(row.get("error_response_rate")),
+                }
+                for month, row in selected_months
+            ],
+        }
         observations.append(observation)
     return observations
 
@@ -1409,17 +1429,30 @@ def write_dashboard_data(
     output_path: Path = DEFAULT_DASHBOARD_DATA,
 ) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    source_details = {}
+    if output_path.exists():
+        try:
+            previous = json.loads(output_path.read_text(encoding="utf-8").removeprefix("window.PSD2_DATA = ").rstrip().removesuffix(";"))
+            if isinstance(previous.get("source_details"), dict):
+                source_details = previous["source_details"]
+        except (ValueError, AttributeError):
+            pass
+    for item in observations:
+        if item.report_details:
+            source_details[f"{item.bank_id}:{item.latest_period}"] = item.report_details
     payload = {
         "expected_period": expected_period,
         "checked_on": checked_on.isoformat(),
         "latest": [observation_row(item) for item in observations],
         "timeseries": timeseries,
+        "source_details": source_details,
     }
     source = "window.PSD2_DATA = " + stable_json(payload)
     output_path.write_text(source, encoding="utf-8")
-    index_path = output_path.parent / "index.html"
-    if index_path.exists():
-        cache_version = hashlib.sha256(source.encode("utf-8")).hexdigest()[:12]
+    cache_version = hashlib.sha256(source.encode("utf-8")).hexdigest()[:12]
+    for index_path in (output_path.parent / "index.html", output_path.parent / "report.html"):
+        if not index_path.exists():
+            continue
         content = index_path.read_text(encoding="utf-8")
         updated = re.sub(
             r'<script src="data\.js(?:\?v=[^"]+)?"></script>',

@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light">
   <title>Dostupnost PSD2 API v Česku</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d2f37'/%3E%3Cpath d='M18 18h18c8 0 13 5 13 12s-5 12-13 12H27v8h-9V18zm9 8v8h8c3 0 5-1 5-4s-2-4-5-4h-8z' fill='%237cd3bd'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css?v=11">
+  <link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body>
   <header class="hero">
@@ -89,26 +89,39 @@
           <p class="section-kicker">Poslední stav</p>
           <h2 id="latestTitle">Všechny sledované banky</h2>
         </div>
+        <div class="latest-filters">
+          <label class="sr-only" for="bankSearch">Hledat banku</label>
+          <input id="bankSearch" type="search" placeholder="Hledat banku…" autocomplete="off">
+          <label class="sr-only" for="statusFilter">Filtrovat stav</label>
+          <select id="statusFilter">
+            <option value="">Všechny stavy</option>
+            <option value="ok">Aktuální</option>
+            <option value="partial">Částečná data</option>
+            <option value="outdated">Zastaralé</option>
+            <option value="missing">Bez reportu</option>
+            <option value="blocked">Zdroj blokován</option>
+          </select>
+        </div>
       </div>
+      <p id="latestCount" class="latest-count" aria-live="polite"></p>
       <div class="table-scroll">
-        <table class="data-table">
+        <table class="data-table" id="latestTable" aria-label="Poslední stav bank; sloupce lze řadit šipkou">
           <thead>
             <tr>
-              <th>Banka</th>
-              <th>Stav</th>
-              <th>Období</th>
-              <th>Dostupnost</th>
-              <th id="responseSortHeader" aria-sort="none">
-                <button type="button" class="sort-button" data-sort="response">
-                  Odezva <small>AISP / PISP</small><span class="sort-arrow" aria-hidden="true">↕</span>
-                </button>
-              </th>
-              <th id="errorSortHeader" aria-sort="none">
-                <button type="button" class="sort-button" data-sort="error">
-                  Chybovost <small>AISP / PISP</small><span class="sort-arrow" aria-hidden="true">↕</span>
-                </button>
-              </th>
-              <th>Zdroj</th>
+              <th rowspan="2" class="latest-bank" aria-sort="none"><button type="button" class="sort-button" data-sort="bank" aria-label="Řadit podle názvu banky">Banka<span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+              <th rowspan="2">Stav</th>
+              <th rowspan="2" class="latest-period">Období</th>
+              <th rowspan="2" class="latest-availability" aria-sort="none"><button type="button" class="sort-button" data-sort="availability" aria-label="Řadit podle dostupnosti" title="Nejvyšší dostupnost první. Při oddělené AISP/PISP dostupnosti se řadí podle jejich průměru.">Dostupnost<span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+              <th colspan="2" scope="colgroup" class="metric-group">Odezva <small>ms · nižší je lepší</small></th>
+              <th colspan="3" scope="colgroup" class="metric-group metric-group--error">Chybovost <small>% · nižší je lepší</small></th>
+              <th rowspan="2" class="latest-source">Zdroj</th>
+            </tr>
+            <tr class="metric-subheaders">
+              <th class="metric-column metric-column--group-start" aria-sort="none"><button type="button" class="sort-button" data-sort="aispResponse" aria-label="Řadit podle odezvy AISP">AISP<span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+              <th class="metric-column" aria-sort="none"><button type="button" class="sort-button" data-sort="pispResponse" aria-label="Řadit podle odezvy PISP">PISP<span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+              <th class="metric-column metric-column--group-start" aria-sort="none"><button type="button" class="sort-button" data-sort="aispError" aria-label="Řadit podle chybovosti AISP">AISP<span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+              <th class="metric-column" aria-sort="none"><button type="button" class="sort-button" data-sort="pispError" aria-label="Řadit podle chybovosti PISP">PISP<span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+              <th class="metric-column metric-column--shared" aria-sort="none"><button type="button" class="sort-button" data-sort="sharedError" aria-label="Řadit podle společné chybovosti" title="Chybovost zveřejněná společně pro PSD2 služby, nikoli samostatně pro AISP/PISP.">Společná<span class="sort-arrow" aria-hidden="true">↕</span></button></th>
             </tr>
           </thead>
           <tbody id="latestRows"></tbody>
@@ -119,7 +132,6 @@
     <section class="panel" aria-labelledby="coverageTitle">
       <div class="section-heading">
         <div>
-          <p class="section-kicker">Úplný report</p>
           <h2 id="coverageTitle">Přehled publikovaných reportů</h2>
         </div>
         <div class="coverage-key" aria-label="Legenda pokrytí">
@@ -132,7 +144,7 @@
       <div class="table-scroll">
         <table id="coverageTable" class="coverage-table"></table>
       </div>
-      <p class="chart-note">Kliknutím na barevné políčko otevřete původní report banky.</p>
+      <p class="chart-note">Kliknutím na barevné políčko otevřete report banky; u UniCredit český detail s odkazem na oficiální portál.</p>
     </section>
 
   </main>
@@ -148,7 +160,7 @@
     </nav>
   </footer>
 
-  <script src="data.js?v=a7ce01a210bc"></script>
-  <script src="app.js?v=11"></script>
+  <script src="data.js?v=6434f6d2a053"></script>
+  <script src="app.js?v=12"></script>
 </body>
 </html>

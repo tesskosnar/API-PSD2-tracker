@@ -40,7 +40,7 @@ jobs:
       - name: Sestavení veřejného dashboardu
         run: |
           mkdir -p _site
-          cp dashboard/index.html dashboard/app.js dashboard/data.js dashboard/styles.css _site/
+          cp dashboard/index.html dashboard/app.js dashboard/report.html dashboard/report.js dashboard/data.js dashboard/styles.css _site/
           cp data/timeseries.csv _site/timeseries.csv
           cp docs/source-audit.md _site/source-audit.md
           cp docs/original-data-comparison.md _site/original-data-comparison.md

@@ -66,7 +66,15 @@ Všech 142 nalezených archivních PDF/XLSX bylo znovu načteno. U Air Bank, ČS
 
 Některé reporty CREDITAS obsahují prázdné dny i ve sloupci uptime. Takové čtvrtletí je označeno jako částečné a metodika uvádí počet doložených denních hodnot; prázdné dny se nedoplňují hodnotou 100 %. Například [2023-Q3](https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-3q-2023.pdf) obsahuje uptime jen pro 76 z 92 dnů.
 
-Čtvrtletní srovnání zobrazuje ve výchozím stavu posledních osm čtvrtletí. Volby 1 rok, 2 roky, celá historie a přesné čtvrtletí od–do mění pouze zobrazení, nikoli uložená data. Banky s reportem ve zvoleném období jsou nejdříve abecedně, banky bez reportu potom také abecedně. Sekce Úplný report nadále ukazuje celý archiv a všechny banky čistě abecedně.
+Čtvrtletní srovnání zobrazuje ve výchozím stavu posledních osm čtvrtletí. Volby 1 rok, 2 roky, celá historie a přesné čtvrtletí od–do mění pouze zobrazení, nikoli uložená data. Banky s reportem ve zvoleném období jsou nejdříve abecedně, banky bez reportu potom také abecedně. Přehled publikovaných reportů nadále ukazuje celý archiv a všechny banky čistě abecedně.
+
+### UniCredit: kontrola českého prokliku 16. září
+
+[Oficiální KPI portál](https://developer.unicredit.eu/report?view=kpi) se otevírá s výchozí zemí Itálie. Ověřovaný parametr `legalEntity=CZ-B` výchozí volbu nezměnil; tracker proto nevydává obecnou adresu za přímý český report. Odkaz v dashboardu nově otevírá český detail trackeru s měsíčními podklady a odkazem na oficiální portál. Tam je nutné zvolit **Legal Entity → UniCredit Bank Czech Republic** a **Product → Dedicated Interface**.
+
+Ve zdrojových datech byla ověřena výhradně česká větev `CZ-B` (také větev `CZ` má shodné hodnoty), nikoli `SK-B` ani `IT`. Duben/květen/červen 2026 uvádějí uptime 100/100/100 %, AISP 329,75/367,37/338,75 ms, PISP 220,24/299,84/225,89 ms a společnou chybovost 0,07/0,20/0,20 %. Čtvrtletní průměry odpovídají stávajícím datům trackeru: 100 %, AISP 345,29 ms, PISP 248,6567 ms a společná chybovost 0,1567 %. Žádná z těchto číselných hodnot se touto úpravou nezměnila.
+
+Automatické zpracování bylo přizpůsobeno i aktuálnímu formátu `JSON.parse(...)`. Měsíční české podklady se při dalších kontrolách ukládají spolu s dashboardem a historické detaily zůstávají zachované i po posunu posledního čtvrtletí.
 
 ## Opravené nebo sporné body
 
