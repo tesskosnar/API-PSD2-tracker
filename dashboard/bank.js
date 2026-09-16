@@ -18,7 +18,7 @@
   let activeMetric = ui.metrics[params.get("bankMetric")] ? params.get("bankMetric") : "availability";
   const periodSelect = document.getElementById("bankPeriods");
   periodSelect.add(new Option(`Nejnovější · ${ui.periodLabel(bank.latest_period) || "bez údaje"}`, "latest"));
-  [...history].reverse().forEach(row => periodSelect.add(new Option(ui.shortPeriod(row.period), row.period)));
+  [...history].reverse().forEach(row => periodSelect.add(new Option(`${ui.shortPeriod(row.period)}${row.report_kind === "archive-derived" ? ` · výpočet · ${row.archived_days}/${row.calendar_days} dní` : ""}`, row.period)));
   periodSelect.value = selectedPeriod;
   const openCoverage = ui.createCoverageDialog();
   function syncUrl() {
@@ -56,7 +56,8 @@
       button.disabled = !available(button.dataset.metric); const active = button.dataset.metric === activeMetric; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); button.title = button.disabled ? "V ověřené čtvrtletní historii není tato metrika doložená" : ui.metrics[button.dataset.metric].label;
     });
     const metric = ui.metrics[activeMetric], points = history.filter(row => metric.value(row) !== null);
-    document.getElementById("bankHistoryInfo").textContent = history.length ? `${history.length} publikovaných čtvrtletních reportů · ${points.length} s údajem: ${metric.label} (${metric.unit}) · ${metric.note}` : "Český čtvrtletní report není doložený. Pokud jsou dostupné denní hodnoty, najdete je níže.";
+    const derivedCount = history.filter(row => row.report_kind === "archive-derived").length;
+    document.getElementById("bankHistoryInfo").textContent = history.length ? `${history.length-derivedCount} publikovaných čtvrtletních reportů${derivedCount ? ` · ${derivedCount} vypočtený souhrn z archivu` : ""} · ${points.length} s údajem: ${metric.label} (${metric.unit}) · ${metric.note}` : "Český čtvrtletní report není doložený. Pokud jsou dostupné denní hodnoty, najdete je níže.";
     document.getElementById("bankHistoryMetricHeader").textContent = `${metric.label} (${metric.unit})`;
     const chart = document.getElementById("bankChart"); chart.replaceChildren(); chart.toggleAttribute("hidden", !points.length);
     if (points.length) {
@@ -79,6 +80,7 @@
     const rows = document.getElementById("bankHistoryRows"); rows.replaceChildren();
     for (const report of [...history].reverse()) {
       const row = document.createElement("tr"); const period = document.createElement("th"); period.scope="row"; period.textContent=ui.shortPeriod(report.period);
+      if (report.report_kind === "archive-derived") { const note=document.createElement("small"); note.className="derived-note"; note.textContent="Výpočet z archivu"; period.append(note); }
       const value=document.createElement("td"); value.textContent=metric.value(report) === null ? "—" : metric.format(metric.value(report));
       const coverage=data.report_coverage?.[`${bank.bank_id}:${report.period}`], days=document.createElement("td"); days.textContent=coverage ? `${coverage.archived_days} / ${coverage.calendar_days}` : "Nedoloženo";
       const source=document.createElement("td"), button=document.createElement("button"); button.type="button"; button.className="text-button"; button.textContent="Podrobnosti →"; button.addEventListener("click",()=>openCoverage(data,report)); source.append(button); row.append(period,value,days,source); rows.append(row);

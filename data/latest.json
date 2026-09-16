@@ -65,7 +65,7 @@
     "bank_id": "rb",
     "latest_period": "2025-Q1",
     "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; chybovost = soucet poctu chyb / soucet poctu volani x 100",
-    "note": "Verejne reporty jsou v dynamickem katalogu dokumentu. Dostupnost AISP/PISP je prumer publikovanych procent, nikoli dolozene mereni minut uptime. Report oznaceny 3Q2025 obsahuje denni datumy 2024; jeho metriky nejsou importovany. Novejsi report 2025-Q3 nebyl pouzit: obsahuje denni datumy 2024-Q3.",
+    "note": "Verejne reporty jsou v dynamickem katalogu dokumentu. Dostupnost AISP/PISP je prumer publikovanych procent, nikoli dolozene mereni minut uptime. Report oznaceny 3Q2025 obsahuje denni datumy 2024; jeho metriky nejsou importovany. Novejsi report nebyl pouzit: RB report oznaceny 2025-Q3 obsahuje den 2024-07-01 (2024-Q3); datumy se neprepisuji",
     "pisp_availability_pct": 100.0,
     "pisp_error_pct": 0.0,
     "pisp_response_ms": "",
@@ -103,7 +103,7 @@
     "bank_id": "moneta",
     "latest_period": "rolling-90d-to-2026-09-15",
     "metric_method": "prumer dennich hodnot v klouzavem 90dennim okne; uptime chybi",
-    "note": "Banka publikuje klouzavych 90 dni odezvy a chybovosti, nikoli dostupnost/uptime.",
+    "note": "Banka publikuje klouzavych 90 dni odezvy a chybovosti, nikoli dostupnost/uptime. Tracker z uchovanych dni pocita oznacene souhrny uzavrenych ctvrtleti; neuplne pokryti je uvedeno, chybejici dny nejsou domyslene.",
     "pisp_availability_pct": "",
     "pisp_error_pct": 0.0089,
     "pisp_response_ms": 149.3667,
@@ -141,15 +141,15 @@
     "bank_id": "mbank",
     "latest_period": "",
     "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
-    "note": "Verejny dynamicky portal nabizi reporty v EN/PL, nikoli CS. Bylo overeno vsech 27 PDF; zadny jednoznacne nevymezuje ceske rozhrani. Jazyk ani sidlo mBank S.A. samy o sobe nedokazuji zemi metrik; do potvrzeni CZ rozsahu nejsou cisla importovana.",
+    "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
     "pisp_availability_pct": "",
     "pisp_error_pct": "",
     "pisp_response_ms": "",
-    "report_url": "",
+    "report_url": "https://developer.api.mbank.cz/reports",
     "scope": "main",
     "source_state": "ok",
     "source_url": "https://developer.api.mbank.cz/reports",
-    "status": "missing"
+    "status": "unverified"
   },
   {
     "aisp_availability_pct": "",
@@ -179,15 +179,15 @@
     "bank_id": "creditas",
     "latest_period": "2026-Q2",
     "metric_method": "prumer dennich hodnot z PDF tabulky se zachovanymi prazdnymi sloupci",
-    "note": "Prehledova stranka muze blokovat automaticke klienty; PDF maji stabilni a predvidatelnou adresu.",
+    "note": "Prehledova stranka muze blokovat automaticke klienty; PDF maji stabilni a predvidatelnou adresu. Automaticke nacteni selhalo: HTTP 403 Posledni zname metriky byly zachovany z predchoziho behu.",
     "pisp_availability_pct": "",
     "pisp_error_pct": "",
     "pisp_response_ms": 938.0659,
     "report_url": "https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf",
     "scope": "main",
-    "source_state": "ok-direct-pdf",
+    "source_state": "http-403",
     "source_url": "https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti",
-    "status": "ok"
+    "status": "blocked"
   },
   {
     "aisp_availability_pct": "",
@@ -235,7 +235,7 @@
     "bank": "Oberbank",
     "bank_id": "oberbank",
     "latest_period": "",
-    "metric_method": "verejny produkcni report Oberbank AG napric trhy; CZ data nejsou oddelena, proto metriky nejsou prevzaty",
+    "metric_method": "verejny produkcni report Oberbank AG existuje; samostatny cesky rozsah metrik neni dolozen, proto cisla nejsou prevzata",
     "note": "Opraveny verejny odkaz vraci produkcni report Oberbank AG, ale bez oddeleni ceske pobocky. Cisla proto nejsou zahrnuta do CZ datasetu.",
     "pisp_availability_pct": "",
     "pisp_error_pct": "",
@@ -244,7 +244,7 @@
     "scope": "main",
     "source_state": "ok",
     "source_url": "https://www.oberbank.cz/xs2a-interface",
-    "status": "missing"
+    "status": "unverified"
   },
   {
     "aisp_availability_pct": "",

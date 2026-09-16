@@ -22,6 +22,16 @@ Když banka tentýž den zpětně opraví, vznikne další číselná verze. Zaz
 
 ## Začátek archivu a limity
 
+### Čtvrtletní výpočty MONETY
+
+Každý týdenní sběr nově přepočítává uzavřená čtvrtletí MONETY z posledních verzí zachycených českých dnů. Výpočet má `report_kind=archive-derived` a vlastní databázový typ `quarterly-derived`; není vydáván za report banky a nikdy jej nenahradí. Denní odezva se průměruje nad 0 ms, chybovost je nevážený průměr publikovaných denních procent včetně skutečných nul. Bez počtů volání ji nelze vydávat za podíl všech chybných volání. Dostupnost ze zdroje odvodit nelze.
+
+První souhrn 2Q2026 pokrývá pouze **13/91 dnů (18.–30. 6. 2026)** a je viditelně částečný. Chybějící dny se nedoplňují. Budoucí souhrny budou používat i dny, které již zmizely z 90denního okna; po opravě denního údaje se přepočítají. [Nová kontrola všech 15 zdrojů](source-recheck-2026-09-16.md) rozlišuje česká čísla, vypočtené souhrny a existující reporty mBank/Oberbank s neověřeným českým rozsahem.
+
+### Vývoj uchovávané historie
+
+Po další kontrole je uchováno **194 původních čtvrtletních záznamů, 1 označený výpočet MONETY a 17 319 denních záznamů za 13 bank**. Zdrojových objektů je 306, včetně 28 mBank PDF. Reporty s neověřeným českým rozsahem se uchovávají jako doklady, nikoli importují jako české denní statistiky. Následující počty popisují předchozí etapy založení archivu.
+
 Trvalý archiv byl založen **16. září 2026**. Bylo do něj převedeno všech 144 již ověřených bankovních období. Uchovaly se rovněž všechny dostupné kopie 142 PDF/XLSX z předchozího sběru. První denní sběr MONETY zachytil 90 dnů do 15. září 2026. Datum bankovního údaje není datum jeho uložení: starší report importovaný dnes je poctivě označen jako uložený dnes.
 
 Po rozšířeném auditu téhož dne archiv obsahuje **173 čtvrtletních záznamů a 15 507 bankovních dnů za 12 bank**. Denní tabulka vedle MONETY a Partners zahrnuje i vytěžené české PDF/XLSX a online zdroje Air Bank, CREDITAS, České spořitelny, ČSOB, Fio, J&T, KB, PPF, Trinity a UniCredit. U UniCredit jsou odděleně zachované také české měsíční podklady. V denním CSV má společná chybovost vlastní sloupec; u všech denních záznamů je země `CZ`. Počet a rozsah dnů po čtvrtletích uvádí [kontrola denního pokrytí](daily-source-coverage.csv); ne všechny reporty mají vyplněný každý den.

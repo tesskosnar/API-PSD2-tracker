@@ -5,6 +5,7 @@
   const ui = window.PSD2_UI;
   const latest = data.latest.filter(item => item.scope === "main");
   const history = data.timeseries.filter(item => item.scope === "main");
+  const sourceReports = Object.values(data.source_details || {}).flatMap(detail => detail.published_reports || []);
   const allPeriods = [...new Set(history.map(item => item.period))].sort();
   const params = new URLSearchParams(location.search);
   let periods = allPeriods.slice(-8);
@@ -63,7 +64,7 @@
   }
 
   function statusLabel(status) {
-    return ({ ok: "Aktuální", partial: "Částečná data", outdated: "Zastaralé", missing: "Bez reportu", blocked: "Zdroj blokován" })[status] || status;
+    return ({ ok: "Aktuální", partial: "Částečná data", outdated: "Zastaralé", missing: "Bez reportu", blocked: "Zdroj blokován", unverified: "CZ rozsah neověřen" })[status] || status;
   }
 
   function sourceUrl(item) {
@@ -129,7 +130,8 @@
     document.getElementById("currentCoverage").textContent = `${current} z ${latest.length}`;
     document.getElementById("historyPoints").textContent = formatNumber(history.length, 0);
     const numericReports = history.filter(ui.hasMetrics).length;
-    document.getElementById("historyContext").textContent = numericReports === history.length ? "součet reportovaných čtvrtletí všech bank" : `${numericReports} s údaji · ${history.length - numericReports} bez čtvrtletní hodnoty`;
+    const derived = history.filter(row => row.report_kind === "archive-derived").length;
+    document.getElementById("historyContext").textContent = derived ? `${numericReports - derived} s údaji z reportů · ${derived} výpočet z archivu · ${history.length - numericReports} bez hodnoty` : numericReports === history.length ? "součet reportovaných čtvrtletí všech bank" : `${numericReports} s údaji · ${history.length - numericReports} bez čtvrtletní hodnoty`;
     document.getElementById("bankCount").textContent = formatNumber(latest.length, 0);
     document.getElementById("periodLabel").textContent = `Poslední uzavřené období: ${formatPeriod(data.expected_period)}`;
     const checked = data.checked_on ? new Date(`${data.checked_on}T12:00:00`) : null;
@@ -286,7 +288,7 @@
       if (!reports.some(item => metric.value(item) !== null)) {
         const status = document.createElement("small");
         status.className = "metric-grid__status";
-        status.textContent = reports.length ? "Metrika není doložená" : "Bez reportu v období";
+        status.textContent = reports.length ? "Metrika není doložená" : latest.find(row => row.bank === bank)?.status === "unverified" ? "CZ rozsah neověřen" : "Bez reportu v období";
         name.append(status);
       }
       row.append(name);
@@ -306,6 +308,10 @@
           content.title += " · podrobnosti reportu";
         }
         cell.append(content);
+        if (item?.report_kind === "archive-derived") {
+          const note = document.createElement("small"); note.className = "derived-note";
+          note.textContent = `Výpočet · ${item.archived_days}/${item.calendar_days} dní`; cell.append(note);
+        }
         row.append(cell);
       });
       tbody.append(row);
@@ -331,21 +337,17 @@
       tr.append(name);
       allPeriods.forEach(period => {
         const td = document.createElement("td");
-        const item = history.find(row => row.bank_id === bank.bank_id && row.period === period);
+        const item = history.find(row => row.bank_id === bank.bank_id && row.period === period) || sourceReports.find(row => row.bank_id === bank.bank_id && (row.period === period || row.periods?.includes(period)));
         const cell = document.createElement(item?.report_url ? "button" : "span");
-        const hasAvailability = item && availabilityValue(item) !== null;
-        const hasPerformance = item && [item.aisp_response_ms, item.pisp_response_ms, item.aisp_error_pct, item.pisp_error_pct].some(value => numberOrNull(value) !== null);
         const hasReport = Boolean(item?.report_url);
-        const coverageState = hasAvailability
-          ? "dostupnost"
-          : hasPerformance
-            ? "jen výkonnost"
-            : hasReport
-              ? (item.source_state === "report-error" ? "report s chybou zdroje; čísla nepoužita" : "report bez použitelných metrik")
-              : "bez reportu";
-        cell.className = `coverage-cell ${hasAvailability ? "coverage-cell--full" : hasPerformance ? "coverage-cell--partial" : hasReport ? "coverage-cell--report" : ""}`;
+        const completeness = ui.reportCompleteness(item, data.report_coverage?.[`${bank.bank_id}:${period}`]);
+        const coverageState = ({full:"kompletní report",partial:"částečně vyplněn",report:"report bez použitelných metrik",missing:"bez reportu"})[completeness];
+        cell.className = `coverage-cell${completeness === "missing" ? "" : ` coverage-cell--${completeness}`}${item?.report_kind === "archive-derived" ? " coverage-cell--derived" : ""}`;
+        if (item?.report_kind === "archive-derived") cell.textContent = "Σ";
         cell.setAttribute("aria-label", `${bank.bank}, ${period}: ${coverageState}${hasReport ? "; podrobnosti reportu" : ""}`);
         cell.title = cell.getAttribute("aria-label");
+        if (item?.status === "unverified") cell.title += " · veřejný report existuje, samostatný český rozsah čísel je neověřen";
+        if (item?.report_kind === "archive-derived") cell.title += " · vypočtený souhrn z archivu, nikoli report zveřejněný bankou";
         if (item?.source_state === "report-error") cell.title += ` · ${item.metric_method}`;
         if (item?.report_url) {
           cell.type = "button";
@@ -359,6 +361,8 @@
       tbody.append(tr);
     });
     table.replaceChildren(thead, tbody);
+    const scroll = table.closest(".table-scroll");
+    requestAnimationFrame(() => { scroll.scrollLeft = scroll.scrollWidth; });
   }
 
   function renderLatest() {
@@ -375,7 +379,7 @@
     const context = document.getElementById("latestContext");
     context.replaceChildren();
     const sortInfo = document.createElement("strong");
-    sortInfo.textContent = sortMetric ? `${sortMetric.label} · ${latestSort.direction === "asc" ? "Od nejnižší" : "Od nejvyšší"} hodnoty${comparisonMode === "latest" ? " · uvnitř skupin" : ""}` : comparisonMode === "quarter" ? `Pouze reporty ${ui.shortPeriod(comparisonQuarter)}` : "Nejnovější údaje · oddělené typy měření";
+    sortInfo.textContent = sortMetric ? `${sortMetric.label} · ${latestSort.direction === "asc" ? "Od nejnižší" : "Od nejvyšší"} hodnoty · uvnitř skupin` : comparisonMode === "quarter" ? `Údaje ${ui.shortPeriod(comparisonQuarter)} · výpočty odděleně` : "Nejnovější údaje · oddělené typy měření";
     context.append(sortInfo);
     if (sortMetric) {
       const counts = document.createElement("span");
@@ -384,10 +388,10 @@
     }
     const periodInfo = document.createElement("span");
     periodInfo.className = "latest-context__period";
-    periodInfo.textContent = comparisonMode === "quarter" ? `${rows.filter(row => row.comparison_group === "quarter").length} bank s reportem · ${rows.filter(row => row.comparison_group === "missing").length} bez reportu` : `${shortPeriod(data.expected_period)} + starší / pohyblivé přehledy${older.length ? ` · ${older.length} starší report` : ""}`;
+    periodInfo.textContent = comparisonMode === "quarter" ? `${rows.filter(row => row.comparison_group === "quarter").length} bank s reportem · ${rows.filter(row => row.comparison_group === "derived").length} výpočet z archivu · ${rows.filter(row => row.comparison_group === "missing").length} bez ověřeného CZ reportu` : `${shortPeriod(data.expected_period)} + starší / pohyblivé přehledy${older.length ? ` · ${older.length} starší report` : ""}`;
     context.append(periodInfo);
     document.querySelectorAll("#latestTable [data-sort]").forEach(button => button.closest("th").classList.toggle("sorted-metric", Boolean(sortMetric) && button.dataset.sort === latestSort.key));
-    const groupRank = { quarter: 0, older: 1, rolling: 2, healthcheck: 3, missing: 4 };
+    const groupRank = { quarter: 0, derived: 1, older: 2, rolling: 3, healthcheck: 4, missing: 5 };
     rows.sort((a, b) => {
         const aMissing = sortMetric && sortMetric.value(a) === null, bMissing = sortMetric && sortMetric.value(b) === null;
         if (aMissing !== bMissing) return Number(aMissing) - Number(bMissing);
@@ -429,10 +433,10 @@
         tbody.append(divider);
         missingSeparator = true;
       }
-      if (!missing && previousGroup !== item.comparison_group && (comparisonMode === "latest" || item.comparison_group === "missing")) {
+      if (!missing && previousGroup !== item.comparison_group && (comparisonMode === "latest" || ["missing", "derived"].includes(item.comparison_group))) {
         const divider = document.createElement("tr"); divider.className = "latest-divider comparison-divider"; divider.dataset.group = item.comparison_group;
         const cell = document.createElement("td"); cell.colSpan = 10; const label = document.createElement("span");
-        label.textContent = ({ quarter: `Čtvrtletní reporty · ${shortPeriod(data.expected_period)}`, older: "Starší čtvrtletní reporty · jiné období", rolling: "Pohyblivé denní přehledy · jiné období", healthcheck: "Doplňkový PSD2 health-check · metodika srovnání nedoložena", missing: `Bez doloženého reportu${comparisonMode === "quarter" ? ` pro ${shortPeriod(comparisonQuarter)}` : ""}` })[item.comparison_group];
+        label.textContent = ({ quarter: `Čtvrtletní reporty · ${shortPeriod(data.expected_period)}`, derived: "Vypočtené souhrny z denního archivu · pokrytí uvedeno u období", older: "Starší čtvrtletní reporty · jiné období", rolling: "Pohyblivé denní přehledy · jiné období", healthcheck: "Doplňkový PSD2 health-check · metodika srovnání nedoložena", missing: `Bez ověřených českých metrik${comparisonMode === "quarter" ? ` pro ${shortPeriod(comparisonQuarter)}` : ""}` })[item.comparison_group];
         cell.append(label); divider.append(cell); tbody.append(divider);
       }
       previousGroup = item.comparison_group;
@@ -448,6 +452,7 @@
       badge.className = `status status--${item.status}`;
       badge.textContent = statusLabel(item.status);
       badge.title = "Stav zveřejněných dat, nikoli aktuální provoz bankovního API.";
+      if (item.status === "unverified") badge.title = ui.methodNote(item);
       state.append(badge);
       if (item.comparison_group === "healthcheck") state.title = ui.methodNote(item);
       const availability = document.createElement("td");
@@ -466,6 +471,7 @@
         });
       } else availability.textContent = displayAvailability(item);
       const periodCell = latestPeriodCell(item.latest_period);
+      if (item.report_kind === "archive-derived") { const note=document.createElement("small"); note.className="derived-note"; note.textContent=`Výpočet · ${item.archived_days}/${item.calendar_days} dní`; periodCell.append(note); tr.title=ui.methodNote(item); }
       if (item.fallback_period) { const fallback = document.createElement("a"); fallback.href = ui.bankUrl(item.bank_id); fallback.className = "period-note"; fallback.textContent = /^rolling-/.test(item.fallback_period) ? "Denní přehled →" : `Jiné: ${shortPeriod(item.fallback_period)} →`; periodCell.append(fallback); }
       tr.append(name, state, periodCell, availability);
       ["aispResponse", "pispResponse", "aispError", "pispError", "sharedError"].forEach((key, index) => {

@@ -4,9 +4,9 @@
   "daily_from": "2019-01-01",
   "daily_to": "2026-09-15",
   "daily_versions": 17409,
-  "documents": 256,
-  "fetches": 256,
+  "documents": 306,
+  "fetches": 306,
   "first_archived_on": "2026-09-16",
   "schema_version": 1,
-  "snapshots": 232
+  "snapshots": 242
 }

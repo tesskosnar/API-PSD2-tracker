@@ -275,6 +275,11 @@ tbody tr:last-child td { border-bottom: 0; }
 .coverage-cell--partial::after { content: ""; display: block; width: 7px; height: 7px; margin: 8px auto; border-radius: 50%; background: var(--blue); }
 .coverage-cell--report { background: var(--amber-soft); box-shadow: inset 0 0 0 1px rgba(198, 107, 26, 0.2); }
 .coverage-cell--report::after { content: ""; display: block; width: 7px; height: 7px; margin: 8px auto; border-radius: 50%; background: var(--amber); }
+.coverage-cell--derived { border: 1px dashed var(--blue) !important; color: #305b77; font-size: 14px; }
+.coverage-cell--derived::after { display: none; }
+.derived-note { display: block; margin-top: 3px; font-size: .66rem; font-weight: 500; color: #53666d; white-space: nowrap; }
+.status.status--unverified { background: var(--amber-soft); color: #98520d; }
+.status.status--unverified::before { background: var(--amber); }
 
 .data-table { min-width: 1208px; }
 .data-table td { font-size: 0.83rem; padding: 13px 10px; }

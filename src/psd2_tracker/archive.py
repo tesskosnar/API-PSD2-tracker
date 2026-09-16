@@ -72,6 +72,10 @@ class Archive:
             db.execute("INSERT OR IGNORE INTO documents VALUES (?, ?, ?)", (digest, relative.as_posix(), len(response.content)))
             db.execute("INSERT OR IGNORE INTO fetches VALUES (?, ?, ?, ?, ?, ?)", (bank_id, observed_on or self.observed_on, response.url, digest, response.status_code, content_type))
 
+    def has_response(self, bank_id: str, url: str) -> bool:
+        with self.connect() as db:
+            return db.execute("SELECT 1 FROM fetches WHERE bank_id=? AND url=? LIMIT 1", (bank_id, url)).fetchone() is not None
+
     def record_snapshot(self, row: dict[str, Any], kind: str) -> None:
         payload = canonical(row)
         digest = hashlib.sha256(payload.encode()).hexdigest()

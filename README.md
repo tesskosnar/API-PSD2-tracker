@@ -6,6 +6,8 @@ Kontrola běží každé úterý pomocí GitHub Actions a také ručně přes `A
 
 ## Vývoj v čase
 
+[Další přezkum všech 15 bank](docs/source-recheck-2026-09-16.md) doplnil evidenci **28 veřejných reportů mBank** (EN/PL varianta českého portálu) a produkčního reportu Oberbank s neověřeným českým rozsahem. Nejde o banky bez zveřejněných dokumentů; jejich čísla ale nejsou vydávána za samostatná česká data. Původních **194 čtvrtletních záznamů** i **17 319 denních záznamů** zůstalo beze změny. Nově přibyl **1 označený výpočet MONETY za 2Q2026 z 13/91 dnů**, celkem 195 záznamů. Výpočty uzavřených čtvrtletí se při týdenním sběru přepočítávají z uchovaného archivu, nikoli jen z živého 90denního okna. Přehled reportů se otevírá na nejnovějším období vpravo; legenda vyjadřuje doložené denní pokrytí souhrnných metrik, ne pouhou existenci uptime metriky.
+
 ![Čtvrtletní vývoj dostupnosti PSD2 API podle zveřejněných reportů bank](docs/trend.svg)
 
 Graf se při týdenní aktualizaci obnovuje automaticky. Zobrazuje jen banky s doloženými reporty; chybějící čtvrtletí nepřemosťuje. Podrobnější interaktivní přehled, přepínání metrik, pokrytí zdroji a odkazy na jednotlivé reporty je připravený pro GitHub Pages na adrese `https://tesskosnar.github.io/API-PSD2-tracker/`.
@@ -21,7 +23,7 @@ Přehled nabízí režimy **Stejné čtvrtletí** a **Nejnovější údaje**. Ve
 <!-- TRACKER:START -->
 Očekávané poslední zveřejněné období: **2026-Q2** (po 45denní lhůtě na publikaci).
 
-Souhrn hlavního seznamu: **8 s aktuální dostupností**, **3 s částečnými daty**, **2 zastaralé**, **2 bez nalezeného reportu**, **0 blokováno**.
+Souhrn hlavního seznamu: **7 s aktuální dostupností**, **3 s částečnými daty**, **2 zastaralé**, **0 bez nalezeného reportu**, **1 blokováno**. **2 s neověřeným českým rozsahem reportu**.
 
 | Banka | Stav | Poslední období | Dostupnost | Odezva AISP / PISP | Zdroj |
 |---|---|---:|---:|---:|---|
@@ -32,12 +34,12 @@ Souhrn hlavního seznamu: **8 s aktuální dostupností**, **3 s částečnými 
 | Air Bank | OK | 2026-Q2 | 98.9736 % | 62.8242 ms / 72.7143 ms | [stránka](https://www.airbank.cz/aplikace-tretich-stran/) · [report](https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2026) |
 | MONETA Money Bank | Částečná data | rolling-90d-to-2026-09-15 | — | 498.5111 ms / 149.3667 ms | [stránka](https://www.moneta.cz/otevrene-bankovnictvi) |
 | Fio banka | OK | 2026-Q2 | 99.9809 % | 22.7143 ms / 16 ms | [stránka](https://developers.fio.cz/stats.html) · [report](https://developers.fio.cz/stats/PSD2_2026Q2.pdf) |
-| mBank | Nenalezen report | — | — | — / — | [stránka](https://developer.api.mbank.cz/reports) |
+| mBank | Český rozsah neověřen | — | — | — / — | [stránka](https://developer.api.mbank.cz/reports) |
 | UniCredit Bank | OK | 2026-Q2 | 100 % | 345.29 ms / 248.6567 ms | [stránka](https://developer.unicredit.eu/report?view=kpi) |
-| Banka CREDITAS | OK | 2026-Q2 | 99.956 % | 1819.5176 ms / 938.0659 ms | [stránka](https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti) · [report](https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf) |
+| Banka CREDITAS | Zdroj blokuje automatizaci | 2026-Q2 | 99.956 % | 1819.5176 ms / 938.0659 ms | [stránka](https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti) · [report](https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf) |
 | Trinity Bank | OK | 2026-Q2 | 99.9951 % | — / — | [stránka](https://www.trinitybank.cz/otevrene-bankovnictvi/) · [report](https://www.trinitybank.cz/download/3036) |
 | Partners Banka | Částečná data | rolling-30d-to-2026-09-15 | 99.986 % | — / — | [stránka](https://jakbezi.partnersbanka.cz/) |
-| Oberbank | Nenalezen report | — | — | — / — | [stránka](https://www.oberbank.cz/xs2a-interface) · [report](https://www.oberbank.cz/documents/20195/21703/obkglobal_xs2a_statistik.pdf/ed74f6e3-961a-a810-31ed-0df88ef05b56) |
+| Oberbank | Český rozsah neověřen | — | — | — / — | [stránka](https://www.oberbank.cz/xs2a-interface) · [report](https://www.oberbank.cz/documents/20195/21703/obkglobal_xs2a_statistik.pdf/ed74f6e3-961a-a810-31ed-0df88ef05b56) |
 | J&T Banka | OK | 2026-Q2 | 99.7801 % | 387.1698 ms / 1482 ms | [stránka](https://www.jtbank.cz/informacni-povinnost) · [report](https://assets-eu-01.kc-usercontent.com:443/23883f12-8a12-01af-3f05-426faedce691/69bbf441-3b3b-4519-998b-10ec11b07591/Q2-2026_psd2_unavailability.pdf) |
 | PPF banka | Zastaralé | 2026-Q1 | — | 1833.6 ms / — | [stránka](https://www.ppfbanka.cz/cs/dokumenty/1868-pristupy-tretich-stran) · [report](https://www.ppfbanka.cz/cs/document/download/8437) |
 

@@ -5,11 +5,11 @@ window.PSD2_DATA = {
     "daily_from": "2019-01-01",
     "daily_to": "2026-09-15",
     "daily_versions": 17409,
-    "documents": 256,
-    "fetches": 256,
+    "documents": 306,
+    "fetches": 306,
     "first_archived_on": "2026-09-16",
     "schema_version": 1,
-    "snapshots": 232
+    "snapshots": 242
   },
   "checked_on": "2026-09-16",
   "daily_history_asset": "daily-data.js?v=d2f47aa5f6c7",
@@ -81,7 +81,7 @@ window.PSD2_DATA = {
       "bank_id": "rb",
       "latest_period": "2025-Q1",
       "metric_method": "prumer publikovane denni dostupnosti AISP/PISP; nejde o dolozene minuty uptime; chybovost = soucet poctu chyb / soucet poctu volani x 100",
-      "note": "Verejne reporty jsou v dynamickem katalogu dokumentu. Dostupnost AISP/PISP je prumer publikovanych procent, nikoli dolozene mereni minut uptime. Report oznaceny 3Q2025 obsahuje denni datumy 2024; jeho metriky nejsou importovany. Novejsi report 2025-Q3 nebyl pouzit: obsahuje denni datumy 2024-Q3.",
+      "note": "Verejne reporty jsou v dynamickem katalogu dokumentu. Dostupnost AISP/PISP je prumer publikovanych procent, nikoli dolozene mereni minut uptime. Report oznaceny 3Q2025 obsahuje denni datumy 2024; jeho metriky nejsou importovany. Novejsi report nebyl pouzit: RB report oznaceny 2025-Q3 obsahuje den 2024-07-01 (2024-Q3); datumy se neprepisuji",
       "pisp_availability_pct": 100.0,
       "pisp_error_pct": 0.0,
       "pisp_response_ms": "",
@@ -119,7 +119,7 @@ window.PSD2_DATA = {
       "bank_id": "moneta",
       "latest_period": "rolling-90d-to-2026-09-15",
       "metric_method": "prumer dennich hodnot v klouzavem 90dennim okne; uptime chybi",
-      "note": "Banka publikuje klouzavych 90 dni odezvy a chybovosti, nikoli dostupnost/uptime.",
+      "note": "Banka publikuje klouzavych 90 dni odezvy a chybovosti, nikoli dostupnost/uptime. Tracker z uchovanych dni pocita oznacene souhrny uzavrenych ctvrtleti; neuplne pokryti je uvedeno, chybejici dny nejsou domyslene.",
       "pisp_availability_pct": "",
       "pisp_error_pct": 0.0089,
       "pisp_response_ms": 149.3667,
@@ -157,15 +157,15 @@ window.PSD2_DATA = {
       "bank_id": "mbank",
       "latest_period": "",
       "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
-      "note": "Verejny dynamicky portal nabizi reporty v EN/PL, nikoli CS. Bylo overeno vsech 27 PDF; zadny jednoznacne nevymezuje ceske rozhrani. Jazyk ani sidlo mBank S.A. samy o sobe nedokazuji zemi metrik; do potvrzeni CZ rozsahu nejsou cisla importovana.",
+      "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
       "pisp_availability_pct": "",
       "pisp_error_pct": "",
       "pisp_response_ms": "",
-      "report_url": "",
+      "report_url": "https://developer.api.mbank.cz/reports",
       "scope": "main",
       "source_state": "ok",
       "source_url": "https://developer.api.mbank.cz/reports",
-      "status": "missing"
+      "status": "unverified"
     },
     {
       "aisp_availability_pct": "",
@@ -195,15 +195,15 @@ window.PSD2_DATA = {
       "bank_id": "creditas",
       "latest_period": "2026-Q2",
       "metric_method": "prumer dennich hodnot z PDF tabulky se zachovanymi prazdnymi sloupci",
-      "note": "Prehledova stranka muze blokovat automaticke klienty; PDF maji stabilni a predvidatelnou adresu.",
+      "note": "Prehledova stranka muze blokovat automaticke klienty; PDF maji stabilni a predvidatelnou adresu. Automaticke nacteni selhalo: HTTP 403 Posledni zname metriky byly zachovany z predchoziho behu.",
       "pisp_availability_pct": "",
       "pisp_error_pct": "",
       "pisp_response_ms": 938.0659,
       "report_url": "https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf",
       "scope": "main",
-      "source_state": "ok-direct-pdf",
+      "source_state": "http-403",
       "source_url": "https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti",
-      "status": "ok"
+      "status": "blocked"
     },
     {
       "aisp_availability_pct": "",
@@ -251,7 +251,7 @@ window.PSD2_DATA = {
       "bank": "Oberbank",
       "bank_id": "oberbank",
       "latest_period": "",
-      "metric_method": "verejny produkcni report Oberbank AG napric trhy; CZ data nejsou oddelena, proto metriky nejsou prevzaty",
+      "metric_method": "verejny produkcni report Oberbank AG existuje; samostatny cesky rozsah metrik neni dolozen, proto cisla nejsou prevzata",
       "note": "Opraveny verejny odkaz vraci produkcni report Oberbank AG, ale bez oddeleni ceske pobocky. Cisla proto nejsou zahrnuta do CZ datasetu.",
       "pisp_availability_pct": "",
       "pisp_error_pct": "",
@@ -260,7 +260,7 @@ window.PSD2_DATA = {
       "scope": "main",
       "source_state": "ok",
       "source_url": "https://www.oberbank.cz/xs2a-interface",
-      "status": "missing"
+      "status": "unverified"
     },
     {
       "aisp_availability_pct": "",
@@ -2417,6 +2417,22 @@ window.PSD2_DATA = {
         "shared_error_pct": 0
       }
     },
+    "moneta:2026-Q2": {
+      "archived_days": 13,
+      "calendar_days": 91,
+      "first_day": "2026-06-18",
+      "last_day": "2026-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 13,
+        "aisp_response_ms": 13,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 13,
+        "pisp_response_ms": 13,
+        "shared_error_pct": 0
+      }
+    },
     "ppf:2023-Q1": {
       "archived_days": 62,
       "calendar_days": 90,
@@ -3427,6 +3443,510 @@ window.PSD2_DATA = {
     }
   },
   "source_details": {
+    "mbank:": {
+      "catalog_checked_on": "2026-09-16",
+      "catalog_url": "https://developer.api.mbank.cz/reports",
+      "country_scope": "unverified",
+      "published_reports": [
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2019-06-14",
+          "last_day": "2019-09-30",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2019-Q2–2019-Q3",
+          "periods": [
+            "2019-Q2",
+            "2019-Q3"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/d0250aeca8e844e39c886d3df05c1747.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2019-10-01",
+          "last_day": "2019-12-31",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2019-Q4",
+          "periods": [
+            "2019-Q4"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/097e7f0438a2437d8e3682a54fa8bfa2.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2020-01-01",
+          "last_day": "2020-03-31",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2020-Q1",
+          "periods": [
+            "2020-Q1"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/d0009928f79844879e43441119cac623.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2020-04-01",
+          "last_day": "2020-06-30",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2020-Q2",
+          "periods": [
+            "2020-Q2"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/603ccbbc7428448fb59852f8f736e727.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2020-07-01",
+          "last_day": "2020-09-30",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2020-Q3",
+          "periods": [
+            "2020-Q3"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/ec6c9e6af43e41549803dc71d3a57712.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2020-10-01",
+          "last_day": "2020-12-31",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2020-Q4",
+          "periods": [
+            "2020-Q4"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/520c73341e7147dfbf28e0d28e645e4f.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2021-01-01",
+          "last_day": "2021-03-31",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2021-Q1",
+          "periods": [
+            "2021-Q1"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/c0204478288141809d1b0111c8fcb496.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2021-04-01",
+          "last_day": "2021-06-30",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2021-Q2",
+          "periods": [
+            "2021-Q2"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/b6dee8c7c7054f0a957614894fcbaf56.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2021-07-01",
+          "last_day": "2021-09-30",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2021-Q3",
+          "periods": [
+            "2021-Q3"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/d9de3b9c4e03443aa91b832465be1e3d.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2021-10-01",
+          "last_day": "2021-12-31",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2021-Q4",
+          "periods": [
+            "2021-Q4"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/aa6cdf0b7a534bcda9d020ba9422749d.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2022-01-01",
+          "last_day": "2022-03-31",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2022-Q1",
+          "periods": [
+            "2022-Q1"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/2496777586bb40e1a7161f40ec0c753f.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2022-04-01",
+          "last_day": "2022-06-30",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2022-Q2",
+          "periods": [
+            "2022-Q2"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/b20c31af11fc417699772e476addad28.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2022-07-01",
+          "last_day": "2022-09-30",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2022-Q3",
+          "periods": [
+            "2022-Q3"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/ee11cfa2f9b648fea9fbe19124dbaac2.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2022-10-01",
+          "last_day": "2022-12-31",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2022-Q4",
+          "periods": [
+            "2022-Q4"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/bc9bace6b6c748ac8cfe1cc53e34d332.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2023-01-01",
+          "last_day": "2023-03-31",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2023-Q1",
+          "periods": [
+            "2023-Q1"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/589e7559d89d465bacadf8b5132d2f02.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2023-04-01",
+          "last_day": "2023-06-30",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2023-Q2",
+          "periods": [
+            "2023-Q2"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/f0394a6c73eb44c9a4f07b7fe4698b5a.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2023-07-01",
+          "last_day": "2023-09-30",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2023-Q3",
+          "periods": [
+            "2023-Q3"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/42ae584550de4a58a103f022c2176666.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2023-10-01",
+          "last_day": "2023-12-31",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2023-Q4",
+          "periods": [
+            "2023-Q4"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/1ab37aea7d4d42c7af67a25360fa55fb.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2024-01-01",
+          "last_day": "2024-03-31",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2024-Q1",
+          "periods": [
+            "2024-Q1"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/69317d8b41524036a6f48d7a65c20b0e.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2024-04-01",
+          "last_day": "2024-06-30",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2024-Q2",
+          "periods": [
+            "2024-Q2"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/1f5e7c6fa3c741199f468f6889e217e3.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2024-07-01",
+          "last_day": "2024-09-30",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2024-Q3",
+          "periods": [
+            "2024-Q3"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/51f069284a9f4972bdad37a6a7c2a1e4.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2024-10-01",
+          "last_day": "2024-12-31",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2024-Q4",
+          "periods": [
+            "2024-Q4"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/82ac0f8120b146b09ed8f60146f45513.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2025-01-01",
+          "last_day": "2025-03-31",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2025-Q1",
+          "periods": [
+            "2025-Q1"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/a39da4dd2af944839611d0b053204c4a.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2025-04-01",
+          "last_day": "2025-06-30",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2025-Q2",
+          "periods": [
+            "2025-Q2"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/869f4624f57249e79b8e36798020abd0.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2025-07-01",
+          "last_day": "2025-09-30",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2025-Q3",
+          "periods": [
+            "2025-Q3"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/168e9afe28ff482b9be6ebafc2a04986.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2025-10-01",
+          "last_day": "2025-12-31",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2025-Q4",
+          "periods": [
+            "2025-Q4"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/27dde8b7cd1846e299791c042f9d0045.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2026-01-01",
+          "last_day": "2026-03-31",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2026-Q1",
+          "periods": [
+            "2026-Q1"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/a68193508b604b2ca2fe3174dd03ac32.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        },
+        {
+          "bank": "mBank",
+          "bank_id": "mbank",
+          "catalog_present": true,
+          "first_day": "2026-04-01",
+          "last_day": "2026-06-30",
+          "metric_method": "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata",
+          "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani.",
+          "period": "2026-Q2",
+          "periods": [
+            "2026-Q2"
+          ],
+          "report_url": "https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/1d57afe69deb4b25a25aac9487a31605.pdf",
+          "source_state": "ok",
+          "source_url": "https://developer.api.mbank.cz/reports",
+          "status": "unverified"
+        }
+      ]
+    },
+    "oberbank:": {
+      "catalog_checked_on": "2026-09-16",
+      "catalog_url": "https://www.oberbank.cz/documents/20195/21703/obkglobal_xs2a_statistik.pdf/ed74f6e3-961a-a810-31ed-0df88ef05b56",
+      "country_scope": "unverified",
+      "published_reports": [
+        {
+          "archived_source_url": "https://github.com/tesskosnar/API-PSD2-tracker/blob/main/data/archive/objects/97/97b3c0a47b5501a2797ec9d1ab1de23a40e5ca2a556537480b149a98a4ae59c1.gz",
+          "bank": "Oberbank",
+          "bank_id": "oberbank",
+          "catalog_present": true,
+          "metric_method": "verejny produkcni report Oberbank AG existuje; samostatny cesky rozsah metrik neni dolozen, proto cisla nejsou prevzata",
+          "note": "Opraveny verejny odkaz vraci produkcni report Oberbank AG, ale bez oddeleni ceske pobocky. Cisla proto nejsou zahrnuta do CZ datasetu.",
+          "period": "2026-Q2",
+          "report_url": "https://www.oberbank.cz/documents/20195/21703/obkglobal_xs2a_statistik.pdf/ed74f6e3-961a-a810-31ed-0df88ef05b56",
+          "source_state": "ok",
+          "source_url": "https://www.oberbank.cz/xs2a-interface",
+          "status": "unverified"
+        }
+      ]
+    },
     "unicredit:2026-Q2": {
       "checked_on": "2026-09-16",
       "country": "UniCredit Bank Czech Republic",
@@ -6878,6 +7398,29 @@ window.PSD2_DATA = {
       "source_state": "ok",
       "source_url": "https://www.kb.cz/cs/dostupnost-sluzeb-internetoveho-a-otevreneho-bankovnictvi-api",
       "status": "ok"
+    },
+    {
+      "aisp_availability_pct": "",
+      "aisp_error_pct": 0.1308,
+      "aisp_response_ms": 544.8462,
+      "archived_days": 13,
+      "availability_pct": "",
+      "bank": "MONETA Money Bank",
+      "bank_id": "moneta",
+      "calendar_days": 91,
+      "first_day": "2026-06-18",
+      "last_day": "2026-06-30",
+      "metric_method": "vypocet trackeru z trvaleho denniho archivu; 13/91 kalendarnich dni; neuverejneny ctvrtletni souhrn banky; odezva je prumer publikovanych dennich odezev > 0 ms; chybovost je nevazeny prumer publikovanych dennich procent vcetne nul, nikoli pomer vsech chyb ke vsem volanim; chybejici dny se nedoplnuji; uptime neni uveden",
+      "period": "2026-Q2",
+      "pisp_availability_pct": "",
+      "pisp_error_pct": 0.0077,
+      "pisp_response_ms": 150.5385,
+      "report_kind": "archive-derived",
+      "report_url": "https://www.moneta.cz/otevrene-bankovnictvi",
+      "scope": "main",
+      "source_state": "ok",
+      "source_url": "https://www.moneta.cz/otevrene-bankovnictvi",
+      "status": "partial"
     },
     {
       "aisp_availability_pct": "",

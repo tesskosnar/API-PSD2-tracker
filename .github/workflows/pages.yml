@@ -15,6 +15,7 @@ on:
       - "docs/expanded-data-changes.csv"
       - "docs/daily-source-coverage.csv"
       - "docs/re-audit-*.md"
+      - "docs/source-recheck-*.md"
       - "docs/rb-data-changes-*.csv"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
@@ -57,6 +58,7 @@ jobs:
           cp docs/historical-data-corrections.csv _site/historical-data-corrections.csv
           cp docs/expanded-data-changes.csv docs/daily-source-coverage.csv docs/expanded-data-audit.md _site/
           cp docs/re-audit-2026-09-16.md docs/rb-data-changes-2026-09-16.csv _site/
+          cp docs/source-recheck-2026-09-16.md _site/
           sed -i.bak \
             -e 's#../docs/source-audit.md#source-audit.md#' \
             -e 's#../docs/original-data-comparison.md#original-data-comparison.md#' \

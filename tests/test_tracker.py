@@ -40,6 +40,20 @@ from psd2_tracker.tracker import (
 
 
 class TrackerTests(unittest.TestCase):
+    def test_mbank_real_catalog_mode_and_cross_quarter_report_preserve_unverified_scope(self):
+        bank={"id":"mbank","name":"mBank","source_url":"https://developer.api.mbank.cz/reports","report_catalog_url":"https://developer.api.mbank.cz/reportpage?locale=en","report_catalog_mode":"INDIVIDUAL_EN"}
+        calls=[]
+        def get(url,**kwargs):
+            calls.append((url,kwargs))
+            return SimpleNamespace(text="<html></html>",url=url,json=lambda:{"reports":[{"name":"from 14.06.2019 till 30.09.2019","resource":{"url":"https://example.test/source.pdf"}},{"name":"from 01.04.2026 till 30.06.2026","resource":{"url":"https://example.test/latest.pdf"}}]})
+        item=parse_report_links(bank,SimpleNamespace(get=get))
+        self.assertEqual(calls[1][1]["headers"],{"mode":"INDIVIDUAL_EN"})
+        self.assertEqual(len(item.report_details["published_reports"]),2)
+        self.assertEqual(item.report_details["published_reports"][0]["periods"],["2019-Q2","2019-Q3"])
+        self.assertEqual(item.latest_period,"")
+        self.assertIsNone(item.availability_pct)
+        self.assertIsNone(item.daily_metrics)
+
     def test_mbank_static_report_link_does_not_invent_a_confirmed_czech_quarter(self):
         bank = {"id": "mbank", "name": "mBank", "source_url": "https://developer.api.mbank.cz/reports"}
         fetcher = SimpleNamespace(get=lambda *a, **k: SimpleNamespace(text='<a href="/availability-Q2-2026.pdf">report Q2 2026</a>', url=bank['source_url']))
@@ -47,6 +61,19 @@ class TrackerTests(unittest.TestCase):
         self.assertEqual(item.latest_period, "")
         self.assertIsNone(item.availability_pct)
         self.assertIn("cesky rozsah", item.metric_method)
+
+    def test_mbank_catalog_locale_union_deduplicates_and_retains_additional_report(self):
+        bank={"id":"mbank","name":"mBank","source_url":"https://developer.api.mbank.cz/reports","report_catalog_url":"https://developer.api.mbank.cz/reportpage?locale=en","report_catalog_mode":"INDIVIDUAL_EN","additional_report_catalogs":[{"url":"https://developer.api.mbank.cz/reportpage?locale=pl","mode":"INDIVIDUAL_PL"}]}
+        shared={"name":"from 01.04.2026 till 30.06.2026","resource":{"url":"https://example.test/shared.pdf"}}
+        extra={"name":"from 01.01.2024 till 31.03.2024","resource":{"url":"https://example.test/pl-extra.pdf"}}
+        def get(url,**kwargs):
+            if 'locale=pl' in url:
+                self.assertEqual(kwargs['headers'],{'mode':'INDIVIDUAL_PL'})
+            return SimpleNamespace(text='<html></html>',url=url,json=lambda:{'reports':[shared,extra] if 'locale=pl' in url else [shared]})
+        item=parse_report_links(bank,SimpleNamespace(get=get))
+        self.assertEqual(len(item.report_details['published_reports']),2)
+        self.assertEqual(item.report_details['published_reports'][0]['period'],'2024-Q1')
+        self.assertIsNone(item.aisp_response_ms)
 
     def test_rb_zipped_pdf_ignores_macos_metadata_and_rejects_ambiguous_archive(self):
         buffer = BytesIO()

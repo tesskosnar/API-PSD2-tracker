@@ -2,6 +2,27 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const ui = require('../dashboard/core.js');
 
+test('report completeness uses days for supplied metrics, not mere uptime presence', () => {
+  const row={report_url:'https://example.test',aisp_response_ms:10};
+  const coverage={archived_days:91,calendar_days:91,metric_days:{aisp_response_ms:91}};
+  assert.equal(ui.reportCompleteness(row,coverage),'full');
+  assert.equal(ui.reportCompleteness({...row,availability_pct:99},coverage),'partial');
+  assert.equal(ui.reportCompleteness(row,{...coverage,archived_days:90}),'partial');
+  assert.equal(ui.reportCompleteness({...row,status:'unverified'},coverage),'report');
+  assert.equal(ui.reportCompleteness({report_url:row.report_url},coverage),'report');
+  assert.equal(ui.reportCompleteness(null,coverage),'missing');
+  assert.equal(ui.reportCompleteness({report_url:row.report_url,aisp_error_pct:.3,pisp_error_pct:.3,metric_method:'spolecna error response rate'},{archived_days:91,calendar_days:91,metric_days:{shared_error_pct:91}}),'full');
+});
+test('calculated quarter is separated and never borrows rolling uptime', () => {
+  const latest=[{bank_id:'moneta',latest_period:'rolling-90d-to-2026-09-15',availability_pct:'',aisp_response_ms:500}];
+  const history=[{bank_id:'moneta',period:'2026-Q2',report_kind:'archive-derived',archived_days:13,calendar_days:91,report_url:'https://example.test',aisp_response_ms:100,availability_pct:''}];
+  const row=ui.comparisonRows(latest,history,'quarter','2026-Q2')[0];
+  assert.equal(row.comparison_group,'derived');
+  assert.equal(row.aisp_response_ms,100);
+  assert.equal(ui.availability(row),null);
+  assert.match(ui.methodNote(row),/13\/91/);
+});
+
 test('separate service availability is not invented from an overall value', () => {
   const row = {availability_pct: 99.9};
   assert.equal(ui.metrics.aispAvailability.value(row), null);

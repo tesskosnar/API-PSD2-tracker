@@ -56,8 +56,9 @@
     "name": "MONETA Money Bank",
     "source_url": "https://www.moneta.cz/otevrene-bankovnictvi",
     "parser": "moneta",
+    "derive_quarters_from_daily": true,
     "scope": "main",
-    "note": "Banka publikuje klouzavych 90 dni odezvy a chybovosti, nikoli dostupnost/uptime."
+    "note": "Banka publikuje klouzavych 90 dni odezvy a chybovosti, nikoli dostupnost/uptime. Tracker z uchovanych dni pocita oznacene souhrny uzavrenych ctvrtleti; neuplne pokryti je uvedeno, chybejici dny nejsou domyslene."
   },
   {
     "id": "fio",
@@ -74,10 +75,13 @@
     "id": "mbank",
     "name": "mBank",
     "source_url": "https://developer.api.mbank.cz/reports",
+    "report_catalog_url": "https://developer.api.mbank.cz/reportpage?locale=en",
+    "report_catalog_mode": "INDIVIDUAL_EN",
+    "additional_report_catalogs": [{"url": "https://developer.api.mbank.cz/reportpage?locale=pl", "mode": "INDIVIDUAL_PL"}],
     "parser": "report_links",
     "scope": "main",
     "report_pattern": "report|raport|PSD2|availability|dostupnost",
-    "note": "Verejny dynamicky portal nabizi reporty v EN/PL, nikoli CS. Bylo overeno vsech 27 PDF; zadny jednoznacne nevymezuje ceske rozhrani. Jazyk ani sidlo mBank S.A. samy o sobe nedokazuji zemi metrik; do potvrzeni CZ rozsahu nejsou cisla importovana."
+    "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani."
   },
   {
     "id": "unicredit",

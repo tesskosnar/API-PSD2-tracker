@@ -7,7 +7,7 @@ from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 
 from psd2_tracker.archive import Archive
-from psd2_tracker.tracker import Observation, build_report_coverage, collect_timeseries, collect_bank, parse_moneta, timeseries_row, write_dashboard_data
+from psd2_tracker.tracker import Observation, build_report_coverage, collect_timeseries, collect_bank, parse_moneta, timeseries_row, write_dashboard_data, derive_archived_quarters, merge_derived_quarters, finalize_status
 from unittest.mock import patch
 
 
@@ -45,11 +45,69 @@ class ArchiveTests(unittest.TestCase):
         write_dashboard_data([], [report], "2026-Q2", date(2026, 9, 16), output)
         self.assertIn('"archived_days": 1', output.read_text())
 
+    def test_scope_unverified_report_evidence_survives_catalog_removal(self):
+        import json
+        output=self.root / "data.js"
+        old={"period":"2026-Q2","report_url":"https://example.test/same.pdf"}
+        new={"period":"2026-Q3","report_url":"https://example.test/same.pdf"}
+        item=Observation(bank_id="oberbank",bank="Oberbank",scope="main",source_url="https://example.test",report_details={"published_reports":[old]})
+        write_dashboard_data([item],[],"2026-Q2",date(2026,9,16),output)
+        item.report_details={"published_reports":[new]}
+        write_dashboard_data([item],[],"2026-Q3",date(2026,10,1),output)
+        payload=json.loads(output.read_text().removeprefix("window.PSD2_DATA = "))
+        reports=payload["source_details"]["oberbank:"]["published_reports"]
+        self.assertEqual([r["period"] for r in reports],["2026-Q2","2026-Q3"])
+        self.assertFalse(reports[0]["catalog_present"])
+        self.assertTrue(reports[1]["catalog_present"])
+
     def test_days_survive_removed_rolling_window(self):
         self.archive.record_daily(self.daily("2026-06-18", 250))
         next_run = Archive(self.root / "archive", date(2026, 10, 1))
         next_run.record_daily(self.daily("2026-09-30", 100))
         self.assertEqual([row["date"] for row in next_run.daily_rows()], ["2026-06-18", "2026-09-30"])
+
+    def test_derived_closed_quarter_counts_unique_czech_days_and_not_open_quarter(self):
+        banks = [{"id":"moneta", "name":"MONETA", "source_url":"https://example.test", "derive_quarters_from_daily":True}]
+        daily = [{"bank_id":"moneta", "country_code":"CZ", "date":"2026-06-18", "aisp_response_ms":100, "aisp_error_pct":0}, {"bank_id":"moneta", "country_code":"CZ", "date":"2026-06-18", "aisp_response_ms":200, "aisp_error_pct":0}, {"bank_id":"moneta", "country_code":"CZ", "date":"2026-06-19", "aisp_response_ms":0, "aisp_error_pct":2}, {"bank_id":"moneta", "country_code":"CZ", "date":"2026-07-01", "aisp_response_ms":900}, {"bank_id":"moneta", "country_code":"PL", "date":"2026-06-20", "aisp_response_ms":900}]
+        rows = derive_archived_quarters(banks, daily, date(2026,9,16))
+        self.assertEqual(len(rows),1)
+        row = rows[0]
+        self.assertEqual(row["period"],"2026-Q2")
+        self.assertEqual(row["report_kind"],"archive-derived")
+        self.assertEqual((row["archived_days"],row["calendar_days"]),(2,91))
+        self.assertEqual(row["aisp_response_ms"],200)
+        self.assertEqual(row["aisp_error_pct"],1)
+        self.assertEqual(row["availability_pct"],"")
+        self.assertEqual(row["pisp_error_pct"],"")
+        self.assertEqual(len(derive_archived_quarters(banks,daily,date(2026,10,1))),2)
+
+    def test_derived_quarters_survive_removed_window_and_recompute_corrections(self):
+        banks=[{"id":"moneta","name":"MONETA","source_url":"https://example.test","derive_quarters_from_daily":True}]
+        self.archive.record_daily(self.daily("2026-06-18",100))
+        self.archive.record_daily(self.daily("2026-06-19",300))
+        self.assertEqual(derive_archived_quarters(banks,self.archive.daily_rows(),date(2026,10,1))[0]["aisp_response_ms"],200)
+        next_run=Archive(self.root / "archive",date(2026,10,1))
+        next_run.record_daily(self.daily("2026-09-30",1000))
+        next_run.record_daily(self.daily("2026-06-18",500))
+        rows=derive_archived_quarters(banks,next_run.daily_rows(),date(2026,10,1))
+        self.assertEqual(rows[0]["aisp_response_ms"],400)
+        next_run.record_snapshot(rows[0],"quarterly-derived")
+        self.assertEqual(next_run.quarterly_rows(),[])
+        official={**rows[0],"report_kind":"published","aisp_response_ms":999}
+        self.assertEqual(merge_derived_quarters([official],rows)[0],official)
+
+    def test_unverified_czech_scope_is_not_report_absence(self):
+        item=Observation(bank_id="mbank",bank="mBank",scope="main",source_url="https://example.test",report_details={"country_scope":"unverified"})
+        self.assertEqual(finalize_status(item,"2026-Q2").status,"unverified")
+
+    def test_complete_quarter_and_leap_year_days(self):
+        from datetime import timedelta
+        banks=[{"id":"moneta","name":"MONETA","source_url":"https://example.test","derive_quarters_from_daily":True}]
+        days=[{"bank_id":"moneta","country_code":"CZ","date":(date(2024,1,1)+timedelta(days=i)).isoformat(),"aisp_response_ms":10,"aisp_error_pct":0} for i in range(91)]
+        self.assertEqual(derive_archived_quarters(banks,days,date(2024,3,31)),[])
+        row=derive_archived_quarters(banks,days,date(2024,4,1))[0]
+        self.assertEqual((row["archived_days"],row["calendar_days"]),(91,91))
+        self.assertEqual(row["aisp_error_pct"],0)
 
     def test_corrections_are_versioned_not_overwritten(self):
         self.archive.record_daily(self.daily("2026-09-15", 250))

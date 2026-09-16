@@ -85,6 +85,7 @@ TIMESERIES_FIELDS = [
     "metric_method",
     "source_url",
 ]
+DERIVED_FIELDS = ["report_kind", "archived_days", "calendar_days", "first_day", "last_day"]
 
 STATUS_LABELS = {
     "ok": "OK",
@@ -92,6 +93,7 @@ STATUS_LABELS = {
     "outdated": "Zastaralé",
     "missing": "Nenalezen report",
     "blocked": "Zdroj blokuje automatizaci",
+    "unverified": "Český rozsah neověřen",
 }
 
 MONTHS = {
@@ -768,6 +770,38 @@ def parse_report_links(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
         # Public reports were audited, but must not become Czech observations
         # just because the SPA later exposes static links.
         observation.metric_method = "verejne reporty mBank existuji; cesky rozsah metrik neni jednoznacne dolozen, proto cisla nejsou prevzata"
+        observation.report_url = bank["source_url"]
+        observation.report_details = {"country_scope": "unverified", "catalog_url": bank["source_url"]}
+        if bank.get("report_catalog_url"):
+            catalog = fetcher.get(bank["report_catalog_url"], headers={"mode": bank["report_catalog_mode"]}).json()
+            catalog_reports = {item.get("resource", {}).get("url", ""): item for item in catalog.get("reports", [])}
+            for extra in bank.get("additional_report_catalogs", []):
+                extra_catalog = fetcher.get(extra["url"], headers={"mode": extra["mode"]}).json()
+                catalog_reports.update({item.get("resource", {}).get("url", ""): item for item in extra_catalog.get("reports", [])})
+            reports = []
+            for item in catalog_reports.values():
+                dates = re.findall(r"\b\d{2}\.\d{2}\.20\d{2}\b", item.get("name", ""))
+                url = item.get("resource", {}).get("url", "")
+                if len(dates) != 2 or not url.startswith("https://"):
+                    continue
+                start, end = [datetime.strptime(value, "%d.%m.%Y").date() for value in dates]
+                if end < start:
+                    continue
+                first_period = f"{start.year}-Q{(start.month - 1) // 3 + 1}"
+                last_period = f"{end.year}-Q{(end.month - 1) // 3 + 1}"
+                period = first_period if first_period == last_period else f"{first_period}–{last_period}"
+                reports.append({"bank_id": "mbank", "bank": bank["name"], "period": period, "periods": quarter_range(first_period, last_period), "first_day": start.isoformat(), "last_day": end.isoformat(), "report_url": url, "source_url": bank["source_url"], "status": "unverified", "source_state": "ok", "metric_method": observation.metric_method, "note": observation.note})
+            observation.report_details["published_reports"] = sorted(reports, key=lambda row: row["period"])
+            if isinstance(fetcher, Fetcher) and fetcher.archive:
+                newest = max((row["period"] for row in reports), default="")
+                for row in reports:
+                    # Archive public evidence separately; no foreign/unknown-scope
+                    # report is converted to Czech daily observations.
+                    if row["period"] == newest or not fetcher.archive.has_response("mbank", row["report_url"]):
+                        try:
+                            fetcher.get(row["report_url"])
+                        except FetchError as exc:
+                            observation.note += f" Zdrojova kopie {row['period']} nebyla stazena: {exc}."
         return observation
     if not candidates:
         return observation
@@ -1314,8 +1348,16 @@ def parse_oberbank(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
         break
     if bank.get("statistics_url"):
         observation.report_url = bank["statistics_url"]
-        fetcher.get(observation.report_url)
-        observation.metric_method = "verejny produkcni report Oberbank AG napric trhy; CZ data nejsou oddelena, proto metriky nejsou prevzaty"
+        observation.metric_method = "verejny produkcni report Oberbank AG existuje; samostatny cesky rozsah metrik neni dolozen, proto cisla nejsou prevzata"
+        observation.report_details = {"country_scope": "unverified", "catalog_url": observation.report_url}
+        content = fetcher.get(observation.report_url).content
+        text = " ".join(page.extract_text() or "" for page in PdfReader(io.BytesIO(content)).pages)
+        dates = re.findall(r"\b\d{2}\.\d{2}\.20\d{2}\b", text)
+        if dates:
+            first = datetime.strptime(dates[0], "%d.%m.%Y").date()
+            period = f"{first.year}-Q{(first.month - 1) // 3 + 1}"
+            digest = hashlib.sha256(content).hexdigest()
+            observation.report_details["published_reports"] = [{"bank_id": observation.bank_id, "bank": observation.bank, "period": period, "report_url": observation.report_url, "source_url": observation.source_url, "status": "unverified", "source_state": "ok", "metric_method": observation.metric_method, "note": observation.note, "archived_source_url": f"https://github.com/tesskosnar/API-PSD2-tracker/blob/main/data/archive/objects/{digest[:2]}/{digest}.gz"}]
     return observation
 
 
@@ -1358,6 +1400,9 @@ def carry_previous(observation: Observation, previous: dict[str, Any] | None) ->
 def finalize_status(observation: Observation, expected_period: str) -> Observation:
     if observation.source_state not in {"ok", "ok-direct-pdf"}:
         observation.status = "blocked"
+        return observation.rounded()
+    if (observation.report_details or {}).get("country_scope") == "unverified":
+        observation.status = "unverified"
         return observation.rounded()
     if not observation.latest_period:
         observation.status = "missing"
@@ -1719,6 +1764,8 @@ def collect_timeseries(
     }
     rows: dict[tuple[str, str], dict[str, Any]] = {}
     for row in existing_rows or []:
+        if row.get("report_kind") == "archive-derived":
+            continue  # Always recompute derived summaries from current retained days.
         period = str(row.get("period", ""))
         bank_id = str(row.get("bank_id", ""))
         if period in periods_by_bank.get(bank_id, periods) and bank_id and row.get("report_url"):
@@ -1794,9 +1841,63 @@ def write_timeseries(rows: list[dict[str, Any]], data_dir: Path) -> None:
     csv_path = data_dir / "timeseries.csv"
     json_path.write_text(stable_json(rows), encoding="utf-8")
     with csv_path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=TIMESERIES_FIELDS, lineterminator="\n")
+        writer = csv.DictWriter(handle, fieldnames=TIMESERIES_FIELDS + DERIVED_FIELDS, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
+
+
+def derive_archived_quarters(banks: list[dict[str, Any]], daily: list[dict[str, Any]], as_of: date) -> list[dict[str, Any]]:
+    """MONETA: labelled daily means for closed quarters, never invented uptime.
+
+    Inputs are the latest retained versions. Missing dates are not zero; error
+    percentages cannot be traffic-weighted because the source has no call counts.
+    """
+    configured = {bank["id"]: bank for bank in banks if bank.get("derive_quarters_from_daily")}
+    groups: dict[tuple[str, str], dict[str, dict[str, Any]]] = {}
+    fields = ["aisp_response_ms", "pisp_response_ms", "aisp_error_pct", "pisp_error_pct"]
+    for row in daily:
+        if row.get("bank_id") not in configured or row.get("country_code") != "CZ":
+            continue
+        day = date.fromisoformat(row["date"])
+        quarter = (day.month - 1) // 3 + 1
+        end = date(day.year + 1, 1, 1) if quarter == 4 else date(day.year, quarter * 3 + 1, 1)
+        if end > as_of:
+            continue  # An ongoing quarter is not a completed quarterly summary.
+        if not any(row.get(field) not in (None, "") for field in fields):
+            continue
+        groups.setdefault((row["bank_id"], f"{day.year}-Q{quarter}"), {})[row["date"]] = row
+    summaries = []
+    for (bank_id, period), by_day in sorted(groups.items()):
+        bank = configured[bank_id]
+        year, quarter = map(int, period.split("-Q"))
+        start = date(year, (quarter - 1) * 3 + 1, 1)
+        end = date(year + 1, 1, 1) if quarter == 4 else date(year, quarter * 3 + 1, 1)
+        days = sorted(by_day)
+        total = (end - start).days
+        observation = base_observation(bank)
+        observation.latest_period = period
+        observation.report_url = bank["source_url"]
+        observation.status = "partial"  # Uptime is not published by this source.
+        for field in fields:
+            values = [parse_number(row.get(field)) for row in by_day.values()]
+            if any(value is not None and (not math.isfinite(value) or value < 0 or (field.endswith("_pct") and value > 100)) for value in values):
+                raise ValueError(f"Invalid derived input {bank_id} {period} {field}")
+            setattr(observation, field, average_active_response(values) if field.endswith("_ms") else average(values))
+        observation.metric_method = (
+            f"vypocet trackeru z trvaleho denniho archivu; {len(days)}/{total} kalendarnich dni; "
+            "neuverejneny ctvrtletni souhrn banky; odezva je prumer publikovanych dennich odezev > 0 ms; "
+            "chybovost je nevazeny prumer publikovanych dennich procent vcetne nul, nikoli pomer vsech chyb ke vsem volanim; "
+            "chybejici dny se nedoplnuji; uptime neni uveden"
+        )
+        summaries.append({**timeseries_row(observation.rounded()), "report_kind": "archive-derived", "archived_days": len(days), "calendar_days": total, "first_day": days[0], "last_day": days[-1]})
+    return summaries
+
+
+def merge_derived_quarters(published: list[dict[str, Any]], derived: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    rows = {(row["bank_id"], row["period"]): row for row in published if row.get("report_kind") != "archive-derived"}
+    for row in derived:
+        rows.setdefault((row["bank_id"], row["period"]), row)  # Never replace a bank's published report.
+    return sorted(rows.values(), key=lambda row: (quarter_rank(row["period"]), row["bank"]))
 
 
 def build_report_coverage(timeseries: list[dict[str, Any]], daily: list[dict[str, Any]]) -> dict[str, Any]:
@@ -1843,7 +1944,14 @@ def write_dashboard_data(
             pass
     for item in observations:
         if item.report_details:
-            source_details[f"{item.bank_id}:{item.latest_period}"] = item.report_details
+            key = f"{item.bank_id}:{item.latest_period}"
+            details = dict(item.report_details)
+            if isinstance(details.get("published_reports"), list):
+                retained = {(row["period"], row["report_url"]): {**row, "catalog_present": False} for row in source_details.get(key, {}).get("published_reports", [])}
+                retained.update({(row["period"], row["report_url"]): {**row, "catalog_present": True} for row in details["published_reports"]})
+                details["published_reports"] = sorted(retained.values(), key=lambda row: (row["period"], row["report_url"]))
+                details["catalog_checked_on"] = checked_on.isoformat()
+            source_details[key] = details
     payload = {
         "expected_period": expected_period,
         "checked_on": checked_on.isoformat(),
@@ -2058,6 +2166,7 @@ def generated_dashboard(observations: list[Observation], expected: str) -> str:
             f"Souhrn hlavního seznamu: **{counts['ok']} s aktuální dostupností**, "
             f"**{counts['partial']} s částečnými daty**, **{counts['outdated']} zastaralé**, "
             f"**{counts['missing']} bez nalezeného reportu**, **{counts['blocked']} blokováno**."
+            f" **{counts['unverified']} s neověřeným českým rozsahem reportu**."
         ),
         "",
         "| Banka | Stav | Poslední období | Dostupnost | Odezva AISP / PISP | Zdroj |",
@@ -2185,9 +2294,10 @@ def run(
         list(archived_timeseries.values()),
         refresh=refresh_history,
     )
+    timeseries = merge_derived_quarters(timeseries, derive_archived_quarters(banks, archive.daily_rows(), today))
     write_timeseries(timeseries, data_dir)
     for row in timeseries:
-        archive.record_snapshot(row, "quarterly-report")
+        archive.record_snapshot(row, "quarterly-derived" if row.get("report_kind") == "archive-derived" else "quarterly-report")
     archive.export(data_dir)
     write_dashboard_data(observations, timeseries, expected, today, archive=archive)
     write_trend_svg(timeseries, expected)
