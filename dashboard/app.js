@@ -11,6 +11,8 @@
   if (allPeriods.includes(params.get("from")) && allPeriods.includes(params.get("to")) && params.get("from") <= params.get("to")) periods = allPeriods.filter(period => period >= params.get("from") && period <= params.get("to"));
   let visibleHistory = history.filter(item => periods.includes(item.period));
   const metrics = ui.metrics;
+  const referenceHistory = history.filter(row => row.report_url);
+  const metricScales = Object.fromEntries(Object.keys(metrics).map(key => [key, ui.scale(key, referenceHistory)]));
 
   let activeMetric = metrics[params.get("metric")] ? params.get("metric") : "availability";
   let selectedBanks = new Set();
@@ -233,6 +235,16 @@
     const empty = document.getElementById("chartEmpty");
     const metric = metrics[activeMetric];
     document.getElementById("chartNote").textContent = metric.note;
+    const referenceScale = metricScales[activeMetric];
+    const scaleKey = document.getElementById("scaleKey");
+    scaleKey.replaceChildren();
+    referenceScale.labels.forEach((label, index) => {
+      const entry = document.createElement("span"); entry.className = `scale-band quality-${index}`; entry.textContent = label; entry.title = referenceScale.titles[index]; scaleKey.append(entry);
+    });
+    const referenceLabel = document.createElement("span"); referenceLabel.className = "scale-median";
+    referenceLabel.textContent = referenceScale.median === null ? "Medián není doložený" : `Medián: ${metric.format(referenceScale.median)}`;
+    referenceLabel.title = `Reference: ${referenceScale.count} doložených bankovních čtvrtletí z celé historie této metriky. Střední pásmo: medián ± medián absolutních odchylek. Banky s delší historií mají více podkladů; nejde o společný regulatorní limit.`;
+    scaleKey.append(referenceLabel);
 
     const banks = bankCoverage(activeMetric).map(([bank]) => bank).filter(bank => selectedBanks.has(bank));
     if (!banks.length) {
@@ -242,12 +254,6 @@
     }
     table.hidden = false;
     empty.hidden = true;
-
-    const scaleKey = document.getElementById("scaleKey");
-    scaleKey.replaceChildren();
-    ui.scale(activeMetric).labels.forEach((label, index) => {
-      const entry = document.createElement("span"); entry.className = `scale-band quality-${index}`; entry.textContent = label; scaleKey.append(entry);
-    });
 
     const thead = document.createElement("thead");
     const headRow = document.createElement("tr");
@@ -279,7 +285,7 @@
         const item = visibleHistory.find(point => point.bank === bank && point.period === period);
         const value = item ? metric.value(item) : null;
         const cell = document.createElement("td");
-        cell.className = value === null ? "metric-grid__cell metric-grid__cell--empty" : `metric-grid__cell quality-${ui.band(activeMetric, value)}`;
+        cell.className = value === null ? "metric-grid__cell metric-grid__cell--empty" : `metric-grid__cell quality-${ui.band(activeMetric, value, referenceScale)}`;
         const content = document.createElement(item?.report_url ? "button" : "span");
         content.className = "metric-grid__value";
         content.textContent = value === null ? "—" : metric.format(value);

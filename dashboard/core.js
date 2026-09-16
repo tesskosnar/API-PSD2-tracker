@@ -30,15 +30,43 @@
   }]));
   metrics.availability.note += " Pokud banka publikuje jen oddělené AISP/PISP hodnoty, souhrn je jejich nevážený průměr. Samostatné hodnoty najdete v dalších metrikách; nevypočítáváme je ze souhrnu.";
   metrics.sharedError.note += " Společná chybovost není samostatnou chybovostí AISP ani PISP.";
-  const scale = key => metrics[key].higher
-    ? { bounds: [99, 99.5, 99.9, 99.99], labels: ["≥ 99,99 %", "99,9–<99,99 %", "99,5–<99,9 %", "99–<99,5 %", "< 99 %"] }
-    : metrics[key].unit === "ms"
-      ? { bounds: [250, 500, 1000, 2000], labels: ["< 250 ms", "250–<500 ms", "500–<1 000 ms", "1 000–<2 000 ms", "≥ 2 000 ms"] }
-      : { bounds: [.01, .1, 1, 5], labels: ["< 0,01 %", "0,01–<0,1 %", "0,1–<1 %", "1–<5 %", "≥ 5 %"] };
-  const band = (key, value) => {
-    if (number(value) === null) return null;
-    const count = scale(key).bounds.filter(bound => Number(value) >= bound).length;
-    return metrics[key].higher ? 4 - count : count;
+  const median = values => {
+    const sorted = values.map(number).filter(value => value !== null).sort((a, b) => a - b);
+    if (!sorted.length) return null;
+    const middle = Math.floor(sorted.length / 2);
+    return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+  };
+  const scale = (key, reference = []) => {
+    const metric = metrics[key];
+    const values = reference.map(metric.value).filter(value => value !== null);
+    const center = median(values);
+    // A central band of median ± median absolute deviation avoids treating
+    // every tiny difference from the median as better or worse. Zero MAD is
+    // valid for a flat series or a zero-heavy metric: equal values stay neutral.
+    const deviation = center === null ? null : median(values.map(value => Math.abs(value - center)));
+    const low = center === null ? null : Math.max(0, center - deviation);
+    const high = center === null ? null : Math.min(metric.unit === "%" ? 100 : Infinity, center + deviation);
+    const threshold = value => `${format(value, 6)} ${metric.unit}`;
+    const titles = center === null ? ["Referenční údaje chybí", "Referenční údaje chybí", "Referenční údaje chybí"] : [
+      `${metric.higher ? (deviation ? "≥ " : "> ") + threshold(high) : (deviation ? "≤ " : "< ") + threshold(low)}`,
+      deviation ? `Mezi ${threshold(low)} a ${threshold(high)}; hranice patří krajním barvám. Medián ± medián absolutních odchylek.` : `Přesně na mediánu ${threshold(center)}; běžná odchylka je nulová.`,
+      `${metric.higher ? (deviation ? "≤ " : "< ") + threshold(low) : (deviation ? "≥ " : "> ") + threshold(high)}`,
+    ];
+    return { median: center, deviation, low, high, count: values.length, labels: ["Lepší než obvyklé", "Kolem mediánu", "Horší než obvyklé"], titles };
+  };
+  const band = (key, value, referenceScale) => {
+    const parsed = number(value);
+    if (parsed === null) return null;
+    if (!referenceScale || referenceScale.median === null) return 1;
+    const tolerance = Number.EPSILON * Math.max(1, Math.abs(parsed), Math.abs(referenceScale.median)) * 8;
+    if (referenceScale.deviation <= tolerance) {
+      if (parsed < referenceScale.median - tolerance) return metrics[key].higher ? 2 : 0;
+      if (parsed > referenceScale.median + tolerance) return metrics[key].higher ? 0 : 2;
+      return 1;
+    }
+    if (parsed <= referenceScale.low + tolerance) return metrics[key].higher ? 2 : 0;
+    if (parsed >= referenceScale.high - tolerance) return metrics[key].higher ? 0 : 2;
+    return 1;
   };
   const methodNote = row => row.bank_id === "partners"
     ? "Partners publikuje 30denní PSD2 API health-check, nikoli zde doložený čtvrtletní report. Zdroj neuvádí výpočet procenta, četnost kontrol ani pravidla započítání výpadků. Období je jiné a shoda metodiky s čtvrtletními statistikami není doložená. Údaj zachováváme jako doplňkový, nikoli jako hodnocení kvality banky."
@@ -114,7 +142,7 @@
     dialog.addEventListener("click", event => { if (event.target === dialog && (event.clientX < dialog.getBoundingClientRect().left || event.clientX > dialog.getBoundingClientRect().right || event.clientY < dialog.getBoundingClientRect().top || event.clientY > dialog.getBoundingClientRect().bottom)) dialog.close(); });
     return (data, row) => { coverageContent(content, data, row); const link = document.createElement("a"); link.href = bankUrl(row.bank_id, row.period); link.className = "bank-detail-link"; link.textContent = "Celý detail banky →"; content.append(link); dialog.showModal(); };
   }
-  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, scale, band, methodNote, hasMetrics, comparisonRows, bankUrl, reportUrl, csv, download, share, appendMetricButtons, coverageContent, createCoverageDialog };
+  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, methodNote, hasMetrics, comparisonRows, bankUrl, reportUrl, csv, download, share, appendMetricButtons, coverageContent, createCoverageDialog };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.PSD2_UI = api;
 })(typeof window === "undefined" ? globalThis : window);
