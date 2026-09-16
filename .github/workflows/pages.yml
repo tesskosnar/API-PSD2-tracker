@@ -1,6 +1,14 @@
 name: Publikace dashboardu na GitHub Pages
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "dashboard/**"
+      - "data/timeseries.csv"
+      - "docs/source-audit.md"
+      - "docs/original-data-comparison.md"
+      - ".github/workflows/pages.yml"
   workflow_dispatch:
   workflow_run:
     workflows: ["Aktualizace PSD2 trackeru"]
@@ -17,7 +25,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -34,8 +42,10 @@ jobs:
           cp dashboard/index.html dashboard/app.js dashboard/data.js dashboard/styles.css _site/
           cp data/timeseries.csv _site/timeseries.csv
           cp docs/source-audit.md _site/source-audit.md
+          cp docs/original-data-comparison.md _site/original-data-comparison.md
           sed -i.bak \
             -e 's#../docs/source-audit.md#source-audit.md#' \
+            -e 's#../docs/original-data-comparison.md#original-data-comparison.md#' \
             -e 's#../data/timeseries.csv#timeseries.csv#' \
             _site/index.html
           rm _site/index.html.bak
