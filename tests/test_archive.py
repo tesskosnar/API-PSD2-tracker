@@ -7,7 +7,7 @@ from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 
 from psd2_tracker.archive import Archive
-from psd2_tracker.tracker import Observation, collect_timeseries, collect_bank, parse_moneta, timeseries_row, write_dashboard_data
+from psd2_tracker.tracker import Observation, build_report_coverage, collect_timeseries, collect_bank, parse_moneta, timeseries_row, write_dashboard_data
 from unittest.mock import patch
 
 
@@ -22,6 +22,28 @@ class ArchiveTests(unittest.TestCase):
 
     def daily(self, day, value):
         return Observation(bank_id="moneta", bank="MONETA", scope="main", source_url="https://example.test", daily_metrics=[{"date": day, "aisp_response_ms": value}])
+
+    def test_report_coverage_counts_unique_days_and_preserves_zero(self):
+        reports = [{"bank_id": "x", "period": "2024-Q1"}, {"bank_id": "x", "period": "2024-Q2"}]
+        daily = [{"bank_id": "x", "date": "2024-01-01", "aisp_response_ms": 0}, {"bank_id": "x", "date": "2024-01-01", "aisp_response_ms": 0}, {"bank_id": "x", "date": "2024-01-02", "aisp_response_ms": None, "availability_pct": 99}, {"bank_id": "other", "date": "2024-01-03", "aisp_response_ms": 10}]
+        coverage = build_report_coverage(reports, daily)
+        self.assertEqual(coverage["x:2024-Q1"]["calendar_days"], 91)
+        self.assertEqual(coverage["x:2024-Q1"]["archived_days"], 2)
+        self.assertEqual(coverage["x:2024-Q1"]["metric_days"]["aisp_response_ms"], 1)
+        self.assertEqual(coverage["x:2024-Q1"]["metric_days"]["availability_pct"], 1)
+        self.assertEqual(coverage["x:2024-Q2"]["archived_days"], 0)
+
+    def test_coverage_and_bank_page_cache_survive_offline_refresh(self):
+        output = self.root / "data.js"
+        bank_page = self.root / "bank.html"
+        bank_page.write_text('<script src="data.js?v=old"></script><script src="daily-data.js?v=old"></script>')
+        report = {"bank_id": "moneta", "period": "2026-Q3"}
+        self.archive.record_daily(self.daily("2026-09-15", 100))
+        write_dashboard_data([], [report], "2026-Q2", date(2026, 9, 16), output, archive=self.archive)
+        self.assertIn('"report_coverage"', output.read_text())
+        self.assertNotIn('v=old', bank_page.read_text())
+        write_dashboard_data([], [report], "2026-Q2", date(2026, 9, 16), output)
+        self.assertIn('"archived_days": 1', output.read_text())
 
     def test_days_survive_removed_rolling_window(self):
         self.archive.record_daily(self.daily("2026-06-18", 250))

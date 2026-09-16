@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light">
   <title>Dostupnost PSD2 API v Česku</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d2f37'/%3E%3Cpath d='M18 18h18c8 0 13 5 13 12s-5 12-13 12H27v8h-9V18zm9 8v8h8c3 0 5-1 5-4s-2-4-5-4h-8z' fill='%237cd3bd'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css?v=14">
+  <link rel="stylesheet" href="styles.css?v=15">
 </head>
 <body>
   <header class="hero">
@@ -19,18 +19,21 @@
       </div>
     </div>
   </header>
+  <nav class="top-nav" aria-label="Hlavní navigace">
+    <div><a href="#latestTitle">Poslední stav</a><a href="#trendTitle">Historie</a><a href="#coverageTitle">Reporty</a><a href="archive.html">Denní archiv</a><button type="button" id="shareView" class="text-button">Sdílet výběr ↗</button></div>
+  </nav>
 
   <main>
     <section class="summary" aria-label="Souhrn dat">
       <article class="summary__item">
-        <span class="summary__label">Aktuální dostupnost</span>
+        <span class="summary__label">Dostupnost doložena</span>
         <strong id="currentCoverage">—</strong>
-        <span class="summary__context">bank s doloženou dostupností za poslední čtvrtletí</span>
+        <span class="summary__context">bank za poslední uzavřené čtvrtletí · nejde o živý stav</span>
       </article>
       <article class="summary__item">
-        <span class="summary__label">Historická řada</span>
+        <span class="summary__label">Bankovních čtvrtletí v historii</span>
         <strong id="historyPoints">—</strong>
-        <span class="summary__context">doložených období z veřejných zdrojů</span>
+        <span class="summary__context">součet reportovaných čtvrtletí všech bank</span>
       </article>
       <article class="summary__item">
         <span class="summary__label">Sledovaný rozsah</span>
@@ -49,6 +52,8 @@
           <span class="metric-filter__label">Metrika</span>
           <div id="metricTabs" class="metric-seg" role="group" aria-label="Vybrat metriku vývoje">
             <button type="button" class="metric-button active" data-metric="availability" aria-pressed="true">Dostupnost</button>
+            <button type="button" class="metric-button" data-metric="aispAvailability" aria-pressed="false">Dostupnost AISP</button>
+            <button type="button" class="metric-button" data-metric="pispAvailability" aria-pressed="false">Dostupnost PISP</button>
             <button type="button" class="metric-button" data-metric="aispResponse" aria-pressed="false">Odezva AISP</button>
             <button type="button" class="metric-button" data-metric="pispResponse" aria-pressed="false">Odezva PISP</button>
             <button type="button" class="metric-button" data-metric="aispError" aria-pressed="false">Chybovost AISP</button>
@@ -83,7 +88,8 @@
         <table id="metricGrid" class="metric-grid" aria-label="Hodnoty vybrané metriky po bankách a čtvrtletích"></table>
         <p id="chartEmpty" class="empty-state" hidden>Pro vybrané banky nejsou k této metrice data.</p>
       </div>
-      <div class="scale-key" aria-hidden="true"><span>Nižší hodnota</span><i></i><i></i><i></i><i></i><i></i><span>Vyšší hodnota</span></div>
+      <div id="scaleKey" class="fixed-scale" aria-label="Stálá barevná škála"></div>
+      <div class="section-actions"><p class="chart-note">Barevná pásma jsou pomůcka pro čtení, nikoli SLA ani regulatorní limity. Nemění se s výběrem období.</p><button type="button" id="exportHistory" class="text-button">Export výběru ↓</button></div>
       <p id="chartNote" class="chart-note"></p>
     </section>
 
@@ -107,6 +113,15 @@
           </select>
         </div>
       </div>
+      <div class="comparison-controls">
+        <div class="metric-seg" role="group" aria-label="Režim srovnání">
+          <button type="button" class="metric-button active" data-comparison-mode="quarter" aria-pressed="true">Stejné čtvrtletí</button>
+          <button type="button" class="metric-button" data-comparison-mode="latest" aria-pressed="false">Nejnovější údaje</button>
+        </div>
+        <label id="comparisonQuarterLabel">Srovnávané čtvrtletí <select id="comparisonQuarter"></select></label>
+        <button type="button" id="exportLatest" class="text-button">Export výběru ↓</button>
+      </div>
+      <p id="comparisonExplanation" class="comparison-explanation"></p>
       <p id="latestCount" class="latest-count" aria-live="polite"></p>
       <div id="latestContext" class="latest-context" aria-live="polite"></div>
       <div class="table-scroll">
@@ -114,7 +129,7 @@
           <thead>
             <tr>
               <th rowspan="2" class="latest-bank" aria-sort="none"><button type="button" class="sort-button" data-sort="bank" aria-label="Řadit podle názvu banky">Banka<span class="sort-arrow" aria-hidden="true">↕</span></button></th>
-              <th rowspan="2">Stav</th>
+              <th rowspan="2">Stav dat</th>
               <th rowspan="2" class="latest-period">Období</th>
               <th rowspan="2" class="latest-availability" aria-sort="none"><button type="button" class="sort-button" data-sort="availability" aria-label="Řadit podle dostupnosti" title="Nejvyšší dostupnost první. Při oddělené AISP/PISP dostupnosti se řadí podle jejich průměru.">Dostupnost<span class="sort-arrow" aria-hidden="true">↕</span></button></th>
               <th colspan="2" scope="colgroup" class="metric-group">Odezva <small>ms · nižší je lepší</small></th>
@@ -149,7 +164,7 @@
       <div class="table-scroll">
         <table id="coverageTable" class="coverage-table"></table>
       </div>
-      <p class="chart-note">Kliknutím na barevné políčko otevřete report banky; u UniCredit český detail s odkazem na oficiální portál.</p>
+      <p class="chart-note">Kliknutím na barevné políčko zobrazíte metriky, archivované dny a omezení reportu. Odkaz na původní zdroj je v detailu.</p>
     </section>
 
   </main>
@@ -168,7 +183,8 @@
     </nav>
   </footer>
 
-  <script src="data.js?v=339aabac46ed"></script>
-  <script src="app.js?v=14"></script>
+  <script src="data.js?v=b4dbba5f6464"></script>
+  <script src="core.js?v=15"></script>
+  <script src="app.js?v=15"></script>
 </body>
 </html>

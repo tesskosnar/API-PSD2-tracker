@@ -45,7 +45,7 @@ jobs:
       - name: Sestavení veřejného dashboardu
         run: |
           mkdir -p _site
-          cp dashboard/index.html dashboard/app.js dashboard/report.html dashboard/report.js dashboard/archive.html dashboard/archive.js dashboard/data.js dashboard/styles.css _site/
+          cp dashboard/index.html dashboard/app.js dashboard/core.js dashboard/bank.html dashboard/bank.js dashboard/report.html dashboard/report.js dashboard/archive.html dashboard/archive.js dashboard/data.js dashboard/styles.css _site/
           cp dashboard/daily-data.js _site/daily-data.js
           cp data/timeseries.csv _site/timeseries.csv
           cp data/daily-history.csv _site/daily-history.csv
@@ -67,6 +67,9 @@ jobs:
             -e 's#../docs/data-archive.md#data-archive.md#' \
             _site/archive.html
           rm _site/archive.html.bak
+
+      - name: Kontrola metrik a režimů srovnání
+        run: node --test tests/test_dashboard.cjs
 
       - name: Nastavení GitHub Pages
         uses: actions/configure-pages@v5

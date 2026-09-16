@@ -2,59 +2,34 @@
   "use strict";
 
   const data = window.PSD2_DATA || { latest: [], timeseries: [], expected_period: "" };
+  const ui = window.PSD2_UI;
   const latest = data.latest.filter(item => item.scope === "main");
   const history = data.timeseries.filter(item => item.scope === "main");
   const allPeriods = [...new Set(history.map(item => item.period))].sort();
+  const params = new URLSearchParams(location.search);
   let periods = allPeriods.slice(-8);
+  if (allPeriods.includes(params.get("from")) && allPeriods.includes(params.get("to")) && params.get("from") <= params.get("to")) periods = allPeriods.filter(period => period >= params.get("from") && period <= params.get("to"));
   let visibleHistory = history.filter(item => periods.includes(item.period));
-  const metrics = {
-    availability: {
-      label: "Dostupnost API",
-      unit: "%",
-      value: availabilityValue,
-      format: value => `${formatNumber(value, 3)} %`,
-      note: "Vyšší hodnota je lepší. Každá banka má vlastní řádek; prázdné políčko znamená, že údaj chybí."
-    },
-    aispResponse: {
-      label: "Odezva AISP",
-      unit: "ms",
-      value: item => numberOrNull(item.aisp_response_ms),
-      format: value => `${formatNumber(value, 1)} ms`,
-      note: "Nižší hodnota je lepší. Čísla jsou průměrná doba odezvy v milisekundách."
-    },
-    pispResponse: {
-      label: "Odezva PISP",
-      unit: "ms",
-      value: item => numberOrNull(item.pisp_response_ms),
-      format: value => `${formatNumber(value, 1)} ms`,
-      note: "Nižší hodnota je lepší. Dny bez PISP volání se do průměru odezvy nezapočítávají."
-    },
-    aispError: {
-      label: "Chybovost AISP",
-      unit: "%",
-      value: item => item.metric_method?.includes("spolecna error response rate") ? null : numberOrNull(item.aisp_error_pct),
-      format: value => `${formatNumber(value, value > 0 && value < 0.01 ? 4 : 3)} %`,
-      note: "Nižší hodnota je lepší. Společná chybovost služeb má vlastní metriku a sem se nemíchá."
-    },
-    pispError: {
-      label: "Chybovost PISP",
-      unit: "%",
-      value: item => item.metric_method?.includes("spolecna error response rate") ? null : numberOrNull(item.pisp_error_pct),
-      format: value => `${formatNumber(value, value > 0 && value < 0.01 ? 4 : 3)} %`,
-      note: "Nižší hodnota je lepší. Společná chybovost služeb má vlastní metriku a sem se nemíchá."
-    },
-    sharedError: {
-      label: "Společná chybovost",
-      unit: "%",
-      value: item => item.metric_method?.includes("spolecna error response rate") ? numberOrNull(item.aisp_error_pct) : null,
-      format: value => `${formatNumber(value, value > 0 && value < 0.01 ? 4 : 3)} %`,
-      note: "Chybovost zveřejněná společně pro PSD2 služby. Nelze ji vydávat za samostatnou míru AISP nebo PISP."
-    }
-  };
+  const metrics = ui.metrics;
 
-  let activeMetric = "availability";
+  let activeMetric = metrics[params.get("metric")] ? params.get("metric") : "availability";
   let selectedBanks = new Set();
-  let latestSort = { key: null, direction: "asc" };
+  let latestSort = { key: params.get("sort") === "bank" || metrics[params.get("sort")] ? params.get("sort") : null, direction: params.get("direction") === "desc" ? "desc" : "asc" };
+  let comparisonMode = params.get("mode") === "latest" ? "latest" : "quarter";
+  let comparisonQuarter = allPeriods.includes(params.get("quarter")) ? params.get("quarter") : data.expected_period;
+  let exportedLatest = [];
+  const openCoverage = ui.createCoverageDialog();
+
+  function syncUrl() {
+    const url = new URL(location.href);
+    url.searchParams.delete("v");
+    for (const [key, value] of Object.entries({ metric: activeMetric, from: periods[0], to: periods.at(-1), mode: comparisonMode, quarter: comparisonQuarter, sort: latestSort.key, direction: latestSort.key ? latestSort.direction : null, search: document.getElementById("bankSearch").value, status: document.getElementById("statusFilter").value })) {
+      if (value) url.searchParams.set(key, value); else url.searchParams.delete(key);
+    }
+    if (selectedBanks.size === latest.length) url.searchParams.delete("banks");
+    else url.searchParams.set("banks", latest.filter(row => selectedBanks.has(row.bank)).map(row => row.bank_id).join(",") || "none");
+    window.history.replaceState(null, "", url);
+  }
 
   function numberOrNull(value) {
     if (value === "" || value === null || value === undefined) return null;
@@ -149,7 +124,7 @@
       && item.report_url
       && availabilityValue(item) !== null
     ).length;
-    document.getElementById("currentCoverage").textContent = formatNumber(current, 0);
+    document.getElementById("currentCoverage").textContent = `${current} z ${latest.length}`;
     document.getElementById("historyPoints").textContent = formatNumber(history.length, 0);
     document.getElementById("bankCount").textContent = formatNumber(latest.length, 0);
     document.getElementById("periodLabel").textContent = `Poslední uzavřené období: ${formatPeriod(data.expected_period)}`;
@@ -197,6 +172,7 @@
       `${shortPeriod(from)} – ${shortPeriod(to)} · ${periods.length} čtvrtletí · Posunutím krajních bodů upravíte rozsah`;
     renderLegend();
     renderGrid();
+    syncUrl();
   }
 
   function initializePeriodControls() {
@@ -246,6 +222,7 @@
         if (selectedBanks.has(bank)) selectedBanks.delete(bank); else selectedBanks.add(bank);
         renderLegend();
         renderGrid();
+        syncUrl();
       });
       container.append(button);
     });
@@ -266,10 +243,11 @@
     table.hidden = false;
     empty.hidden = true;
 
-    const distinctValues = [...new Set(visibleHistory.map(metric.value).filter(value => value !== null))].sort((a, b) => a - b);
-    const shade = value => distinctValues.length < 2
-      ? 3
-      : 1 + Math.round(distinctValues.indexOf(value) / (distinctValues.length - 1) * 4);
+    const scaleKey = document.getElementById("scaleKey");
+    scaleKey.replaceChildren();
+    ui.scale(activeMetric).labels.forEach((label, index) => {
+      const entry = document.createElement("span"); entry.className = `scale-band quality-${index}`; entry.textContent = label; scaleKey.append(entry);
+    });
 
     const thead = document.createElement("thead");
     const headRow = document.createElement("tr");
@@ -287,7 +265,7 @@
       const name = document.createElement("th");
       name.scope = "row";
       name.className = "metric-grid__bank";
-      name.textContent = bank;
+      const detail = document.createElement("a"); detail.href = ui.bankUrl(latest.find(row => row.bank === bank).bank_id); detail.textContent = bank; detail.className = "bank-name-link"; name.append(detail);
       const reports = visibleHistory.filter(item => item.bank === bank && item.report_url);
       if (!reports.some(item => metric.value(item) !== null)) {
         const status = document.createElement("small");
@@ -301,17 +279,16 @@
         const item = visibleHistory.find(point => point.bank === bank && point.period === period);
         const value = item ? metric.value(item) : null;
         const cell = document.createElement("td");
-        cell.className = value === null ? "metric-grid__cell metric-grid__cell--empty" : `metric-grid__cell metric-grid__cell--${shade(value)}`;
-        const content = document.createElement(value !== null && item.report_url ? "a" : "span");
+        cell.className = value === null ? "metric-grid__cell metric-grid__cell--empty" : `metric-grid__cell quality-${ui.band(activeMetric, value)}`;
+        const content = document.createElement(item?.report_url ? "button" : "span");
         content.className = "metric-grid__value";
         content.textContent = value === null ? "—" : metric.format(value);
         content.title = `${bank} · ${formatPeriod(period)} · ${metric.label}: ${content.textContent}`;
         if (item?.metric_method) content.title += ` · ${item.metric_method}`;
-        if (content.tagName === "A") {
-          content.href = sourceUrl(item);
-          content.target = "_blank";
-          content.rel = "noopener noreferrer";
-          content.title += " · otevřít report";
+        if (content.tagName === "BUTTON") {
+          content.type = "button";
+          content.addEventListener("click", () => openCoverage(data, item));
+          content.title += " · podrobnosti reportu";
         }
         cell.append(content);
         row.append(cell);
@@ -335,12 +312,12 @@
     [...latest].sort((a, b) => a.bank.localeCompare(b.bank, "cs")).forEach(bank => {
       const tr = document.createElement("tr");
       const name = document.createElement("td");
-      name.textContent = bank.bank;
+      const detail = document.createElement("a"); detail.href = ui.bankUrl(bank.bank_id); detail.textContent = bank.bank; detail.className = "bank-name-link"; name.append(detail);
       tr.append(name);
       allPeriods.forEach(period => {
         const td = document.createElement("td");
         const item = history.find(row => row.bank_id === bank.bank_id && row.period === period);
-        const cell = document.createElement(item?.report_url ? "a" : "span");
+        const cell = document.createElement(item?.report_url ? "button" : "span");
         const hasAvailability = item && availabilityValue(item) !== null;
         const hasPerformance = item && [item.aisp_response_ms, item.pisp_response_ms, item.aisp_error_pct, item.pisp_error_pct].some(value => numberOrNull(value) !== null);
         const hasReport = Boolean(item?.report_url);
@@ -352,12 +329,13 @@
               ? "report bez měřitelné hodnoty"
               : "bez reportu";
         cell.className = `coverage-cell ${hasAvailability ? "coverage-cell--full" : hasPerformance ? "coverage-cell--partial" : hasReport ? "coverage-cell--report" : ""}`;
-        cell.setAttribute("aria-label", `${bank.bank}, ${period}: ${coverageState}${hasReport ? "; otevřít report" : ""}`);
+        cell.setAttribute("aria-label", `${bank.bank}, ${period}: ${coverageState}${hasReport ? "; podrobnosti reportu" : ""}`);
         cell.title = cell.getAttribute("aria-label");
         if (item?.report_url) {
-          cell.href = sourceUrl(item);
-          cell.target = "_blank";
-          cell.rel = "noopener noreferrer";
+          cell.type = "button";
+          cell.addEventListener("click", () => openCoverage(data, item));
+          const coverage = data.report_coverage?.[`${bank.bank_id}:${period}`];
+          if (coverage) cell.title += ` · archivováno ${coverage.archived_days}/${coverage.calendar_days} dnů`;
         }
         td.append(cell);
         tr.append(td);
@@ -373,7 +351,7 @@
     const normalize = value => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("cs");
     const search = normalize(document.getElementById("bankSearch").value.trim());
     const status = document.getElementById("statusFilter").value;
-    const rows = latest.filter(item => normalize(item.bank).includes(search) && (!status || item.status === status));
+    const rows = ui.comparisonRows(latest, history, comparisonMode, comparisonQuarter).filter(item => normalize(item.bank).includes(search) && (!status || item.status === status));
     document.getElementById("latestCount").textContent = `Zobrazeno ${rows.length} z ${latest.length} bank`;
     const sortMetric = latestSort.key && latestSort.key !== "bank" ? metrics[latestSort.key] : null;
     const withValue = sortMetric ? rows.filter(item => sortMetric.value(item) !== null) : rows;
@@ -381,7 +359,7 @@
     const context = document.getElementById("latestContext");
     context.replaceChildren();
     const sortInfo = document.createElement("strong");
-    sortInfo.textContent = sortMetric ? `${sortMetric.label} · ${latestSort.direction === "asc" ? "Od nejnižší" : "Od nejvyšší"} hodnoty` : "Nejnovější dostupné údaje každé banky";
+    sortInfo.textContent = sortMetric ? `${sortMetric.label} · ${latestSort.direction === "asc" ? "Od nejnižší" : "Od nejvyšší"} hodnoty${comparisonMode === "latest" ? " · uvnitř skupin" : ""}` : comparisonMode === "quarter" ? `Pouze reporty ${ui.shortPeriod(comparisonQuarter)}` : "Nejnovější údaje · oddělené typy měření";
     context.append(sortInfo);
     if (sortMetric) {
       const counts = document.createElement("span");
@@ -390,11 +368,16 @@
     }
     const periodInfo = document.createElement("span");
     periodInfo.className = "latest-context__period";
-    periodInfo.textContent = `${shortPeriod(data.expected_period)} + denní přehledy${older.length ? ` · ${older.length} ${older.length === 1 ? "starší report zvýrazněn" : "starší reporty zvýrazněny"}` : ""}`;
+    periodInfo.textContent = comparisonMode === "quarter" ? `${rows.filter(row => row.comparison_group === "quarter").length} bank s reportem · ${rows.filter(row => row.comparison_group === "missing").length} bez reportu` : `${shortPeriod(data.expected_period)} + starší / pohyblivé přehledy${older.length ? ` · ${older.length} starší report` : ""}`;
     context.append(periodInfo);
     document.querySelectorAll("#latestTable [data-sort]").forEach(button => button.closest("th").classList.toggle("sorted-metric", Boolean(sortMetric) && button.dataset.sort === latestSort.key));
-    if (latestSort.key) {
-      rows.sort((a, b) => {
+    const groupRank = { quarter: 0, older: 1, rolling: 2, healthcheck: 3, missing: 4 };
+    rows.sort((a, b) => {
+        const aMissing = sortMetric && sortMetric.value(a) === null, bMissing = sortMetric && sortMetric.value(b) === null;
+        if (aMissing !== bMissing) return Number(aMissing) - Number(bMissing);
+        const groupDifference = groupRank[a.comparison_group] - groupRank[b.comparison_group];
+        if (groupDifference) return groupDifference;
+        if (!latestSort.key) return a.bank.localeCompare(b.bank, "cs");
         if (latestSort.key === "bank") return a.bank.localeCompare(b.bank, "cs") * (latestSort.direction === "asc" ? 1 : -1);
         const aValue = metrics[latestSort.key].value(a);
         const bValue = metrics[latestSort.key].value(b);
@@ -404,7 +387,7 @@
         const difference = latestSort.direction === "asc" ? aValue - bValue : bValue - aValue;
         return difference || a.bank.localeCompare(b.bank, "cs");
       });
-    } else rows.sort((a, b) => a.bank.localeCompare(b.bank, "cs"));
+    exportedLatest = rows;
     if (!rows.length) {
       const row = document.createElement("tr");
       const cell = document.createElement("td");
@@ -415,6 +398,7 @@
       tbody.append(row);
     }
     let missingSeparator = false;
+    let previousGroup = null;
     rows.forEach(item => {
       const missing = sortMetric && sortMetric.value(item) === null;
       if (missing && !missingSeparator) {
@@ -429,18 +413,27 @@
         tbody.append(divider);
         missingSeparator = true;
       }
+      if (!missing && previousGroup !== item.comparison_group && (comparisonMode === "latest" || item.comparison_group === "missing")) {
+        const divider = document.createElement("tr"); divider.className = "latest-divider comparison-divider"; divider.dataset.group = item.comparison_group;
+        const cell = document.createElement("td"); cell.colSpan = 10; const label = document.createElement("span");
+        label.textContent = ({ quarter: `Čtvrtletní reporty · ${shortPeriod(data.expected_period)}`, older: "Starší čtvrtletní reporty · jiné období", rolling: "Pohyblivé denní přehledy · jiné období", healthcheck: "Doplňkový PSD2 health-check · metodika srovnání nedoložena", missing: `Bez doloženého reportu${comparisonMode === "quarter" ? ` pro ${shortPeriod(comparisonQuarter)}` : ""}` })[item.comparison_group];
+        cell.append(label); divider.append(cell); tbody.append(divider);
+      }
+      previousGroup = item.comparison_group;
       const tr = document.createElement("tr");
       tr.dataset.bank = item.bank_id;
       if (missing) tr.classList.add("latest-row--missing-metric");
       const name = document.createElement("th");
       name.scope = "row";
       name.className = "latest-bank";
-      name.textContent = item.bank;
+      const detail = document.createElement("a"); detail.href = ui.bankUrl(item.bank_id); detail.textContent = item.bank; detail.className = "bank-name-link"; name.append(detail);
       const state = document.createElement("td");
       const badge = document.createElement("span");
       badge.className = `status status--${item.status}`;
       badge.textContent = statusLabel(item.status);
+      badge.title = "Stav zveřejněných dat, nikoli aktuální provoz bankovního API.";
       state.append(badge);
+      if (item.comparison_group === "healthcheck") state.title = ui.methodNote(item);
       const availability = document.createElement("td");
       availability.className = "latest-availability";
       if (latestSort.key === "availability") availability.classList.add("sorted-metric");
@@ -456,7 +449,9 @@
           availability.append(line);
         });
       } else availability.textContent = displayAvailability(item);
-      tr.append(name, state, latestPeriodCell(item.latest_period), availability);
+      const periodCell = latestPeriodCell(item.latest_period);
+      if (item.fallback_period) { const fallback = document.createElement("a"); fallback.href = ui.bankUrl(item.bank_id); fallback.className = "period-note"; fallback.textContent = /^rolling-/.test(item.fallback_period) ? "Denní přehled →" : `Jiné: ${shortPeriod(item.fallback_period)} →`; periodCell.append(fallback); }
+      tr.append(name, state, periodCell, availability);
       ["aispResponse", "pispResponse", "aispError", "pispError", "sharedError"].forEach((key, index) => {
         const cell = document.createElement("td");
         cell.className = `numeric-metric${index === 0 || index === 2 ? " numeric-metric--group-start" : ""}${key === "sharedError" ? " numeric-metric--shared" : ""}`;
@@ -475,11 +470,11 @@
       const sourceCell = document.createElement("td");
       sourceCell.className = "latest-source";
       const link = document.createElement("a");
-      link.href = sourceUrl(item);
+      link.href = comparisonMode === "quarter" && item.comparison_group === "missing" ? ui.bankUrl(item.bank_id) : sourceUrl(item);
       link.target = "_blank";
       link.rel = "noopener noreferrer";
       link.className = "source-link";
-      link.textContent = item.bank_id === "unicredit" ? "CZ detail ↗" : item.report_url && item.report_url !== item.source_url ? "Report ↗" : "Stránka ↗";
+      link.textContent = comparisonMode === "quarter" && item.comparison_group === "missing" ? "Detail →" : item.bank_id === "unicredit" ? "CZ detail ↗" : item.report_url && item.report_url !== item.source_url ? "Report ↗" : "Stránka ↗";
       sourceCell.append(link);
       tr.append(sourceCell);
       tbody.append(tr);
@@ -497,6 +492,7 @@
     });
     renderLegend();
     renderGrid();
+    syncUrl();
   });
 
   document.querySelectorAll("button[data-sort]").forEach(button => {
@@ -516,15 +512,41 @@
           : "none");
       });
       renderLatest();
+      syncUrl();
     });
   });
 
-  document.getElementById("bankSearch").addEventListener("input", renderLatest);
-  document.getElementById("statusFilter").addEventListener("change", renderLatest);
+  document.getElementById("bankSearch").value = params.get("search") || "";
+  if ([...document.getElementById("statusFilter").options].some(option => option.value === params.get("status"))) document.getElementById("statusFilter").value = params.get("status");
+  document.getElementById("bankSearch").addEventListener("input", () => { renderLatest(); syncUrl(); });
+  document.getElementById("statusFilter").addEventListener("change", () => { renderLatest(); syncUrl(); });
+  const quarterSelect = document.getElementById("comparisonQuarter");
+  for (const quarter of [...new Set([...allPeriods, data.expected_period])].sort().reverse()) quarterSelect.add(new Option(shortPeriod(quarter), quarter));
+  quarterSelect.value = comparisonQuarter;
+  function updateComparison() {
+    document.querySelectorAll("[data-comparison-mode]").forEach(button => { const active = button.dataset.comparisonMode === comparisonMode; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); });
+    document.getElementById("comparisonQuarterLabel").hidden = comparisonMode !== "quarter";
+    document.getElementById("comparisonExplanation").textContent = comparisonMode === "quarter" ? "Shodné období pro všechny banky. Nejnovější jiné reporty a denní přehledy najdete v detailu nebo v režimu Nejnovější údaje. I pro stejné období mohou banky používat rozdílné metodiky." : "Čtvrtletní reporty, starší období a pohyblivá denní měření jsou oddělené. Řazení probíhá uvnitř skupin, ne jako společný žebříček různých metodik.";
+    renderLatest();
+  }
+  document.querySelectorAll("[data-comparison-mode]").forEach(button => button.addEventListener("click", () => { comparisonMode = button.dataset.comparisonMode; updateComparison(); syncUrl(); }));
+  quarterSelect.addEventListener("change", () => { comparisonQuarter = quarterSelect.value; updateComparison(); syncUrl(); });
+  document.getElementById("shareView").addEventListener("click", event => { syncUrl(); ui.share(event.currentTarget); });
+  document.getElementById("exportHistory").addEventListener("click", () => {
+    const metric = metrics[activeMetric];
+    const rows = visibleHistory.filter(row => selectedBanks.has(row.bank));
+    ui.download(`psd2-historie-${activeMetric}.csv`, ["banka", "období", "metrika", "hodnota", "jednotka", "metodika", "archivované_dny", "kalendářní_dny", "zdroj"], rows.map(row => { const coverage = data.report_coverage?.[`${row.bank_id}:${row.period}`]; return [row.bank, row.period, metric.label, metric.value(row), metric.unit, row.metric_method, coverage?.archived_days, coverage?.calendar_days, row.report_url]; }));
+  });
+  document.getElementById("exportLatest").addEventListener("click", () => ui.download(`psd2-${comparisonMode}.csv`, ["banka", "režim", "srovnávané_čtvrtletí", "období_dat", "typ_měření", "stav", ...Object.values(metrics).map(metric => `${metric.label} (${metric.unit})`), "metodika", "zdroj"], exportedLatest.map(row => [row.bank, comparisonMode, comparisonMode === "quarter" ? comparisonQuarter : "", row.latest_period, row.comparison_group, statusLabel(row.status), ...Object.values(metrics).map(metric => metric.value(row)), row.metric_method, row.report_url || row.source_url])));
+  const latestPanel = document.getElementById("latestTitle").closest("section");
+  latestPanel.parentElement.insertBefore(latestPanel, document.getElementById("trendTitle").closest("section"));
 
   updateSummary();
   renderCoverage();
-  renderLatest();
+  updateComparison();
   resetBankSelection();
+  if (params.has("banks")) selectedBanks = new Set(latest.filter(row => params.get("banks").split(",").includes(row.bank_id)).map(row => row.bank));
+  document.querySelectorAll("#metricTabs [data-metric]").forEach(button => { const active = button.dataset.metric === activeMetric; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); });
+  document.querySelectorAll("#latestTable [data-sort]").forEach(button => { const active = button.dataset.sort === latestSort.key; button.classList.toggle("active", active); button.querySelector(".sort-arrow").textContent = active ? latestSort.direction === "asc" ? "↑" : "↓" : "↕"; button.closest("th").setAttribute("aria-sort", active ? latestSort.direction === "asc" ? "ascending" : "descending" : "none"); });
   initializePeriodControls();
 })();

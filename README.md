@@ -14,6 +14,8 @@ Dashboard zahrnuje všech 15 bank z původního sešitu. Rozšířená kontrola 
 
 GitHub Pages je nutné jednou povolit v `Settings → Pages → Source: GitHub Actions`. Publikace se potom obnoví po každém úspěšném běhu týdenního trackeru a lze ji spustit také ručně v `Actions → Publikace dashboardu na GitHub Pages`.
 
+Přehled nabízí režimy **Stejné čtvrtletí** a **Nejnovější údaje**. Ve druhém jsou starší reporty, pohyblivé přehledy a doplňkový Partners health-check oddělené skupiny; řazení metrik probíhá uvnitř skupin. Dostupnost AISP/PISP má samostatné volby a ze souhrnné hodnoty se neodvozuje. Barevná pásma zůstávají pro každou metriku stejná při změně období a nejsou SLA ani regulatorní limity. Kliknutí na banku otevře její čtvrtletní i denní historii; kliknutí na report ukáže metriky, počet archivovaných dnů a omezení. Odkaz pro sdílení obnovuje výběr a exportuje se právě zvolené období, banky a metrika. Počet archivovaných dnů není potvrzením úplnosti měření banky.
+
 > **Soukromí:** GitHub Pages je veřejně dostupný web i tehdy, když zdrojový repozitář zůstane soukromý. Zapnutí Pages proto znamená zveřejnění dashboardu a dat, která zobrazuje.
 
 <!-- TRACKER:START -->
@@ -64,6 +66,7 @@ Pokud banka zveřejňuje AISP a PISP dostupnost odděleně, křivka v přehledov
 - `data/timeseries.csv` a `data/timeseries.json` — všechny zpětně dohledané veřejné reporty a online čtvrtletní zdroje.
 - `docs/trend.svg` — automaticky obnovovaný graf pro hlavní stránku GitHubu.
 - `dashboard/index.html` — interaktivní přehled publikovaný přes GitHub Pages.
+- `dashboard/bank.html?bank=…` — detail libovolné z 15 bank, čtvrtletní i denní historie, metodika a pokrytí.
 - `docs/source-audit.md` — audit adres z původního sešitu a nalezené mezery v rozsahu.
 - `docs/original-data-comparison.md` — přesný seznam změn a metodických rozdílů proti dodanému Excelu.
 - `config/banks.json` — zdroje, parser a poznámky pro jednotlivé banky.

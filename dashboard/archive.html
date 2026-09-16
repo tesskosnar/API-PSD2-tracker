@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Archiv denních dat · PSD2 API tracker</title>
-  <link rel="stylesheet" href="styles.css?v=14">
+  <link rel="stylesheet" href="styles.css?v=15">
 </head>
 <body class="report-page">
   <header class="hero"><div class="hero__inner">
@@ -12,6 +12,7 @@
     <h1>Archiv denních dat</h1>
     <div class="hero__meta"><span id="archiveMeta"></span><span>Uložená data se po 90 dnech nemažou</span></div>
   </div></header>
+  <nav class="top-nav" aria-label="Hlavní navigace"><div><a href="index.html#latestTitle">Poslední stav</a><a href="index.html#trendTitle">Historie</a><a href="index.html#coverageTitle">Reporty</a><a href="archive.html" aria-current="page">Denní archiv</a><button id="shareDaily" type="button" class="text-button">Sdílet výběr ↗</button></div></nav>
   <main><section class="panel" aria-labelledby="archiveTitle">
     <div class="section-heading">
       <div><p class="section-kicker">Trvalá historie</p><h2 id="archiveTitle">Publikované denní hodnoty</h2></div>
@@ -35,7 +36,7 @@
       <button type="button" class="metric-button" data-daily-metric="shared_error_pct" aria-pressed="false">Společná chybovost</button>
     </div>
     <p id="dailyRange" class="period-range-info" aria-live="polite"></p>
-    <p class="scroll-hint">Na menší obrazovce lze graf posouvat vodorovně →</p>
+    <div class="section-actions"><a id="dailyBankDetail" class="bank-detail-link" href="bank.html">Detail banky →</a><button id="exportDaily" type="button" class="text-button">Export výběru ↓</button></div>
     <div class="archive-chart"><svg id="dailyChart" viewBox="0 0 1080 340" role="img" aria-label="Vývoj publikované denní metriky"></svg></div>
     <p id="dailyEmpty" class="empty-state" hidden>Pro vybrané období nejsou uložené denní hodnoty.</p>
     <p class="chart-note">Mezery se nespojují čarou. Graf zobrazuje původní denní hodnoty včetně publikovaných nul, nikoli 90denní průměr.</p>
@@ -48,8 +49,9 @@
     </details>
   </section></main>
   <footer><p>PSD2 API tracker · trvalý archiv veřejných statistik</p><nav class="footer-links"><a href="https://github.com/tesskosnar/API-PSD2-tracker/tree/main/data/archive">Databáze a zdrojové kopie ↗</a><a href="../docs/data-archive.md">Jak funguje archiv</a></nav></footer>
-  <script src="data.js?v=339aabac46ed"></script>
+  <script src="data.js?v=b4dbba5f6464"></script>
+  <script src="core.js?v=15"></script>
   <script src="daily-data.js?v=dbce8f796918"></script>
-  <script src="archive.js?v=14"></script>
+  <script src="archive.js?v=15"></script>
 </body>
 </html>

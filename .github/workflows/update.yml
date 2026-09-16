@@ -33,6 +33,9 @@ jobs:
       - name: Kontrola zpracování reportů
         run: python -m unittest discover -s tests -v
 
+      - name: Kontrola metrik a režimů srovnání
+        run: node --test tests/test_dashboard.cjs
+
       - name: Kontrola bank
         run: psd2-tracker --config config/banks.json --data-dir data --readme README.md
 
@@ -41,12 +44,12 @@ jobs:
 
       - name: Ulozeni zmen
         run: |
-          if git diff --quiet -- README.md data/ dashboard/data.js dashboard/daily-data.js dashboard/index.html dashboard/report.html dashboard/archive.html docs/trend.svg; then
+          if git diff --quiet -- README.md data/ dashboard/data.js dashboard/daily-data.js dashboard/index.html dashboard/report.html dashboard/archive.html dashboard/bank.html docs/trend.svg; then
             echo "Zdroje se nezmenily."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md data/ dashboard/data.js dashboard/daily-data.js dashboard/index.html dashboard/report.html dashboard/archive.html docs/trend.svg
+          git add README.md data/ dashboard/data.js dashboard/daily-data.js dashboard/index.html dashboard/report.html dashboard/archive.html dashboard/bank.html docs/trend.svg
           git commit -m "data: aktualizace PSD2 statistik"
           git push

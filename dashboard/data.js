@@ -320,6 +320,2776 @@ window.PSD2_DATA = {
       "status": "missing"
     }
   ],
+  "report_coverage": {
+    "air:2019-Q1": {
+      "archived_days": 89,
+      "calendar_days": 90,
+      "first_day": "2019-01-01",
+      "last_day": "2019-03-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 89,
+        "aisp_response_ms": 89,
+        "availability_pct": 89,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 89,
+        "pisp_response_ms": 89,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2019-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2019-04-01",
+      "last_day": "2019-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2019-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2019-07-01",
+      "last_day": "2019-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2019-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2019-10-01",
+      "last_day": "2019-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2020-Q1": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2020-01-01",
+      "last_day": "2020-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2020-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2020-04-01",
+      "last_day": "2020-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2020-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2020-07-01",
+      "last_day": "2020-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2020-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2020-10-01",
+      "last_day": "2020-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2021-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2021-01-01",
+      "last_day": "2021-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2021-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2021-04-01",
+      "last_day": "2021-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2021-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2021-07-01",
+      "last_day": "2021-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2021-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2021-10-01",
+      "last_day": "2021-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2022-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2022-01-01",
+      "last_day": "2022-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2022-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2022-04-01",
+      "last_day": "2022-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2022-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2022-07-01",
+      "last_day": "2022-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2022-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2022-10-01",
+      "last_day": "2022-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2023-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2023-01-01",
+      "last_day": "2023-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2023-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2023-04-01",
+      "last_day": "2023-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2023-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2023-07-01",
+      "last_day": "2023-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2023-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2023-10-01",
+      "last_day": "2023-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2024-Q1": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2024-01-01",
+      "last_day": "2024-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2024-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2024-04-01",
+      "last_day": "2024-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2024-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2024-07-01",
+      "last_day": "2024-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2024-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2024-10-01",
+      "last_day": "2024-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2025-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2025-01-01",
+      "last_day": "2025-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2025-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2025-04-01",
+      "last_day": "2025-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2025-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2025-07-01",
+      "last_day": "2025-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2025-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2025-10-01",
+      "last_day": "2025-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2026-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2026-01-01",
+      "last_day": "2026-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "air:2026-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2026-04-01",
+      "last_day": "2026-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "creditas:2019-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2019-07-01",
+      "last_day": "2019-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 92
+      }
+    },
+    "creditas:2019-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2019-10-01",
+      "last_day": "2019-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 92
+      }
+    },
+    "creditas:2020-Q1": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2020-01-01",
+      "last_day": "2020-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 91
+      }
+    },
+    "creditas:2020-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2020-04-01",
+      "last_day": "2020-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 5,
+        "shared_error_pct": 23
+      }
+    },
+    "creditas:2020-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2020-07-01",
+      "last_day": "2020-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 3,
+        "shared_error_pct": 14
+      }
+    },
+    "creditas:2020-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2020-10-01",
+      "last_day": "2020-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 6,
+        "shared_error_pct": 21
+      }
+    },
+    "creditas:2021-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2021-01-01",
+      "last_day": "2021-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 90,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 38,
+        "shared_error_pct": 90
+      }
+    },
+    "creditas:2021-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2021-04-01",
+      "last_day": "2021-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 38,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 33,
+        "shared_error_pct": 60
+      }
+    },
+    "creditas:2021-Q3": {
+      "archived_days": 91,
+      "calendar_days": 92,
+      "first_day": "2021-07-01",
+      "last_day": "2021-09-29",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 13,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 64,
+        "shared_error_pct": 62
+      }
+    },
+    "creditas:2021-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2021-10-01",
+      "last_day": "2021-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 22,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 75,
+        "shared_error_pct": 92
+      }
+    },
+    "creditas:2022-Q1": {
+      "archived_days": 75,
+      "calendar_days": 90,
+      "first_day": "2022-01-01",
+      "last_day": "2022-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 13,
+        "availability_pct": 75,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 63,
+        "shared_error_pct": 75
+      }
+    },
+    "creditas:2022-Q2": {
+      "archived_days": 56,
+      "calendar_days": 91,
+      "first_day": "2022-04-01",
+      "last_day": "2022-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 14,
+        "availability_pct": 56,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 33,
+        "shared_error_pct": 56
+      }
+    },
+    "creditas:2022-Q3": {
+      "archived_days": 46,
+      "calendar_days": 92,
+      "first_day": "2022-07-01",
+      "last_day": "2022-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 11,
+        "availability_pct": 46,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 14,
+        "shared_error_pct": 46
+      }
+    },
+    "creditas:2022-Q4": {
+      "archived_days": 50,
+      "calendar_days": 92,
+      "first_day": "2022-10-04",
+      "last_day": "2022-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 20,
+        "availability_pct": 49,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 31,
+        "shared_error_pct": 49
+      }
+    },
+    "creditas:2023-Q1": {
+      "archived_days": 74,
+      "calendar_days": 90,
+      "first_day": "2023-01-02",
+      "last_day": "2023-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 26,
+        "availability_pct": 72,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 66,
+        "shared_error_pct": 72
+      }
+    },
+    "creditas:2023-Q2": {
+      "archived_days": 85,
+      "calendar_days": 91,
+      "first_day": "2023-04-01",
+      "last_day": "2023-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 17,
+        "availability_pct": 85,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 83,
+        "shared_error_pct": 0
+      }
+    },
+    "creditas:2023-Q3": {
+      "archived_days": 76,
+      "calendar_days": 92,
+      "first_day": "2023-07-13",
+      "last_day": "2023-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 35,
+        "availability_pct": 76,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 73,
+        "shared_error_pct": 0
+      }
+    },
+    "creditas:2023-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2023-10-01",
+      "last_day": "2023-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 14,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 83,
+        "shared_error_pct": 0
+      }
+    },
+    "creditas:2024-Q1": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2024-01-01",
+      "last_day": "2024-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 21,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 73,
+        "shared_error_pct": 0
+      }
+    },
+    "creditas:2024-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2024-04-01",
+      "last_day": "2024-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 17,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 80,
+        "shared_error_pct": 0
+      }
+    },
+    "creditas:2024-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2024-07-01",
+      "last_day": "2024-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 22,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 68,
+        "shared_error_pct": 0
+      }
+    },
+    "creditas:2024-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2024-10-01",
+      "last_day": "2024-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 16,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 66,
+        "shared_error_pct": 0
+      }
+    },
+    "creditas:2025-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2025-01-01",
+      "last_day": "2025-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 3,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 70,
+        "shared_error_pct": 0
+      }
+    },
+    "creditas:2025-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2025-04-01",
+      "last_day": "2025-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 7,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 74,
+        "shared_error_pct": 0
+      }
+    },
+    "creditas:2025-Q3": {
+      "archived_days": 86,
+      "calendar_days": 92,
+      "first_day": "2025-07-01",
+      "last_day": "2025-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 12,
+        "availability_pct": 86,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 79,
+        "shared_error_pct": 0
+      }
+    },
+    "creditas:2025-Q4": {
+      "archived_days": 89,
+      "calendar_days": 92,
+      "first_day": "2025-10-01",
+      "last_day": "2025-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 4,
+        "availability_pct": 89,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 86,
+        "shared_error_pct": 0
+      }
+    },
+    "creditas:2026-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2026-01-01",
+      "last_day": "2026-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 45,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "creditas:2026-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2026-04-01",
+      "last_day": "2026-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 85,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "csas:2026-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2026-04-01",
+      "last_day": "2026-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 91,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 0,
+        "pisp_availability_pct": 91,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2021-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2021-01-01",
+      "last_day": "2021-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2021-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2021-04-01",
+      "last_day": "2021-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2021-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2021-07-01",
+      "last_day": "2021-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2021-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2021-10-01",
+      "last_day": "2021-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2022-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2022-01-01",
+      "last_day": "2022-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2022-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2022-04-01",
+      "last_day": "2022-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2022-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2022-07-01",
+      "last_day": "2022-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2022-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2022-10-01",
+      "last_day": "2022-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 91,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2023-Q1": {
+      "archived_days": 88,
+      "calendar_days": 90,
+      "first_day": "2023-01-01",
+      "last_day": "2023-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 88,
+        "aisp_response_ms": 88,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 88,
+        "pisp_response_ms": 88,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2023-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2023-04-01",
+      "last_day": "2023-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2023-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2023-07-01",
+      "last_day": "2023-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2023-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2023-10-01",
+      "last_day": "2023-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2024-Q1": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2024-01-01",
+      "last_day": "2024-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2024-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2024-04-01",
+      "last_day": "2024-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2024-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2024-07-01",
+      "last_day": "2024-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2024-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2024-10-01",
+      "last_day": "2024-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2025-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2025-01-01",
+      "last_day": "2025-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2025-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2025-04-01",
+      "last_day": "2025-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2025-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2025-07-01",
+      "last_day": "2025-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2025-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2025-10-01",
+      "last_day": "2025-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2026-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2026-01-01",
+      "last_day": "2026-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "csob:2026-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2026-04-01",
+      "last_day": "2026-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2019-Q3": {
+      "archived_days": 16,
+      "calendar_days": 92,
+      "first_day": "2019-09-15",
+      "last_day": "2019-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 16,
+        "aisp_response_ms": 16,
+        "availability_pct": 16,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 16,
+        "pisp_response_ms": 16,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2019-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2019-10-01",
+      "last_day": "2019-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2020-Q1": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2020-01-01",
+      "last_day": "2020-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2020-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2020-04-01",
+      "last_day": "2020-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2020-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2020-07-01",
+      "last_day": "2020-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2020-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2020-10-01",
+      "last_day": "2020-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2021-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2021-01-01",
+      "last_day": "2021-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2021-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2021-04-01",
+      "last_day": "2021-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2021-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2021-07-01",
+      "last_day": "2021-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2021-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2021-10-01",
+      "last_day": "2021-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2022-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2022-01-01",
+      "last_day": "2022-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2022-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2022-04-01",
+      "last_day": "2022-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2022-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2022-07-01",
+      "last_day": "2022-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2022-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2022-10-01",
+      "last_day": "2022-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2023-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2023-01-01",
+      "last_day": "2023-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2023-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2023-04-01",
+      "last_day": "2023-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2023-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2023-07-01",
+      "last_day": "2023-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2023-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2023-10-01",
+      "last_day": "2023-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2024-Q1": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2024-01-01",
+      "last_day": "2024-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2024-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2024-04-01",
+      "last_day": "2024-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2024-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2024-07-01",
+      "last_day": "2024-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2024-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2024-10-01",
+      "last_day": "2024-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2025-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2025-01-01",
+      "last_day": "2025-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2025-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2025-04-01",
+      "last_day": "2025-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2025-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2025-07-01",
+      "last_day": "2025-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2025-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2025-10-01",
+      "last_day": "2025-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2026-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2026-01-01",
+      "last_day": "2026-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "fio:2026-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2026-04-01",
+      "last_day": "2026-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "jt:2019-Q2": {
+      "archived_days": 87,
+      "calendar_days": 91,
+      "first_day": "2019-04-01",
+      "last_day": "2019-06-26",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 87,
+        "availability_pct": 87,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 87,
+        "shared_error_pct": 87
+      }
+    },
+    "jt:2019-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2019-07-01",
+      "last_day": "2019-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 92
+      }
+    },
+    "jt:2019-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2019-10-01",
+      "last_day": "2019-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 92
+      }
+    },
+    "jt:2020-Q1": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2020-01-01",
+      "last_day": "2020-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 91
+      }
+    },
+    "jt:2021-Q3": {
+      "archived_days": 68,
+      "calendar_days": 92,
+      "first_day": "2021-07-02",
+      "last_day": "2021-09-29",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 68,
+        "availability_pct": 68,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 68,
+        "shared_error_pct": 68
+      }
+    },
+    "jt:2021-Q4": {
+      "archived_days": 88,
+      "calendar_days": 92,
+      "first_day": "2021-10-01",
+      "last_day": "2021-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 88,
+        "availability_pct": 88,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 88,
+        "shared_error_pct": 88
+      }
+    },
+    "jt:2022-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2022-10-01",
+      "last_day": "2022-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 92
+      }
+    },
+    "jt:2024-Q3": {
+      "archived_days": 91,
+      "calendar_days": 92,
+      "first_day": "2024-07-01",
+      "last_day": "2024-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 91
+      }
+    },
+    "jt:2024-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2024-10-01",
+      "last_day": "2024-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 92
+      }
+    },
+    "jt:2025-Q1": {
+      "archived_days": 89,
+      "calendar_days": 90,
+      "first_day": "2025-01-01",
+      "last_day": "2025-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 89,
+        "availability_pct": 89,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 89,
+        "shared_error_pct": 89
+      }
+    },
+    "jt:2025-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2025-04-01",
+      "last_day": "2025-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 91
+      }
+    },
+    "jt:2025-Q3": {
+      "archived_days": 91,
+      "calendar_days": 92,
+      "first_day": "2025-07-01",
+      "last_day": "2025-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 91
+      }
+    },
+    "jt:2025-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2025-10-01",
+      "last_day": "2025-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 92
+      }
+    },
+    "jt:2026-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2026-04-01",
+      "last_day": "2026-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 91
+      }
+    },
+    "kb:2024-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2024-07-01",
+      "last_day": "2024-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "kb:2024-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2024-10-01",
+      "last_day": "2024-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "kb:2025-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2025-01-01",
+      "last_day": "2025-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "kb:2025-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2025-04-01",
+      "last_day": "2025-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "kb:2025-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2025-07-01",
+      "last_day": "2025-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "kb:2025-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2025-10-01",
+      "last_day": "2025-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "kb:2026-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2026-01-01",
+      "last_day": "2026-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "kb:2026-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2026-04-01",
+      "last_day": "2026-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "ppf:2023-Q1": {
+      "archived_days": 62,
+      "calendar_days": 90,
+      "first_day": "2023-01-01",
+      "last_day": "2023-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 62,
+        "aisp_response_ms": 62,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 62,
+        "pisp_response_ms": 62,
+        "shared_error_pct": 0
+      }
+    },
+    "ppf:2023-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2023-04-01",
+      "last_day": "2023-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "ppf:2023-Q3": {
+      "archived_days": 91,
+      "calendar_days": 92,
+      "first_day": "2023-07-01",
+      "last_day": "2023-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "ppf:2023-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2023-10-01",
+      "last_day": "2023-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "ppf:2024-Q1": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2024-01-01",
+      "last_day": "2024-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "ppf:2024-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2024-04-01",
+      "last_day": "2024-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "ppf:2024-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2024-07-01",
+      "last_day": "2024-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "ppf:2024-Q4": {
+      "archived_days": 91,
+      "calendar_days": 92,
+      "first_day": "2024-10-01",
+      "last_day": "2024-12-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "ppf:2025-Q1": {
+      "archived_days": 89,
+      "calendar_days": 90,
+      "first_day": "2025-01-01",
+      "last_day": "2025-03-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 89,
+        "aisp_response_ms": 89,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 89,
+        "pisp_response_ms": 89,
+        "shared_error_pct": 0
+      }
+    },
+    "ppf:2025-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2025-04-01",
+      "last_day": "2025-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 91,
+        "aisp_response_ms": 91,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 91,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 0
+      }
+    },
+    "ppf:2025-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2025-07-01",
+      "last_day": "2025-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "ppf:2025-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2025-10-01",
+      "last_day": "2025-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 92,
+        "aisp_response_ms": 92,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 92,
+        "pisp_response_ms": 92,
+        "shared_error_pct": 0
+      }
+    },
+    "ppf:2026-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2026-01-01",
+      "last_day": "2026-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 90,
+        "aisp_response_ms": 90,
+        "availability_pct": 0,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 90,
+        "pisp_response_ms": 90,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2019-Q3": {
+      "archived_days": 17,
+      "calendar_days": 92,
+      "first_day": "2019-09-14",
+      "last_day": "2019-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 17,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2019-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2019-10-01",
+      "last_day": "2019-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2020-Q1": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2020-01-01",
+      "last_day": "2020-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2020-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2020-04-01",
+      "last_day": "2020-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2020-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2020-07-01",
+      "last_day": "2020-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2020-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2020-10-01",
+      "last_day": "2020-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2021-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2021-01-01",
+      "last_day": "2021-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2021-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2021-04-01",
+      "last_day": "2021-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2021-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2021-07-01",
+      "last_day": "2021-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2021-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2021-10-01",
+      "last_day": "2021-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2022-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2022-01-01",
+      "last_day": "2022-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2022-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2022-04-01",
+      "last_day": "2022-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2022-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2022-07-01",
+      "last_day": "2022-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2022-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2022-10-01",
+      "last_day": "2022-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2023-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2023-01-01",
+      "last_day": "2023-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2023-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2023-04-01",
+      "last_day": "2023-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2023-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2023-07-01",
+      "last_day": "2023-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2023-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2023-10-01",
+      "last_day": "2023-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2024-Q1": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2024-01-01",
+      "last_day": "2024-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2024-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2024-04-01",
+      "last_day": "2024-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2024-Q3": {
+      "archived_days": 90,
+      "calendar_days": 92,
+      "first_day": "2024-07-01",
+      "last_day": "2024-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2024-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2024-10-01",
+      "last_day": "2024-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2025-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2025-01-01",
+      "last_day": "2025-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2025-Q2": {
+      "archived_days": 90,
+      "calendar_days": 91,
+      "first_day": "2025-04-01",
+      "last_day": "2025-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2025-Q3": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2025-07-01",
+      "last_day": "2025-09-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2025-Q4": {
+      "archived_days": 92,
+      "calendar_days": 92,
+      "first_day": "2025-10-01",
+      "last_day": "2025-12-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 92,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2026-Q1": {
+      "archived_days": 90,
+      "calendar_days": 90,
+      "first_day": "2026-01-01",
+      "last_day": "2026-03-31",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 90,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "trinity:2026-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2026-04-01",
+      "last_day": "2026-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 0,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 0,
+        "shared_error_pct": 0
+      }
+    },
+    "unicredit:2026-Q2": {
+      "archived_days": 91,
+      "calendar_days": 91,
+      "first_day": "2026-04-01",
+      "last_day": "2026-06-30",
+      "metric_days": {
+        "aisp_availability_pct": 0,
+        "aisp_error_pct": 0,
+        "aisp_response_ms": 91,
+        "availability_pct": 91,
+        "pisp_availability_pct": 0,
+        "pisp_error_pct": 0,
+        "pisp_response_ms": 91,
+        "shared_error_pct": 91
+      }
+    }
+  },
   "source_details": {
     "unicredit:2026-Q2": {
       "checked_on": "2026-09-16",

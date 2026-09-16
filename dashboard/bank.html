@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Detail banky · PSD2 API tracker</title>
+  <link rel="stylesheet" href="styles.css?v=15">
+</head>
+<body class="report-page bank-page">
+  <header class="hero"><div class="hero__inner">
+    <a class="report-back" href="index.html">← Přehled všech bank</a>
+    <div class="bank-heading"><h1 id="bankTitle">Detail banky</h1><label class="bank-selector">Vybrat banku<select id="detailBank"></select></label></div>
+    <div class="hero__meta"><span id="bankMeta"></span><span>Pouze české PSD2 rozhraní</span></div>
+  </div></header>
+  <nav class="top-nav" aria-label="Navigace detailu banky"><div><a href="index.html#latestTitle">Přehled bank</a><a href="#bankLatestTitle">Report a metriky</a><a href="#bankHistoryTitle">Čtvrtletní historie</a><a href="#archiveTitle">Denní data</a><button id="shareBank" type="button" class="text-button">Sdílet výběr ↗</button></div></nav>
+  <main>
+    <p id="bankNotFound" class="empty-state" hidden>Banka nebo požadované období není v ověřeném datasetu.</p>
+    <section class="panel" aria-labelledby="bankLatestTitle">
+      <div class="section-heading"><div><p class="section-kicker">Publikované údaje</p><h2 id="bankLatestTitle">Report a metriky</h2></div><label class="bank-report-select">Období reportu<select id="bankPeriods"></select></label></div>
+      <p id="bankMethod" class="method-notice"></p>
+      <div id="bankMetrics" class="bank-metrics"></div>
+      <details class="report-coverage-detail" open><summary>Pokrytí dnů, metodika a zdroj</summary><div id="bankReportCoverage"></div></details>
+    </section>
+    <section class="panel" aria-labelledby="bankHistoryTitle">
+      <div class="section-heading"><div><p class="section-kicker">Čtvrtletní historie</p><h2 id="bankHistoryTitle">Vývoj publikované metriky</h2></div><button id="exportBankHistory" type="button" class="text-button">Export výběru ↓</button></div>
+      <div id="bankHistoryMetrics" class="metric-seg" role="group" aria-label="Metrika čtvrtletní historie"></div>
+      <p id="bankHistoryInfo" class="period-range-info"></p>
+      <div class="bank-history-chart"><svg id="bankChart" viewBox="0 0 1080 260" role="img" aria-label="Čtvrtletní vývoj banky"></svg></div>
+      <p class="chart-note">Chybějící čtvrtletí nebo hodnoty se nespojují čarou. Denní health-check není doplňován do čtvrtletní historie.</p>
+      <div class="table-scroll"><table class="bank-history-table"><thead><tr><th>Období</th><th id="bankHistoryMetricHeader">Hodnota</th><th>Archivované dny</th><th>Report</th></tr></thead><tbody id="bankHistoryRows"></tbody></table></div>
+    </section>
+    <section class="panel" aria-labelledby="archiveTitle">
+      <div class="section-heading"><div><p class="section-kicker">Trvalý archiv</p><h2 id="archiveTitle">Denní hodnoty banky</h2></div><button id="exportDaily" class="text-button" type="button">Export výběru ↓</button></div>
+      <p id="archiveMeta" class="chart-note"></p>
+      <div class="archive-controls"><label hidden>Banka<select id="archiveBank"></select></label><label>Od<input id="archiveFrom" type="date"></label><label>Do<input id="archiveTo" type="date"></label><button id="archiveAll" type="button">Celá historie</button></div>
+      <div id="archiveMetrics" class="metric-seg" role="group" aria-label="Metrika denních hodnot">
+        <button type="button" class="metric-button" data-daily-metric="availability_pct">Dostupnost</button><button type="button" class="metric-button" data-daily-metric="aisp_availability_pct">Dostupnost AISP</button><button type="button" class="metric-button" data-daily-metric="pisp_availability_pct">Dostupnost PISP</button><button type="button" class="metric-button" data-daily-metric="aisp_response_ms">Odezva AISP</button><button type="button" class="metric-button" data-daily-metric="pisp_response_ms">Odezva PISP</button><button type="button" class="metric-button" data-daily-metric="aisp_error_pct">Chybovost AISP</button><button type="button" class="metric-button" data-daily-metric="pisp_error_pct">Chybovost PISP</button><button type="button" class="metric-button" data-daily-metric="shared_error_pct">Společná chybovost</button>
+      </div>
+      <p id="dailyRange" class="period-range-info" aria-live="polite"></p>
+      <div class="archive-chart"><svg id="dailyChart" viewBox="0 0 1080 340" role="img" aria-label="Denní vývoj banky"></svg></div>
+      <p id="dailyEmpty" class="empty-state" hidden>Pro vybrané období nejsou archivované denní hodnoty.</p><p id="dailyMethod" class="chart-note"></p>
+      <details class="archive-day-detail"><summary id="dailyTableSummary">Jednotlivé uložené dny</summary><div class="table-scroll"><table class="report-months"><thead><tr><th>Den</th><th>Dostupnost %</th><th>Dostupnost AISP %</th><th>Dostupnost PISP %</th><th>Odezva AISP ms</th><th>Odezva PISP ms</th><th>Chybovost AISP %</th><th>Chybovost PISP %</th><th>Společná chybovost %</th><th>První uložení</th><th>Poslední ověření</th><th>Verze</th></tr></thead><tbody id="dailyRows"></tbody></table></div></details>
+    </section>
+  </main>
+  <footer><p>PSD2 API tracker · archivované hodnoty se nemažou</p><nav class="footer-links"><a href="index.html">Přehled bank</a><a href="archive.html">Archiv všech bank</a><a href="https://github.com/tesskosnar/API-PSD2-tracker/blob/main/docs/expanded-data-audit.md">Audit zdrojů ↗</a></nav></footer>
+  <script src="data.js?v=b4dbba5f6464"></script><script src="core.js?v=15"></script><script src="bank.js?v=15"></script><script src="daily-data.js?v=dbce8f796918"></script><script src="archive.js?v=15"></script>
+</body>
+</html>

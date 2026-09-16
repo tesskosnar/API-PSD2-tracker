@@ -1616,6 +1616,30 @@ def write_timeseries(rows: list[dict[str, Any]], data_dir: Path) -> None:
         writer.writerows(rows)
 
 
+def build_report_coverage(timeseries: list[dict[str, Any]], daily: list[dict[str, Any]]) -> dict[str, Any]:
+    """Count retained measurement days, not presumed completeness of bank reporting."""
+    grouped: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for row in daily:
+        day = date.fromisoformat(row["date"])
+        period = f"{day.year}-Q{(day.month - 1) // 3 + 1}"
+        grouped.setdefault((row["bank_id"], period), []).append(row)
+    result = {}
+    for report in timeseries:
+        year, quarter = report["period"].split("-Q")
+        year, quarter = int(year), int(quarter)
+        start = date(year, (quarter - 1) * 3 + 1, 1)
+        end = date(year + 1, 1, 1) if quarter == 4 else date(year, quarter * 3 + 1, 1)
+        rows = grouped.get((report["bank_id"], report["period"]), [])
+        days = sorted({row["date"] for row in rows})
+        fields = ["availability_pct", "aisp_availability_pct", "pisp_availability_pct", "aisp_response_ms", "pisp_response_ms", "aisp_error_pct", "pisp_error_pct", "shared_error_pct"]
+        result[f'{report["bank_id"]}:{report["period"]}'] = {
+            "calendar_days": (end - start).days, "archived_days": len(days),
+            "first_day": days[0] if days else None, "last_day": days[-1] if days else None,
+            "metric_days": {field: len({row["date"] for row in rows if row.get(field) not in (None, "")}) for field in fields},
+        }
+    return result
+
+
 def write_dashboard_data(
     observations: list[Observation],
     timeseries: list[dict[str, Any]],
@@ -1646,19 +1670,21 @@ def write_dashboard_data(
     }
     daily_version = None
     if archive:
-        daily_source = "window.PSD2_DAILY_DATA = " + stable_json(archive.daily_rows())
+        daily_rows = archive.daily_rows()
+        payload["report_coverage"] = build_report_coverage(timeseries, daily_rows)
+        daily_source = "window.PSD2_DAILY_DATA = " + stable_json(daily_rows)
         (output_path.parent / "daily-data.js").write_text(daily_source, encoding="utf-8")
         daily_version = hashlib.sha256(daily_source.encode()).hexdigest()[:12]
         payload["daily_history_asset"] = f"daily-data.js?v={daily_version}"
         payload["archive"] = archive.summary()
     elif isinstance(previous, dict):
-        for key in ("daily_history", "daily_history_asset", "archive"):
+        for key in ("daily_history", "daily_history_asset", "archive", "report_coverage"):
             if key in previous:
                 payload[key] = previous[key]
     source = "window.PSD2_DATA = " + stable_json(payload)
     output_path.write_text(source, encoding="utf-8")
     cache_version = hashlib.sha256(source.encode("utf-8")).hexdigest()[:12]
-    for index_path in (output_path.parent / "index.html", output_path.parent / "report.html", output_path.parent / "archive.html"):
+    for index_path in (output_path.parent / "index.html", output_path.parent / "report.html", output_path.parent / "archive.html", output_path.parent / "bank.html"):
         if not index_path.exists():
             continue
         content = index_path.read_text(encoding="utf-8")
@@ -1667,7 +1693,7 @@ def write_dashboard_data(
             f'<script src="data.js?v={cache_version}"></script>',
             content,
         )
-        if daily_version and index_path.name == "archive.html":
+        if daily_version and index_path.name in {"archive.html", "bank.html"}:
             updated = re.sub(r'<script src="daily-data\.js(?:\?v=[^"]+)?"></script>', f'<script src="daily-data.js?v={daily_version}"></script>', updated)
         if updated != content:
             index_path.write_text(updated, encoding="utf-8")

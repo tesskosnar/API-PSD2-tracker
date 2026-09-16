@@ -1,26 +1,38 @@
 (() => {
   "use strict";
   const data = window.PSD2_DATA || {};
+  const ui = window.PSD2_UI;
+  const params = new URLSearchParams(location.search);
   const history = window.PSD2_DAILY_DATA || data.daily_history || [];
   const bank = document.querySelector("#archiveBank");
   const from = document.querySelector("#archiveFrom");
   const to = document.querySelector("#archiveTo");
   const chart = document.querySelector("#dailyChart");
   let metric = "aisp_response_ms";
+  let exportedRows = [];
   const labels = { availability_pct: "Dostupnost", aisp_availability_pct: "Dostupnost AISP", pisp_availability_pct: "Dostupnost PISP", aisp_response_ms: "Odezva AISP", pisp_response_ms: "Odezva PISP", aisp_error_pct: "Chybovost AISP", pisp_error_pct: "Chybovost PISP", shared_error_pct: "Společná chybovost" };
   const format = (value, digits = 2) => value === "" || value === null || value === undefined ? "—" : new Intl.NumberFormat("cs-CZ", { maximumFractionDigits: digits }).format(Number(value));
   const day = value => new Date(`${value}T00:00:00Z`);
   const dateLabel = value => new Intl.DateTimeFormat("cs-CZ", { timeZone: "UTC" }).format(day(value));
   const unit = () => metric.endsWith("_ms") ? "ms" : "%";
-  const number = value => value === "" || value === null || value === undefined ? null : Number(value);
+  const number = ui.number;
   const bankNames = new Map(history.map(row => [row.bank_id, row.bank]));
   for (const [id, name] of [...bankNames].sort((a,b) => a[1].localeCompare(b[1], "cs"))) bank.add(new Option(name, id));
   if (bankNames.has("moneta")) bank.value = "moneta";
+  if (bankNames.has(params.get("bank"))) bank.value = params.get("bank");
+  if (document.body.classList.contains("bank-page")) {
+    const selected = (data.latest || []).find(row => row.bank_id === params.get("bank") && row.scope === "main");
+    if (selected && !bankNames.has(selected.bank_id)) { bank.add(new Option(selected.bank, selected.bank_id)); bankNames.set(selected.bank_id, selected.bank); }
+    bank.value = selected?.bank_id || "";
+  }
+  if (Object.hasOwn(labels, params.get("dailyMetric"))) metric = params.get("dailyMetric");
+  else if (document.body.classList.contains("bank-page") && ui.metrics[params.get("bankMetric")]) metric = ui.metrics[params.get("bankMetric")].field;
   document.querySelector("#archiveMeta").textContent = data.archive?.checked_on ? `Poslední sběr ${dateLabel(data.archive.checked_on)}` : "Archiv se naplní při nejbližším sběru";
 
   function setRange(full = false) {
     const dates = history.filter(row => row.bank_id === bank.value).map(row => row.date).sort();
-    if (!dates.length) return;
+    [from, to, document.querySelector("#archiveAll"), document.querySelector("#exportDaily")].filter(Boolean).forEach(control => { control.disabled = !dates.length; });
+    if (!dates.length) { from.value = to.value = ""; return; }
     from.min = to.min = dates[0];
     from.max = to.max = dates.at(-1);
     to.value = dates.at(-1);
@@ -42,16 +54,17 @@
       button.disabled = !available(button.dataset.dailyMetric);
       button.classList.toggle("active", button.dataset.dailyMetric === metric);
       button.setAttribute("aria-pressed", String(button.dataset.dailyMetric === metric));
-      button.title = button.disabled ? "Banka tuto denní metriku nepublikuje" : labels[button.dataset.dailyMetric];
+      button.title = button.disabled ? "V ověřeném denním archivu není tato metrika doložená" : labels[button.dataset.dailyMetric];
     });
     const rows = history.filter(row => row.bank_id === bank.value && row.date >= from.value && row.date <= to.value).sort((a,b) => a.date.localeCompare(b.date));
+    exportedRows = rows;
     const points = rows.filter(row => Number.isFinite(number(row[metric])));
     chart.replaceChildren();
-    chart.hidden = !points.length;
+    chart.toggleAttribute("hidden", !points.length);
     document.querySelector("#dailyEmpty").hidden = Boolean(points.length);
     document.querySelector("#dailyRange").textContent = rows.length ? `${dateLabel(from.value)} – ${dateLabel(to.value)} · ${rows.length} uložených dnů · ${labels[metric]} (${unit()})` : "Žádné uložené dny ve výběru";
     if (points.length) {
-      const width = Math.max(650, Math.min(1080, chart.parentElement.clientWidth));
+      const width = Math.max(300, Math.min(1080, chart.parentElement.clientWidth));
       chart.setAttribute("viewBox", `0 0 ${width} 340`);
       const right = width - 30;
       const min = Math.min(...points.map(row => number(row[metric])));
@@ -85,7 +98,8 @@
       }
     }
     const tbody = document.querySelector("#dailyRows");
-    document.querySelector("#dailyMethod").textContent = bank.value === "partners" ? "Partners: publikované hodnoty PSD2 health-check. Nejde o čtvrtletní RTS statistiku a neporovnáváme je jako takovou." : bank.value === "ppf" ? "PPF: publikované nuly často znamenají dny bez volání, nikoli okamžitou odezvu. Uptime banka v reportu neuvádí." : "";
+    document.querySelector("#dailyMethod").textContent = bank.value === "partners" ? ui.methodNote({bank_id:"partners"}) : bank.value === "ppf" ? "PPF: publikované nuly často znamenají dny bez volání, nikoli okamžitou odezvu. Uptime banka v reportu neuvádí." : "";
+    if (document.querySelector("#dailyBankDetail")) document.querySelector("#dailyBankDetail").href = ui.bankUrl(bank.value);
     tbody.replaceChildren();
     document.querySelector("#dailyTableSummary").textContent = `Jednotlivé uložené dny (${rows.length})`;
     for (const row of [...rows].reverse()) {
@@ -106,6 +120,12 @@
       }
       tbody.append(tr);
     }
+    syncUrl();
+  }
+  function syncUrl() {
+    const url = new URL(location.href); url.searchParams.delete("v");
+    for (const [key,value] of Object.entries({bank:bank.value, dailyMetric:metric, dayFrom:from.value, dayTo:to.value})) { if(value) url.searchParams.set(key,value); else url.searchParams.delete(key); }
+    window.history.replaceState(null,"",url);
   }
   bank.addEventListener("change", () => { setRange(); render(); });
   from.addEventListener("change", () => { if (!from.value || !to.value) setRange(true); if (from.value > to.value) to.value = from.value; render(); });
@@ -113,7 +133,7 @@
   document.querySelector("#archiveAll").addEventListener("click", () => { setRange(true); render(); });
   document.querySelector("#archiveMetrics").addEventListener("click", event => {
     const button = event.target.closest("[data-daily-metric]");
-    if (!button) return;
+    if (!button || button.disabled) return;
     metric = button.dataset.dailyMetric;
     document.querySelectorAll("[data-daily-metric]").forEach(el => {
       el.classList.toggle("active", el === button);
@@ -122,6 +142,10 @@
     render();
   });
   setRange();
+  const dates = history.filter(row => row.bank_id === bank.value).map(row => row.date);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(params.get("dayFrom") || "") && /^\d{4}-\d{2}-\d{2}$/.test(params.get("dayTo") || "") && params.get("dayFrom") <= params.get("dayTo") && dates.length) { from.value=params.get("dayFrom"); to.value=params.get("dayTo"); }
+  document.querySelector("#exportDaily")?.addEventListener("click",()=>ui.download(`psd2-${bank.value}-${metric}.csv`,["banka","den","metrika","hodnota","jednotka","metodika","zdroj","první_uložení","poslední_ověření","verze"],exportedRows.map(row=>[row.bank,row.date,labels[metric],row[metric],unit(),row.metric_method,row.source_url,row.first_seen_on,row.last_seen_on,row.versions])));
+  document.querySelector("#shareDaily")?.addEventListener("click",event=>ui.share(event.currentTarget));
   window.addEventListener("resize", render);
   render();
 })();
