@@ -429,6 +429,13 @@ html { scroll-behavior: smooth; scroll-padding-top: var(--nav-offset, 90px); }
 .latest-count { margin-top: 0; }
 .bank-name-link { color: var(--ink); text-decoration: none; border-bottom: 1px dotted #8ca9a1; }
 .bank-name-link:hover { color: var(--teal); border-bottom-style: solid; }
+.supplementary-report-link { display: block; margin-top: 6px; color: var(--ink-soft); font-size: .7rem; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+.supplementary-reports { border-top: 3px solid var(--amber); }
+.supplementary-reports[hidden] { display: none; }
+.top-nav__sections a[hidden] { display: none; }
+.supplementary-reports-table { min-width: 720px; width: 100%; font-size: .83rem; font-variant-numeric: tabular-nums; }
+.supplementary-reports-table tbody th { color: var(--ink); text-transform: none; letter-spacing: 0; white-space: nowrap; }
+.supplementary-reports-table td { white-space: nowrap; }
 .section-actions { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 10px 22px; }
 .section-actions p { flex: 1; min-width: 220px; }
 .trend-panel .section-heading { display: grid; grid-template-columns: minmax(290px, 1fr) minmax(0, 680px); }

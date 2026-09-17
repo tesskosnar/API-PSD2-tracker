@@ -80,6 +80,19 @@
   // A document on a Czech portal is not proof that its statistics cover CZ.
   // Catalog-only documents require an explicit, verified country scope.
   const czSourceReports = details => Object.values(details || {}).filter(detail => detail.country_scope === "CZ").flatMap(detail => (detail.published_reports || []).filter(isCzReport));
+  // Supplementary documents stay separate from Czech numeric history and report counts.
+  function supplementaryReports(details, bankId) {
+    const seen = new Set();
+    return Object.values(details || {}).flatMap(detail => (detail.published_reports || []).map(row => ({
+      ...row, country_scope: row.country_code || row.country_scope || detail.country_scope || "unverified"
+    }))).filter(row => {
+      if (row.bank_id !== bankId || !row.report_url || isCzReport(row) || seen.has(row.report_url)) return false;
+      seen.add(row.report_url); return true;
+    }).sort((a, b) => (b.last_day || b.period || "").localeCompare(a.last_day || a.period || ""));
+  }
+  const reportCountryLabel = row => row.country_scope === "CZ" && row.status === "unverified"
+    ? "Český rozsah neověřen"
+    : ({ CZ: "Česko", PL: "Polsko", SK: "Slovensko", AT: "Rakousko" })[row.country_scope] || "Země neověřena · CZ nepotvrzeno";
   function bankMetricCoverage(banks, history, metricKey) {
     const metric = metrics[metricKey];
     const counts = new Map(banks.map(row => [row.bank, 0]));
@@ -216,7 +229,7 @@
     dialog.addEventListener("click", event => { if (event.target === dialog && (event.clientX < dialog.getBoundingClientRect().left || event.clientX > dialog.getBoundingClientRect().right || event.clientY < dialog.getBoundingClientRect().top || event.clientY > dialog.getBoundingClientRect().bottom)) dialog.close(); });
     return (data, row) => { coverageContent(content, data, row); const link = document.createElement("a"); link.href = bankUrl(row.bank_id, row.period); link.className = "bank-detail-link"; link.textContent = "Celý detail banky →"; content.append(link); dialog.showModal(); };
   }
-  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, methodNote, hasMetrics, isCzReport, czSourceReports, bankMetricCoverage, comparisonRows, nearestDailyPoint, bankUrl, reportUrl, csv, download, share, appendMetricButtons, initializeNavigation, coverageContent, reportCompleteness, createCoverageDialog };
+  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, methodNote, hasMetrics, isCzReport, czSourceReports, supplementaryReports, reportCountryLabel, bankMetricCoverage, comparisonRows, nearestDailyPoint, bankUrl, reportUrl, csv, download, share, appendMetricButtons, initializeNavigation, coverageContent, reportCompleteness, createCoverageDialog };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.PSD2_UI = api;
 })(typeof window === "undefined" ? globalThis : window);

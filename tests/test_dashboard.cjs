@@ -36,6 +36,35 @@ test('calculated quarter is separated and never borrows rolling uptime', () => {
   assert.match(ui.methodNote(row),/13\/91/);
 });
 
+test('supplementary documents retain country scope, are deduplicated, and stay outside CZ counts', () => {
+  const unknown={bank_id:'mbank',report_url:'https://example.test/unknown',period:'2026-Q2',status:'unverified'};
+  const pl={bank_id:'mbank',report_url:'https://example.test/pl',period:'2026-Q1',country_code:'PL',status:'ok'};
+  const cz={bank_id:'mbank',report_url:'https://example.test/cz',period:'2025-Q4',country_scope:'CZ',status:'ok'};
+  const details={mbank:{country_scope:'unverified',published_reports:[unknown,pl,cz,unknown]},ober:{country_scope:'unverified',published_reports:[{...unknown,bank_id:'oberbank'}]}};
+  const before=JSON.stringify(details);
+  const rows=ui.supplementaryReports(details,'mbank');
+  assert.deepEqual(rows.map(row=>row.report_url),[unknown.report_url,pl.report_url]);
+  assert.deepEqual(rows.map(ui.reportCountryLabel),['Země neověřena · CZ nepotvrzeno','Polsko']);
+  rows.forEach(row=>assert.equal(ui.reportCompleteness(row,null),'missing'));
+  assert.deepEqual(ui.czSourceReports(details),[]);
+  assert.equal(JSON.stringify(details),before);
+  assert.deepEqual(ui.supplementaryReports(null,'mbank'),[]);
+  assert.equal(ui.reportCountryLabel({...unknown,country_scope:'CZ'}),'Český rozsah neověřen');
+});
+
+test('actual mBank catalog has 28 supplementary documents and no CZ numeric observations', () => {
+  const fs=require('node:fs');
+  const path=require('node:path');
+  const data=JSON.parse(fs.readFileSync(path.join(__dirname,'../dashboard/data.js'),'utf8').replace(/^window\.PSD2_DATA\s*=\s*/,'').trim().replace(/;$/,''));
+  const rows=ui.supplementaryReports(data.source_details,'mbank');
+  assert.equal(rows.length,28);
+  assert.equal(new Set(rows.map(row=>row.report_url)).size,28);
+  assert.ok(rows.every(row=>row.country_scope==='unverified'));
+  assert.equal(ui.czSourceReports(data.source_details).filter(row=>row.bank_id==='mbank').length,0);
+  assert.equal(data.timeseries.filter(row=>row.bank_id==='mbank').length,0);
+  assert.equal(data.latest.filter(row=>row.bank_id==='mbank' && ui.hasMetrics(row)).length,0);
+});
+
 test('separate service availability is not invented from an overall value', () => {
   const row = {availability_pct: 99.9};
   assert.equal(ui.metrics.aispAvailability.value(row), null);
