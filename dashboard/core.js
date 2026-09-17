@@ -76,6 +76,10 @@
     : row.bank_id === "moneta" ? "Pohyblivý 90denní přehled odezvy a chybovosti, nikoli měření dostupnosti za celé vybrané čtvrtletí."
       : "Banky používají různé publikované metodiky. Shodné období samo o sobě nezaručuje shodný způsob měření.";
   const hasMetrics = row => Object.values(metrics).some(metric => metric.value(row) !== null);
+  const isCzReport = row => Boolean(row?.report_url) && row.status !== "unverified" && (!row.country_code || row.country_code === "CZ") && (!row.country_scope || row.country_scope === "CZ");
+  // A document on a Czech portal is not proof that its statistics cover CZ.
+  // Catalog-only documents require an explicit, verified country scope.
+  const czSourceReports = details => Object.values(details || {}).filter(detail => detail.country_scope === "CZ").flatMap(detail => (detail.published_reports || []).filter(isCzReport));
   function bankMetricCoverage(banks, history, metricKey) {
     const metric = metrics[metricKey];
     const counts = new Map(banks.map(row => [row.bank, 0]));
@@ -197,8 +201,8 @@
     if (row.report_url || row.source_url) { const source = add("a", "Otevřít zdroj / report ↗", "report-source-button"); source.href = reportUrl(row); source.target = "_blank"; source.rel = "noopener noreferrer"; }
   }
   function reportCompleteness(row, coverage) {
-    if (!row?.report_url) return "missing";
-    if (row.source_state === "report-error" || row.status === "unverified" || !hasMetrics(row)) return "report";
+    if (!isCzReport(row)) return "missing";
+    if (row.source_state === "report-error" || !hasMetrics(row)) return "report";
     const supplied = Object.values(metrics).filter(metric => metric.value(row) !== null && (metric.key !== "availability" || number(row.availability_pct) !== null));
     return coverage && coverage.archived_days === coverage.calendar_days && supplied.every(metric => coverage.metric_days?.[metric.field] === coverage.calendar_days) ? "full" : "partial";
   }
@@ -212,7 +216,7 @@
     dialog.addEventListener("click", event => { if (event.target === dialog && (event.clientX < dialog.getBoundingClientRect().left || event.clientX > dialog.getBoundingClientRect().right || event.clientY < dialog.getBoundingClientRect().top || event.clientY > dialog.getBoundingClientRect().bottom)) dialog.close(); });
     return (data, row) => { coverageContent(content, data, row); const link = document.createElement("a"); link.href = bankUrl(row.bank_id, row.period); link.className = "bank-detail-link"; link.textContent = "Celý detail banky →"; content.append(link); dialog.showModal(); };
   }
-  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, methodNote, hasMetrics, bankMetricCoverage, comparisonRows, nearestDailyPoint, bankUrl, reportUrl, csv, download, share, appendMetricButtons, initializeNavigation, coverageContent, reportCompleteness, createCoverageDialog };
+  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, methodNote, hasMetrics, isCzReport, czSourceReports, bankMetricCoverage, comparisonRows, nearestDailyPoint, bankUrl, reportUrl, csv, download, share, appendMetricButtons, initializeNavigation, coverageContent, reportCompleteness, createCoverageDialog };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.PSD2_UI = api;
 })(typeof window === "undefined" ? globalThis : window);

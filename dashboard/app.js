@@ -5,7 +5,7 @@
   const ui = window.PSD2_UI;
   const latest = data.latest.filter(item => item.scope === "main");
   const history = data.timeseries.filter(item => item.scope === "main");
-  const sourceReports = Object.values(data.source_details || {}).flatMap(detail => detail.published_reports || []);
+  const sourceReports = ui.czSourceReports(data.source_details);
   const allPeriods = [...new Set(history.map(item => item.period))].sort();
   const params = new URLSearchParams(location.search);
   let periods = allPeriods.slice(-8);
@@ -346,6 +346,7 @@
         if (item?.report_kind === "archive-derived") cell.textContent = "Σ";
         cell.setAttribute("aria-label", `${bank.bank}, ${period}: ${coverageState}${hasReport ? "; podrobnosti reportu" : ""}`);
         cell.title = cell.getAttribute("aria-label");
+        if (!hasReport && bank.status === "unverified") cell.title += " · report pro české PSD2 rozhraní není doložen; reporty jiných nebo neověřených trhů se do CZ přehledu nepočítají";
         if (item?.status === "unverified") cell.title += " · veřejný report existuje, samostatný český rozsah čísel je neověřen";
         if (item?.report_kind === "archive-derived") cell.title += " · vypočtený souhrn z archivu, nikoli report zveřejněný bankou";
         if (item?.source_state === "report-error") cell.title += ` · ${item.metric_method}`;

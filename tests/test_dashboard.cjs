@@ -8,10 +8,23 @@ test('report completeness uses days for supplied metrics, not mere uptime presen
   assert.equal(ui.reportCompleteness(row,coverage),'full');
   assert.equal(ui.reportCompleteness({...row,availability_pct:99},coverage),'partial');
   assert.equal(ui.reportCompleteness(row,{...coverage,archived_days:90}),'partial');
-  assert.equal(ui.reportCompleteness({...row,status:'unverified'},coverage),'report');
+  assert.equal(ui.reportCompleteness({...row,status:'unverified'},coverage),'missing');
   assert.equal(ui.reportCompleteness({report_url:row.report_url},coverage),'report');
   assert.equal(ui.reportCompleteness(null,coverage),'missing');
   assert.equal(ui.reportCompleteness({report_url:row.report_url,aisp_error_pct:.3,pisp_error_pct:.3,metric_method:'spolecna error response rate'},{archived_days:91,calendar_days:91,metric_days:{shared_error_pct:91}}),'full');
+});
+test('CZ report matrix excludes foreign and country-unverified catalogs without deleting them', () => {
+  const cz={bank_id:'cz',report_url:'https://example.test/cz',status:'ok'};
+  const foreign={bank_id:'mbank',report_url:'https://example.test/pl',status:'ok',country_code:'PL'};
+  const unknown={bank_id:'oberbank',report_url:'https://example.test/unknown',status:'unverified'};
+  const details={cz:{country_scope:'CZ',published_reports:[cz,unknown,foreign]},pl:{country_scope:'PL',published_reports:[foreign]},unknown:{country_scope:'unverified',published_reports:[unknown]},legacy:{published_reports:[cz]}};
+  const before=JSON.stringify(details);
+  assert.deepEqual(ui.czSourceReports(details),[cz]);
+  assert.equal(ui.reportCompleteness(foreign,null),'missing');
+  assert.equal(ui.reportCompleteness({...cz,country_scope:'PL'},null),'missing');
+  assert.equal(ui.reportCompleteness(unknown,null),'missing');
+  assert.equal(JSON.stringify(details),before);
+  assert.deepEqual(ui.czSourceReports(null),[]);
 });
 test('calculated quarter is separated and never borrows rolling uptime', () => {
   const latest=[{bank_id:'moneta',latest_period:'rolling-90d-to-2026-09-15',availability_pct:'',aisp_response_ms:500}];
