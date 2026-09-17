@@ -65,6 +65,20 @@ test('actual mBank catalog has 28 supplementary documents and no CZ numeric obse
   assert.equal(data.latest.filter(row=>row.bank_id==='mbank' && ui.hasMetrics(row)).length,0);
 });
 
+test('mBank catalog uses the summary report label while retaining scope disclosure', () => {
+  const fs=require('node:fs');
+  const path=require('node:path');
+  const read=file=>fs.readFileSync(path.join(__dirname,'../dashboard',file),'utf8');
+  const app=read('app.js'), bank=read('bank.js'), html=read('bank.html');
+  assert.equal((app.match(/link\.textContent = "Souhrnný report →"/g)||[]).length,2);
+  assert.doesNotMatch(app,/reportů mimo CZ|Reporty mimo CZ/);
+  assert.match(bank,/psd2-mbank-souhrnny-report\.csv/);
+  assert.match(html,/>Souhrnný report<\/a>/);
+  assert.match(html,/>Souhrnný report mBank<\/h2>/);
+  assert.match(html,/nejsou doložené jako samostatné české statistiky/);
+  assert.match(html,/Číselné hodnoty nejsou převzaty do CZ datasetu/);
+});
+
 test('separate service availability is not invented from an overall value', () => {
   const row = {availability_pct: 99.9};
   assert.equal(ui.metrics.aispAvailability.value(row), null);

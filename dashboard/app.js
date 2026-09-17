@@ -336,7 +336,7 @@
       const detail = document.createElement("a"); detail.href = ui.bankUrl(bank.bank_id); detail.textContent = bank.bank; detail.className = "bank-name-link"; name.append(detail);
       if (bank.bank_id === "mbank") {
         const documents = ui.supplementaryReports(data.source_details, bank.bank_id);
-        if (documents.length) { const link = document.createElement("a"); link.href = `${ui.bankUrl(bank.bank_id)}#supplementaryReportsTitle`; link.className = "supplementary-report-link"; link.textContent = `${documents.length} reportů mimo CZ →`; name.append(link); }
+        if (documents.length) { const link = document.createElement("a"); link.href = `${ui.bankUrl(bank.bank_id)}#supplementaryReportsTitle`; link.className = "supplementary-report-link"; link.textContent = "Souhrnný report →"; name.append(link); }
       }
       tr.append(name);
       allPeriods.forEach(period => {
@@ -503,7 +503,7 @@
       link.className = "source-link";
       link.textContent = comparisonMode === "quarter" && item.comparison_group === "missing" ? "Detail →" : item.bank_id === "unicredit" ? "CZ detail ↗" : item.report_url && item.report_url !== item.source_url ? "Report ↗" : "Stránka ↗";
       if (item.bank_id === "mbank" && ui.supplementaryReports(data.source_details, item.bank_id).length) {
-        link.href = `${ui.bankUrl(item.bank_id)}#supplementaryReportsTitle`; link.textContent = "Reporty mimo CZ →";
+        link.href = `${ui.bankUrl(item.bank_id)}#supplementaryReportsTitle`; link.textContent = "Souhrnný report →";
       }
       sourceCell.append(link);
       tr.append(sourceCell);

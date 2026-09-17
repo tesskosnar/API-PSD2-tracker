@@ -23,7 +23,7 @@
   const openCoverage = ui.createCoverageDialog();
   const supplementary = bank.bank_id === "mbank" ? ui.supplementaryReports(data.source_details, bank.bank_id) : [];
   if (supplementary.length) {
-    document.getElementById("bankScope").textContent = "CZ metriky · další dokumenty odděleně";
+    document.getElementById("bankScope").textContent = "CZ metriky · souhrnný report";
     document.getElementById("supplementaryReportsNav").hidden = false;
     document.getElementById("supplementaryReports").hidden = false;
     document.getElementById("supplementaryReportsMeta").textContent = `${supplementary.length} dokumentů · od nejnovějšího · žádný není započten jako ověřený CZ report`;
@@ -39,7 +39,7 @@
       link.href = report.report_url; link.target = "_blank"; link.rel = "noopener noreferrer";
       link.className = "source-link"; link.textContent = "PDF report ↗"; source.append(link); row.append(source); rows.append(row);
     });
-    document.getElementById("exportSupplementaryReports").addEventListener("click", () => ui.download("psd2-mbank-reporty-mimo-cz.csv", ["banka", "období dokumentu", "od", "do", "země / rozsah", "započteno do CZ", "report"], supplementary.map(row => [bank.bank, row.period, row.first_day, row.last_day, ui.reportCountryLabel(row), "ne", row.report_url])));
+    document.getElementById("exportSupplementaryReports").addEventListener("click", () => ui.download("psd2-mbank-souhrnny-report.csv", ["banka", "období dokumentu", "od", "do", "země / rozsah", "započteno do CZ", "report"], supplementary.map(row => [bank.bank, row.period, row.first_day, row.last_day, ui.reportCountryLabel(row), "ne", row.report_url])));
   }
   function syncUrl() {
     const url = new URL(location.href); url.searchParams.delete("v"); url.searchParams.set("bank", bank.bank_id); url.searchParams.set("bankMetric", activeMetric);

@@ -11,7 +11,7 @@
     <div class="bank-heading"><h1 id="bankTitle">Detail banky</h1><label class="bank-selector">Vybrat banku<select id="detailBank"></select></label></div>
     <div class="hero__meta"><span id="bankMeta"></span><span id="bankScope">Pouze české PSD2 rozhraní</span></div>
   </div></header>
-  <nav class="top-nav" aria-label="Navigace detailu banky"><div class="top-nav__inner"><a class="top-nav__home" href="index.html" aria-label="Dostupnost PSD2 API — úvodní stránka, obnovit výchozí filtry">Dostupnost PSD2 API</a><div class="top-nav__sections"><a href="index.html#latestTitle">Přehled bank</a><a href="#bankLatestTitle">Report a metriky</a><a id="supplementaryReportsNav" href="#supplementaryReportsTitle" hidden>Další reporty</a><a href="#bankHistoryTitle">Čtvrtletní historie</a><a href="#archiveTitle">Denní data</a></div><button id="shareBank" type="button" class="text-button">Sdílet výběr ↗</button></div></nav>
+  <nav class="top-nav" aria-label="Navigace detailu banky"><div class="top-nav__inner"><a class="top-nav__home" href="index.html" aria-label="Dostupnost PSD2 API — úvodní stránka, obnovit výchozí filtry">Dostupnost PSD2 API</a><div class="top-nav__sections"><a href="index.html#latestTitle">Přehled bank</a><a href="#bankLatestTitle">Report a metriky</a><a id="supplementaryReportsNav" href="#supplementaryReportsTitle" hidden>Souhrnný report</a><a href="#bankHistoryTitle">Čtvrtletní historie</a><a href="#archiveTitle">Denní data</a></div><button id="shareBank" type="button" class="text-button">Sdílet výběr ↗</button></div></nav>
   <main>
     <p id="bankNotFound" class="empty-state" hidden>Banka nebo požadované období není v ověřeném datasetu.</p>
     <section class="panel" aria-labelledby="bankLatestTitle">
@@ -21,7 +21,7 @@
       <details class="report-coverage-detail" open><summary>Pokrytí dnů, metodika a zdroj</summary><div id="bankReportCoverage"></div></details>
     </section>
     <section id="supplementaryReports" class="panel supplementary-reports" aria-labelledby="supplementaryReportsTitle" hidden>
-      <div class="section-heading"><div><p class="section-kicker">Odděleně od českých dat</p><h2 id="supplementaryReportsTitle">Další dohledané reporty mBank</h2></div><button id="exportSupplementaryReports" type="button" class="text-button">Export katalogu ↓</button></div>
+      <div class="section-heading"><div><p class="section-kicker">Dohledané dokumenty</p><h2 id="supplementaryReportsTitle">Souhrnný report mBank</h2></div><button id="exportSupplementaryReports" type="button" class="text-button">Export katalogu ↓</button></div>
       <p class="method-notice">Tyto dokumenty nejsou doložené jako samostatné české statistiky. Označení země vychází z ověřeného rozsahu, ne z jazyka nebo domény. Pokud země není doložená, je uvedeno „Země neověřena“. Dokumenty ani jejich existence se nezapočítávají do českého srovnání, historie metrik nebo úplnosti CZ reportů.</p>
       <p id="supplementaryReportsMeta" class="period-range-info"></p>
       <div class="table-scroll"><table class="supplementary-reports-table"><thead><tr><th>Období dokumentu</th><th>Od</th><th>Do</th><th>Země / rozsah</th><th>Dokument</th></tr></thead><tbody id="supplementaryReportsRows"></tbody></table></div>
@@ -51,6 +51,6 @@
     </section>
   </main>
   <footer><p>PSD2 API tracker · archivované hodnoty se nemažou</p><nav class="footer-links"><a href="index.html">Přehled bank</a><a href="archive.html">Archiv všech bank</a><a href="https://github.com/tesskosnar/API-PSD2-tracker/blob/main/docs/expanded-data-audit.md">Audit zdrojů ↗</a></nav></footer>
-  <script src="data.js?v=379df2fa0544"></script><script src="core.js?v=24"></script><script src="bank.js?v=24"></script><script src="daily-data.js?v=d2f47aa5f6c7"></script><script src="archive.js?v=20"></script>
+  <script src="data.js?v=379df2fa0544"></script><script src="core.js?v=24"></script><script src="bank.js?v=25"></script><script src="daily-data.js?v=d2f47aa5f6c7"></script><script src="archive.js?v=20"></script>
 </body>
 </html>
