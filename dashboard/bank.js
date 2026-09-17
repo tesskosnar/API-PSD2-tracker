@@ -23,10 +23,10 @@
   const openCoverage = ui.createCoverageDialog();
   const supplementary = bank.bank_id === "mbank" ? ui.supplementaryReports(data.source_details, bank.bank_id) : [];
   if (supplementary.length) {
-    document.getElementById("bankScope").textContent = "CZ metriky · souhrnný report";
+    document.getElementById("bankScope").textContent = "Souhrnný report · CZ rozsah nepotvrzen";
     document.getElementById("supplementaryReportsNav").hidden = false;
     document.getElementById("supplementaryReports").hidden = false;
-    document.getElementById("supplementaryReportsMeta").textContent = `${supplementary.length} dokumentů · od nejnovějšího · žádný není započten jako ověřený CZ report`;
+    document.getElementById("supplementaryReportsMeta").textContent = `${supplementary.length} dokumentů · od nejnovějšího · údaje zahrnuty do statistik jako souhrnný report, nikoli ověřený samostatný CZ report`;
     const rows = document.getElementById("supplementaryReportsRows");
     supplementary.forEach(report => {
       const row = document.createElement("tr");
@@ -39,7 +39,7 @@
       link.href = report.report_url; link.target = "_blank"; link.rel = "noopener noreferrer";
       link.className = "source-link"; link.textContent = "PDF report ↗"; source.append(link); row.append(source); rows.append(row);
     });
-    document.getElementById("exportSupplementaryReports").addEventListener("click", () => ui.download("psd2-mbank-souhrnny-report.csv", ["banka", "období dokumentu", "od", "do", "země / rozsah", "započteno do CZ", "report"], supplementary.map(row => [bank.bank, row.period, row.first_day, row.last_day, ui.reportCountryLabel(row), "ne", row.report_url])));
+    document.getElementById("exportSupplementaryReports").addEventListener("click", () => ui.download("psd2-mbank-souhrnny-report.csv", ["banka", "období dokumentu", "od", "do", "země / rozsah", "zahrnuto do statistik", "report"], supplementary.map(row => [bank.bank, row.period, row.first_day, row.last_day, ui.reportCountryLabel(row), history.some(item=>item.report_url===row.report_url) ? "ano · souhrnný report, CZ nepotvrzen" : "ne", row.report_url])));
   }
   function syncUrl() {
     const url = new URL(location.href); url.searchParams.delete("v"); url.searchParams.set("bank", bank.bank_id); url.searchParams.set("bankMetric", activeMetric);
@@ -73,11 +73,12 @@
     const available = key => history.some(row => ui.metrics[key].value(row) !== null);
     if (!available(activeMetric) && !params.has("bankMetric")) activeMetric = Object.keys(ui.metrics).find(available) || "availability";
     document.querySelectorAll("#bankHistoryMetrics [data-metric]").forEach(button => {
-      button.disabled = !available(button.dataset.metric); const active = button.dataset.metric === activeMetric; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); button.title = button.disabled ? "V ověřené čtvrtletní historii není tato metrika doložená" : ui.metrics[button.dataset.metric].label;
+      button.disabled = !available(button.dataset.metric); const active = button.dataset.metric === activeMetric; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); button.title = button.disabled ? "V uložené čtvrtletní historii není tato metrika doložená" : ui.metrics[button.dataset.metric].label;
     });
     const metric = ui.metrics[activeMetric], points = history.filter(row => metric.value(row) !== null);
     const derivedCount = history.filter(row => row.report_kind === "archive-derived").length;
-    document.getElementById("bankHistoryInfo").textContent = history.length ? `${history.length-derivedCount} publikovaných čtvrtletních reportů${derivedCount ? ` · ${derivedCount} vypočtený souhrn z archivu` : ""} · ${points.length} s údajem: ${metric.label} (${metric.unit}) · ${metric.note}` : "Český čtvrtletní report není doložený. Pokud jsou dostupné denní hodnoty, najdete je níže.";
+    const summaryHistory = history.some(ui.isSummaryReport);
+    document.getElementById("bankHistoryInfo").textContent = history.length ? `${summaryHistory ? `${history.length} čtvrtletních souhrnů z ${new Set(history.map(row=>row.report_url)).size} dokumentů · samostatný český rozsah nepotvrzen` : `${history.length-derivedCount} publikovaných čtvrtletních reportů${derivedCount ? ` · ${derivedCount} vypočtený souhrn z archivu` : ""}`} · ${points.length} s údajem: ${metric.label} (${metric.unit}) · ${metric.note}` : "Český čtvrtletní report není doložený. Pokud jsou dostupné denní hodnoty, najdete je níže.";
     document.getElementById("bankHistoryMetricHeader").textContent = `${metric.label} (${metric.unit})`;
     const chart = document.getElementById("bankChart"); chart.replaceChildren(); chart.toggleAttribute("hidden", !points.length);
     if (points.length) {

@@ -7,7 +7,7 @@ from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 
 from psd2_tracker.archive import Archive
-from psd2_tracker.tracker import Observation, build_report_coverage, collect_timeseries, collect_bank, parse_moneta, timeseries_row, write_dashboard_data, derive_archived_quarters, merge_derived_quarters, finalize_status
+from psd2_tracker.tracker import Observation, Fetcher, build_report_coverage, collect_timeseries, collect_mbank_history, collect_bank, parse_moneta, timeseries_row, write_dashboard_data, derive_archived_quarters, merge_derived_quarters, finalize_status
 from unittest.mock import patch
 
 
@@ -65,6 +65,47 @@ class ArchiveTests(unittest.TestCase):
         next_run = Archive(self.root / "archive", date(2026, 10, 1))
         next_run.record_daily(self.daily("2026-09-30", 100))
         self.assertEqual([row["date"] for row in next_run.daily_rows()], ["2026-06-18", "2026-09-30"])
+
+    def test_retained_source_uses_latest_copy_and_checks_integrity(self):
+        url="https://example.test/report.pdf"
+        self.assertIsNone(self.archive.response_content("mbank",url))
+        for content in [b"old report",b"new report"]:
+            self.archive.record_response("mbank",SimpleNamespace(content=content,url=url,status_code=200,headers={}))
+        self.assertEqual(self.archive.response_content("mbank",url),b"new report")
+        with self.archive.connect() as db:
+            relative=db.execute("SELECT d.path FROM fetches f JOIN documents d ON d.sha256=f.sha256 ORDER BY f.rowid DESC LIMIT 1").fetchone()[0]
+        (self.archive.directory/relative).write_bytes(gzip.compress(b"changed"))
+        with self.assertRaisesRegex(ValueError,"integrity"):
+            self.archive.response_content("mbank",url)
+
+    def test_mbank_import_uses_retained_pdf_offline_and_preserves_unknown_country(self):
+        report={"period":"2026-Q2","periods":["2026-Q2"],"first_day":"2026-04-01","last_day":"2026-06-30","report_url":"https://example.test/report.pdf"}
+        self.archive.record_response("mbank",SimpleNamespace(content=b"%PDF-test",url=report["report_url"],status_code=200,headers={}))
+        fetcher=Fetcher(archive=self.archive)
+        fetcher.get=lambda *a,**k:self.fail("Archived import must not use the network")
+        bank={"id":"mbank","name":"mBank","source_url":"https://developer.api.mbank.cz/reports"}
+        with patch("psd2_tracker.tracker.extract_pdf_text",return_value="mBank API\n01.04.2026 100 100 0 0 300 400 - 0.1"):
+            item=collect_mbank_history(bank,fetcher,{"2026-Q2"},[report])[0]
+        self.archive.record_daily(item)
+        self.assertEqual(self.archive.daily_rows()[0]["country_code"],"unverified")
+        self.assertEqual(item.country_scope,"unverified")
+        self.assertEqual(item.report_kind,"summary")
+        self.assertEqual(item.shared_error_pct,.1)
+        self.assertIsNone(item.aisp_error_pct)
+
+    def test_weekly_mbank_history_preserves_scope_and_imports_new_quarter(self):
+        bank={"id":"mbank","name":"mBank","parser":"report_links","source_url":"https://example.test","include_summary_statistics":True,"history_start_period":"2026-Q1"}
+        first=Observation(bank_id="mbank",bank="mBank",scope="main",source_url=bank["source_url"],latest_period="2026-Q1",report_url="https://example.test/old.pdf",country_scope="unverified",report_kind="summary",status="unverified",availability_pct=99,archived_days=90,calendar_days=90)
+        new=Observation(bank_id="mbank",bank="mBank",scope="main",source_url=bank["source_url"],latest_period="2026-Q2",report_url="https://example.test/new.pdf",country_scope="unverified",report_kind="summary",status="unverified",availability_pct=100,archived_days=91,calendar_days=91)
+        reports=[{"period":"2026-Q2","report_url":new.report_url}]
+        first.report_details={"country_scope":"unverified","published_reports":reports}
+        with patch("psd2_tracker.tracker.collect_mbank_history",return_value=[new]) as collect:
+            result=collect_timeseries([bank],object(),[first],"2026-Q2",[timeseries_row(first)])
+        self.assertEqual(collect.call_args.args[2],{"2026-Q2"})
+        self.assertEqual(collect.call_args.args[3],reports)
+        self.assertEqual([r["period"] for r in result],["2026-Q1","2026-Q2"])
+        self.assertTrue(all(r["country_scope"]=="unverified" and r["report_kind"]=="summary" and r["status"]=="unverified" for r in result))
+        self.assertEqual(result[1]["archived_days"],91)
 
     def test_derived_closed_quarter_counts_unique_czech_days_and_not_open_quarter(self):
         banks = [{"id":"moneta", "name":"MONETA", "source_url":"https://example.test", "derive_quarters_from_daily":True}]

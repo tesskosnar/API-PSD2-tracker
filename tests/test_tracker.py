@@ -1,5 +1,6 @@
 import unittest
 import json
+import csv
 import zipfile
 from datetime import date
 from io import BytesIO
@@ -27,6 +28,9 @@ from psd2_tracker.tracker import (
     parse_rb,
     rb_report_text,
     parse_report_links,
+    parse_mbank_daily,
+    parse_mbank_report,
+    timeseries_row,
     collect_pdf_history,
     parse_first_xlsx_sheet,
     parse_quarter,
@@ -36,10 +40,51 @@ from psd2_tracker.tracker import (
     recent_quarters,
     write_trend_svg,
     write_dashboard_data,
+    write_outputs,
 )
 
 
 class TrackerTests(unittest.TestCase):
+    def test_mbank_both_layouts_preserve_scope_and_shared_error(self):
+        for header, row in [("Uptime for mBank API", "1.01.2020 100,00 100,00 0,00 0,00 464 991 - 0.001"),
+                            ("Uptime for mBank API Mobile Banking", "01.01.2020 100 100 100 0 0 0 464 991 300 0.001")]:
+            with patch("psd2_tracker.tracker.extract_pdf_text", return_value=header+"\n"+row):
+                daily = parse_mbank_daily(b"", "2020-01-01", "2020-03-31")
+            self.assertEqual(daily[0]["pisp_response_ms"], 464)
+            self.assertEqual(daily[0]["aisp_response_ms"], 991)
+            self.assertEqual(daily[0]["shared_error_pct"], .001)
+            self.assertEqual(daily[0]["country_code"], "unverified")
+            self.assertNotIn("aisp_error_pct", daily[0])
+            self.assertNotIn("aisp_availability_pct", daily[0])
+
+    def test_mbank_cross_quarter_summary_uses_actual_days_and_does_not_invent_cz(self):
+        text="Uptime for mBank API\n30.06.2019 100 100 0 0 - - - -\n01.07.2019 99 100 1 0 0 500 - 0.02"
+        report={"report_url":"https://example.test/source.pdf", "first_day":"2019-06-30", "last_day":"2019-07-01"}
+        bank={"id":"mbank", "name":"mBank", "source_url":"https://developer.api.mbank.cz/reports"}
+        with patch("psd2_tracker.tracker.extract_pdf_text", return_value=text):
+            items=parse_mbank_report(bank, report, SimpleNamespace(get=lambda *a,**k:SimpleNamespace(content=b"%PDF-test")))
+        self.assertEqual([item.latest_period for item in items], ["2019-Q2", "2019-Q3"])
+        self.assertEqual([item.calendar_days for item in items], [91,92])
+        self.assertTrue(all(item.status=="unverified" and item.report_kind=="summary" for item in items))
+        self.assertIsNone(items[1].pisp_response_ms)
+        self.assertEqual(items[1].shared_error_pct, .02)
+        self.assertEqual(timeseries_row(items[0])["archived_days"],1)
+        self.assertEqual(timeseries_row(items[0])["country_scope"],"unverified")
+
+    def test_mbank_rejects_shifted_columns_invalid_values_dates_and_duplicates(self):
+        for rows in ["01.01.2020 100 100 0 0 3 4 -", "01.01.2020 101 100 0 0 3 4 - 0", "01.04.2020 100 100 0 0 3 4 - 0", "01.01.2020 100 100 0 0 3 4 - 0\n01.01.2020 100 100 0 0 3 4 - 0"]:
+            with patch("psd2_tracker.tracker.extract_pdf_text", return_value="mBank API\n"+rows), self.assertRaises(ValueError):
+                parse_mbank_daily(b"", "2020-01-01", "2020-03-31")
+        with patch("psd2_tracker.tracker.extract_pdf_text", return_value="mBank API\n20.04.2020 100,00 100,0 0 0,00 0,00 453 402 - 0,385"):
+            daily=parse_mbank_daily(b"", "2020-04-01", "2020-06-30")
+        self.assertEqual(daily[0]["pisp_response_ms"],453)
+        self.assertEqual(daily[0]["shared_error_pct"],.385)
+        with patch("psd2_tracker.tracker.extract_pdf_text", return_value="mBank API\n10.05 .2020 100,00 100,00 0,00 0,00 477 386 312 0"):
+            daily=parse_mbank_daily(b"", "2020-04-01", "2020-06-30")
+        self.assertEqual(daily[0]["date"],"2020-05-10")
+        self.assertEqual(daily[0]["pisp_response_ms"],477)
+        self.assertEqual(daily[0]["aisp_response_ms"],386)
+
     def test_mbank_real_catalog_mode_and_cross_quarter_report_preserve_unverified_scope(self):
         bank={"id":"mbank","name":"mBank","source_url":"https://developer.api.mbank.cz/reports","report_catalog_url":"https://developer.api.mbank.cz/reportpage?locale=en","report_catalog_mode":"INDIVIDUAL_EN"}
         calls=[]
@@ -53,6 +98,36 @@ class TrackerTests(unittest.TestCase):
         self.assertEqual(item.latest_period,"")
         self.assertIsNone(item.availability_pct)
         self.assertIsNone(item.daily_metrics)
+
+    def test_mbank_explicit_opt_in_imports_latest_without_claiming_cz_scope(self):
+        bank={"id":"mbank","name":"mBank","source_url":"https://developer.api.mbank.cz/reports","report_catalog_url":"https://developer.api.mbank.cz/reportpage?locale=en","report_catalog_mode":"INDIVIDUAL_EN","include_summary_statistics":True}
+        report={"name":"from 01.04.2026 till 30.06.2026","resource":{"url":"https://example.test/latest.pdf"}}
+        def get(url,**kwargs):
+            return SimpleNamespace(text="<html></html>",url=url,content=b"%PDF-test",json=lambda:{"reports":[report]})
+        with patch("psd2_tracker.tracker.extract_pdf_text",return_value="mBank API\n01.04.2026 100 100 0 0 300 400 - 0.1"):
+            item=parse_report_links(bank,SimpleNamespace(get=get))
+        self.assertEqual(item.latest_period,"2026-Q2")
+        self.assertEqual(item.availability_pct,100)
+        self.assertEqual(item.status,"unverified")
+        self.assertEqual(item.report_kind,"summary")
+        self.assertEqual(item.country_scope,"unverified")
+        self.assertEqual(item.report_details["published_reports"][0]["report_kind"],"summary")
+
+    def test_history_schema_migration_preserves_previous_checks(self):
+        with TemporaryDirectory() as temp:
+            directory=Path(temp)
+            original={"observed_on":"2026-09-16","bank_id":"mbank","bank":"mBank","availability_pct":""}
+            with (directory/"history.csv").open("w",newline="") as handle:
+                writer=csv.DictWriter(handle,fieldnames=list(original));writer.writeheader();writer.writerow(original)
+            item=Observation(bank_id="mbank",bank="mBank",scope="main",source_url="https://example.test",country_scope="unverified",report_kind="summary",availability_pct=99,shared_error_pct=.1)
+            write_outputs([item],directory,date(2026,9,17))
+            with (directory/"history.csv").open(newline="") as handle:
+                rows=list(csv.DictReader(handle))
+            self.assertEqual(len(rows),2)
+            self.assertTrue(all(rows[0][key]==value for key,value in original.items()))
+            self.assertEqual(rows[1]["country_scope"],"unverified")
+            self.assertEqual(rows[1]["shared_error_pct"],"0.1")
+            self.assertTrue(all(None not in row for row in rows))
 
     def test_mbank_static_report_link_does_not_invent_a_confirmed_czech_quarter(self):
         bank = {"id": "mbank", "name": "mBank", "source_url": "https://developer.api.mbank.cz/reports"}

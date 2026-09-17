@@ -6,6 +6,8 @@ Kontrola běží každé úterý pomocí GitHub Actions a také ručně přes `A
 
 ## Vývoj v čase
 
+Na výslovnou žádost jsou od 17. září 2026 do statistik a dashboardu zahrnuty také **souhrnné reporty mBank**, s trvale viditelným označením **„Souhrnný report · samostatný český rozsah nepotvrzen“**. Z 28 uchovaných PDF přibylo **29 čtvrtletních souhrnů a 2 574 denních záznamů od 14. 6. 2019 do 30. 6. 2026**; první dokument zasahuje do dvou čtvrtletí. Aktuální historie tak obsahuje **224 bankovních čtvrtletních záznamů a 19 893 denních záznamů**. Číselné hodnoty ostatních bank ani původní Excel se nezměnily. Dostupnost, odezvy AIS/PIS a společná chybovost API jsou převzaty z denních tabulek a agregovány podle popsané metodiky; samostatná dostupnost/chybovost AISP a PISP se nedomýšlí. Nejde o nově ověřený samostatný český výřez. [Rozsah, metodika a kontrola importu](docs/mbank-summary-import-2026-09-17.md).
+
 [Další přezkum všech 15 bank](docs/source-recheck-2026-09-16.md) doplnil evidenci **28 veřejných reportů mBank** (EN/PL varianta českého portálu) a produkčního reportu Oberbank s neověřeným českým rozsahem. Nejde o banky bez zveřejněných dokumentů; jejich čísla ale nejsou vydávána za samostatná česká data. Původních **194 čtvrtletních záznamů** i **17 319 denních záznamů** zůstalo beze změny. Nově přibyl **1 označený výpočet MONETY za 2Q2026 z 13/91 dnů**, celkem 195 záznamů. Výpočty uzavřených čtvrtletí se při týdenním sběru přepočítávají z uchovaného archivu, nikoli jen z živého 90denního okna. Přehled reportů se otevírá na nejnovějším období vpravo; legenda vyjadřuje doložené denní pokrytí souhrnných metrik, ne pouhou existenci uptime metriky.
 
 ![Čtvrtletní vývoj dostupnosti PSD2 API podle zveřejněných reportů bank](docs/trend.svg)
@@ -34,7 +36,7 @@ Souhrn hlavního seznamu: **7 s aktuální dostupností**, **3 s částečnými 
 | Air Bank | OK | 2026-Q2 | 98.9736 % | 62.8242 ms / 72.7143 ms | [stránka](https://www.airbank.cz/aplikace-tretich-stran/) · [report](https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2026) |
 | MONETA Money Bank | Částečná data | rolling-90d-to-2026-09-15 | — | 498.5111 ms / 149.3667 ms | [stránka](https://www.moneta.cz/otevrene-bankovnictvi) |
 | Fio banka | OK | 2026-Q2 | 99.9809 % | 22.7143 ms / 16 ms | [stránka](https://developers.fio.cz/stats.html) · [report](https://developers.fio.cz/stats/PSD2_2026Q2.pdf) |
-| mBank | Český rozsah neověřen | — | — | — / — | [stránka](https://developer.api.mbank.cz/reports) |
+| mBank | Český rozsah neověřen | 2026-Q2 | 99.9929 % | 392.6154 ms / 327.9451 ms | [stránka](https://developer.api.mbank.cz/reports) · [report](https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/1d57afe69deb4b25a25aac9487a31605.pdf) |
 | UniCredit Bank | OK | 2026-Q2 | 100 % | 345.29 ms / 248.6567 ms | [stránka](https://developer.unicredit.eu/report?view=kpi) |
 | Banka CREDITAS | Zdroj blokuje automatizaci | 2026-Q2 | 99.956 % | 1819.5176 ms / 938.0659 ms | [stránka](https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti) · [report](https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf) |
 | Trinity Bank | OK | 2026-Q2 | 99.9951 % | — / — | [stránka](https://www.trinitybank.cz/otevrene-bankovnictvi/) · [report](https://www.trinitybank.cz/download/3036) |

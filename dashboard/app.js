@@ -122,12 +122,14 @@
 
   function updateSummary() {
     const current = latest.filter(item =>
-      (item.status === "ok" || item.status === "blocked")
+      (item.status === "ok" || item.status === "blocked" || ui.isSummaryReport(item))
       && item.latest_period === data.expected_period
       && item.report_url
       && availabilityValue(item) !== null
     ).length;
     document.getElementById("currentCoverage").textContent = `${current} z ${latest.length}`;
+    const summaryCount = latest.filter(item => ui.isSummaryReport(item) && item.latest_period === data.expected_period && availabilityValue(item) !== null).length;
+    document.getElementById("currentCoverageContext").textContent = `bank za poslední uzavřené čtvrtletí${summaryCount ? ` · z toho ${summaryCount} souhrnný report s nepotvrzeným CZ rozsahem` : ""} · nejde o živý stav`;
     document.getElementById("historyPoints").textContent = formatNumber(history.length, 0);
     const numericReports = history.filter(ui.hasMetrics).length;
     const derived = history.filter(row => row.report_kind === "archive-derived").length;
@@ -285,6 +287,7 @@
       name.className = "metric-grid__bank";
       const detail = document.createElement("a"); detail.href = ui.bankUrl(latest.find(row => row.bank === bank).bank_id); detail.textContent = bank; detail.className = "bank-name-link"; name.append(detail);
       const reports = visibleHistory.filter(item => item.bank === bank && item.report_url);
+      if (reports.some(ui.isSummaryReport)) { const note=document.createElement("small"); note.className="scope-note"; note.textContent="Souhrnný report †"; note.title=ui.summaryNote; name.append(note); }
       if (!reports.some(item => metric.value(item) !== null)) {
         const status = document.createElement("small");
         status.className = "metric-grid__status";
@@ -302,6 +305,7 @@
         content.textContent = value === null ? "—" : metric.format(value);
         content.title = `${bank} · ${formatPeriod(period)} · ${metric.label}: ${content.textContent}`;
         if (item?.metric_method) content.title += ` · ${item.metric_method}`;
+        if (ui.isSummaryReport(item)) content.title += ` · ${ui.summaryNote}`;
         if (content.tagName === "BUTTON") {
           content.type = "button";
           content.addEventListener("click", () => openCoverage(data, item));
@@ -348,6 +352,7 @@
         const coverageState = ({full:"kompletní report",partial:"částečně vyplněn",report:"report bez použitelných metrik",missing:"bez reportu"})[completeness];
         cell.className = `coverage-cell${completeness === "missing" ? "" : ` coverage-cell--${completeness}`}${item?.report_kind === "archive-derived" ? " coverage-cell--derived" : ""}`;
         if (item?.report_kind === "archive-derived") cell.textContent = "Σ";
+        if (ui.isSummaryReport(item)) cell.textContent = "†";
         cell.setAttribute("aria-label", `${bank.bank}, ${period}: ${coverageState}${hasReport ? "; podrobnosti reportu" : ""}`);
         cell.title = cell.getAttribute("aria-label");
         if (!hasReport && bank.status === "unverified") cell.title += " · report pro české PSD2 rozhraní není doložen; reporty jiných nebo neověřených trhů se do CZ přehledu nepočítají";
@@ -393,7 +398,7 @@
     }
     const periodInfo = document.createElement("span");
     periodInfo.className = "latest-context__period";
-    periodInfo.textContent = comparisonMode === "quarter" ? `${rows.filter(row => row.comparison_group === "quarter").length} bank s reportem · ${rows.filter(row => row.comparison_group === "derived").length} výpočet z archivu · ${rows.filter(row => row.comparison_group === "missing").length} bez ověřeného CZ reportu` : `${shortPeriod(data.expected_period)} + starší / pohyblivé přehledy${older.length ? ` · ${older.length} starší report` : ""}`;
+    periodInfo.textContent = comparisonMode === "quarter" ? `${rows.filter(row => row.comparison_group === "quarter").length} bank s reportem · ${rows.filter(row => ui.isSummaryReport(row) && row.comparison_group === "quarter").length} z toho souhrnný s nepotvrzeným CZ rozsahem · ${rows.filter(row => row.comparison_group === "derived").length} výpočet z archivu · ${rows.filter(row => row.comparison_group === "missing").length} bez reportu` : `${shortPeriod(data.expected_period)} + starší / pohyblivé přehledy${older.length ? ` · ${older.length} starší report` : ""} · souhrnné reporty jsou označeny †`;
     context.append(periodInfo);
     document.querySelectorAll("#latestTable [data-sort]").forEach(button => button.closest("th").classList.toggle("sorted-metric", Boolean(sortMetric) && button.dataset.sort === latestSort.key));
     const groupRank = { quarter: 0, derived: 1, older: 2, rolling: 3, healthcheck: 4, missing: 5 };
@@ -452,10 +457,11 @@
       name.scope = "row";
       name.className = "latest-bank";
       const detail = document.createElement("a"); detail.href = ui.bankUrl(item.bank_id); detail.textContent = item.bank; detail.className = "bank-name-link"; name.append(detail);
+      if (ui.isSummaryReport(item)) { const note=document.createElement("small"); note.className="scope-note"; note.textContent="Souhrnný report †"; note.title=ui.summaryNote; name.append(note); }
       const state = document.createElement("td");
       const badge = document.createElement("span");
       badge.className = `status status--${item.status}`;
-      badge.textContent = statusLabel(item.status);
+      badge.textContent = ui.isSummaryReport(item) ? "Souhrnný · CZ nepotvrzen" : statusLabel(item.status);
       badge.title = "Stav zveřejněných dat, nikoli aktuální provoz bankovního API.";
       if (item.status === "unverified") badge.title = ui.methodNote(item);
       state.append(badge);
@@ -503,7 +509,8 @@
       link.className = "source-link";
       link.textContent = comparisonMode === "quarter" && item.comparison_group === "missing" ? "Detail →" : item.bank_id === "unicredit" ? "CZ detail ↗" : item.report_url && item.report_url !== item.source_url ? "Report ↗" : "Stránka ↗";
       if (item.bank_id === "mbank" && ui.supplementaryReports(data.source_details, item.bank_id).length) {
-        link.href = `${ui.bankUrl(item.bank_id)}#supplementaryReportsTitle`; link.textContent = "Souhrnný report →";
+        if (ui.isSummaryReport(item) && item.latest_period) { link.href = item.report_url; link.textContent = "Souhrnný ↗"; }
+        else { link.href = `${ui.bankUrl(item.bank_id)}#supplementaryReportsTitle`; link.textContent = "Souhrnný report →"; }
       }
       sourceCell.append(link);
       tr.append(sourceCell);

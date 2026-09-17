@@ -79,9 +79,11 @@
     "report_catalog_mode": "INDIVIDUAL_EN",
     "additional_report_catalogs": [{"url": "https://developer.api.mbank.cz/reportpage?locale=pl", "mode": "INDIVIDUAL_PL"}],
     "parser": "report_links",
+    "include_summary_statistics": true,
+    "history_start_period": "2019-Q2",
     "scope": "main",
     "report_pattern": "report|raport|PSD2|availability|dostupnost",
-    "note": "Cesky vyvojarsky portal skutecne nabizi verejne reporty. Katalog EN ma 27 PDF; PL varianta stejneho ceskeho portalu pridava 1Q2024, dohromady 28 ruznych dokumentu. Oficialni FAQ potvrzuje spolecne API pro Cesko a Slovensko, odlisene bankID; uvodni dokumentace zahrnuje i Polsko. Samostatny cesky rez statistik neni jednoznacne vymezen. Jazyk ani sidlo banky nejsou duvodem vylouceni; do overeni rozsahu jsou cisla ponechana mimo CZ srovnani."
+    "note": "Souhrnné reporty mBank jsou na výslovnou žádost zahrnuty do statistik trackeru. Samostatný český rozsah není potvrzen: API rozlišuje cz-retail, sk-retail a pl-retail, PDF tyto identifikátory neobsahují. Čísla nejsou označena jako ověřené samostatné metriky ČR. Katalog EN/PL nabízí dohromady 28 různých PDF; společná chybovost API není samostatná chybovost AISP/PISP."
   },
   {
     "id": "unicredit",

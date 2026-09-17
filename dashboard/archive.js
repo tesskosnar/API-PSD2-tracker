@@ -71,7 +71,7 @@
       button.disabled = !available(button.dataset.dailyMetric);
       button.classList.toggle("active", button.dataset.dailyMetric === metric);
       button.setAttribute("aria-pressed", String(button.dataset.dailyMetric === metric));
-      button.title = button.disabled ? "V ověřeném denním archivu není tato metrika doložená" : labels[button.dataset.dailyMetric];
+      button.title = button.disabled ? "V uloženém denním archivu není tato metrika doložená" : labels[button.dataset.dailyMetric];
     });
     const rows = history.filter(row => row.bank_id === bank.value && row.date >= from.value && row.date <= to.value).sort((a,b) => a.date.localeCompare(b.date));
     exportedRows = rows;
@@ -83,6 +83,7 @@
     document.querySelector("#dailyEmpty").hidden = Boolean(points.length);
     document.querySelector("#dailyChartHint").hidden = !points.length;
     document.querySelector("#dailyRange").textContent = rows.length ? `${dateLabel(from.value)} – ${dateLabel(to.value)} · ${rows.length} uložených dnů · ${labels[metric]} (${unit()})` : "Žádné uložené dny ve výběru";
+    if (rows.some(row=>row.bank_id==="mbank" && row.country_code==="unverified")) document.querySelector("#dailyRange").textContent += " · Souhrnný report mBank – samostatný český rozsah nepotvrzen";
     if (points.length) {
       const width = Math.max(300, Math.min(1080, chart.parentElement.clientWidth));
       chart.setAttribute("viewBox", `0 0 ${width} 340`);

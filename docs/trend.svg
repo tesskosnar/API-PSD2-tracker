@@ -85,17 +85,18 @@
 <circle cx="818" cy="334" r="5" fill="#B2433F"/>
 <text x="834" y="338" font-family="Arial,sans-serif" font-size="14" fill="#253E47">Trinity Bank</text>
 <text x="834" y="355" font-family="Arial,sans-serif" font-size="11" fill="#789096">8 doložených čtvrtletí</text>
-<path d="M88.0,153.4 L183.3,212.0 L278.6,163.8 L373.9,175.7 L469.1,203.9 L564.4,177.4 M755.0,160.6" fill="none" stroke="#5F7A45" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="88.0" cy="153.4" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
-<circle cx="183.3" cy="212.0" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
-<circle cx="278.6" cy="163.8" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
-<circle cx="373.9" cy="175.7" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
-<circle cx="469.1" cy="203.9" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
-<circle cx="564.4" cy="177.4" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
-<circle cx="755.0" cy="160.6" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
+<path d="M88.0,149.3 L183.3,143.4 L278.6,143.5 L373.9,143.4 L469.1,143.5 L564.4,143.2 L659.7,143.2 L755.0,143.6" fill="none" stroke="#5F7A45" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="88.0" cy="149.3" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="183.3" cy="143.4" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="278.6" cy="143.5" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="373.9" cy="143.4" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="469.1" cy="143.5" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="564.4" cy="143.2" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="659.7" cy="143.2" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="755.0" cy="143.6" r="4.5" fill="#5F7A45" stroke="#FFFFFF" stroke-width="2"/>
 <circle cx="818" cy="378" r="5" fill="#5F7A45"/>
-<text x="834" y="382" font-family="Arial,sans-serif" font-size="14" fill="#253E47">J&amp;T Banka</text>
-<text x="834" y="399" font-family="Arial,sans-serif" font-size="11" fill="#789096">7 doložených čtvrtletí</text>
+<text x="834" y="382" font-family="Arial,sans-serif" font-size="14" fill="#253E47">mBank</text>
+<text x="834" y="399" font-family="Arial,sans-serif" font-size="11" fill="#789096">8 doložených čtvrtletí</text>
 <line x1="61" y1="452" x2="1039" y2="452" stroke="#E6EFEC"/>
 <text x="61" y="476" font-family="Arial,sans-serif" font-size="12" fill="#657B82">Zveřejněné bankovní statistiky, nikoli živé měření. Mezery v datech nejsou automaticky výpadek API.</text>
 </svg>

@@ -76,6 +76,17 @@ class Archive:
         with self.connect() as db:
             return db.execute("SELECT 1 FROM fetches WHERE bank_id=? AND url=? LIMIT 1", (bank_id, url)).fetchone() is not None
 
+    def response_content(self, bank_id: str, url: str) -> bytes | None:
+        """Retained public source, including a PDF no longer served by its bank."""
+        with self.connect() as db:
+            row = db.execute("SELECT d.path, d.sha256 FROM fetches f JOIN documents d ON d.sha256=f.sha256 WHERE f.bank_id=? AND f.url=? ORDER BY f.observed_on DESC, f.rowid DESC LIMIT 1", (bank_id, url)).fetchone()
+        if not row:
+            return None
+        content = gzip.decompress((self.directory / row[0]).read_bytes())
+        if hashlib.sha256(content).hexdigest() != row[1]:
+            raise ValueError("Archived source integrity check failed")
+        return content
+
     def record_snapshot(self, row: dict[str, Any], kind: str) -> None:
         payload = canonical(row)
         digest = hashlib.sha256(payload.encode()).hexdigest()

@@ -68,7 +68,9 @@
     if (parsed >= referenceScale.high - tolerance) return metrics[key].higher ? 0 : 2;
     return 1;
   };
-  const methodNote = row => row.report_kind === "archive-derived"
+  const isSummaryReport = row => row?.bank_id === "mbank" && row.report_kind === "summary" && row.country_scope === "unverified";
+  const summaryNote = "Souhrnný report mBank – samostatný český rozsah nepotvrzen. Údaje jsou zahrnuty do statistik trackeru, nikoli doloženy jako samostatné metriky ČR.";
+  const methodNote = row => isSummaryReport(row) || (row.bank_id === "mbank" && row.country_code === "unverified") ? summaryNote : row.report_kind === "archive-derived"
     ? `Vypočtený souhrn trackeru z denního archivu (${row.archived_days}/${row.calendar_days} dnů), nikoli čtvrtletní report banky. Odezva je průměr denních hodnot nad 0 ms; chybovost je nevážený průměr denních procent, ne podíl všech chybných volání. Chybějící dny se nedoplňují a dostupnost nelze z těchto údajů odvodit.`
     : row.status === "unverified" ? "Veřejné reporty existují, ale jejich samostatný český rozsah není jednoznačně doložen. Čísla proto nejsou vydávána za české metriky."
     : row.bank_id === "partners"
@@ -77,6 +79,7 @@
       : "Banky používají různé publikované metodiky. Shodné období samo o sobě nezaručuje shodný způsob měření.";
   const hasMetrics = row => Object.values(metrics).some(metric => metric.value(row) !== null);
   const isCzReport = row => Boolean(row?.report_url) && row.status !== "unverified" && (!row.country_code || row.country_code === "CZ") && (!row.country_scope || row.country_scope === "CZ");
+  const isIncludedReport = row => isCzReport(row) || Boolean(row?.report_url && isSummaryReport(row));
   // A document on a Czech portal is not proof that its statistics cover CZ.
   // Catalog-only documents require an explicit, verified country scope.
   const czSourceReports = details => Object.values(details || {}).filter(detail => detail.country_scope === "CZ").flatMap(detail => (detail.published_reports || []).filter(isCzReport));
@@ -105,7 +108,7 @@
     if (mode === "latest") return latest.map(row => ({ ...row, comparison_group: row.bank_id === "partners" ? "healthcheck" : /^rolling-/.test(row.latest_period || "") ? "rolling" : row.latest_period === quarter ? "quarter" : /^\d{4}-Q[1-4]$/.test(row.latest_period || "") ? "older" : "missing" }));
     return latest.map(row => {
       const report = history.find(item => item.bank_id === row.bank_id && item.period === quarter && item.report_url);
-      if (report) return { ...row, ...report, latest_period: quarter, comparison_group: report.report_kind === "archive-derived" ? "derived" : "quarter", status: hasMetrics(report) ? number(report.availability_pct) !== null || availability(report) !== null ? "ok" : "partial" : "partial" };
+      if (report) return { ...row, ...report, latest_period: quarter, comparison_group: report.report_kind === "archive-derived" ? "derived" : "quarter", status: isSummaryReport(report) ? "unverified" : hasMetrics(report) ? number(report.availability_pct) !== null || availability(report) !== null ? "ok" : "partial" : "partial" };
       const empty = Object.fromEntries(definitions.map(([, , field]) => [field, ""]));
       return { ...row, ...empty, latest_period: "", report_url: row.status === "unverified" ? row.report_url : "", status: row.status === "unverified" ? "unverified" : "missing", comparison_group: "missing", fallback_period: row.latest_period, metric_method: row.status === "unverified" ? row.metric_method : "Pro vybrané čtvrtletí není doložený report." };
     });
@@ -206,7 +209,7 @@
     else if (row.metric_method?.includes("hlavicka uvadi")) add("p", "Záhlaví reportu uvádí jiné období. Denní data jsou zařazena podle datumů řádků, která souhlasí s názvem v katalogu; původní datumy nebyly přepsány. Podrobnost je uvedena v metodice výše.", "method-notice");
     if (row.note) add("p", row.note, "chart-note");
     if (row.status === "unverified") add("p", methodNote(row), "method-notice");
-    if (row.status === "unverified" && row.first_day && row.last_day) add("p", `Období skutečně uvedené v katalogu: ${dateLabel(row.first_day)} až ${dateLabel(row.last_day)}. Tento dokument není přeznačen na samostatná čtvrtletí.`, "chart-note");
+    if (row.status === "unverified" && !isSummaryReport(row) && row.first_day && row.last_day) add("p", `Období skutečně uvedené v katalogu: ${dateLabel(row.first_day)} až ${dateLabel(row.last_day)}. Tento dokument není přeznačen na samostatná čtvrtletí.`, "chart-note");
     if (row.catalog_present === false) add("p", "Dokument je zachován z dřívějšího sběru; v aktuálním katalogu již uveden není. Živý zdroj mohl být odstraněn nebo změněn.", "method-notice");
     if (row.archived_source_url) { const archived=add("a", "Uchovaná zdrojová kopie (gzip) ↗", "bank-detail-link"); archived.href=row.archived_source_url; archived.target="_blank"; archived.rel="noopener noreferrer"; }
     if (row.bank_id === "partners" || row.bank_id === "moneta") add("p", methodNote(row), "method-notice");
@@ -214,7 +217,7 @@
     if (row.report_url || row.source_url) { const source = add("a", "Otevřít zdroj / report ↗", "report-source-button"); source.href = reportUrl(row); source.target = "_blank"; source.rel = "noopener noreferrer"; }
   }
   function reportCompleteness(row, coverage) {
-    if (!isCzReport(row)) return "missing";
+    if (!isIncludedReport(row)) return "missing";
     if (row.source_state === "report-error" || !hasMetrics(row)) return "report";
     const supplied = Object.values(metrics).filter(metric => metric.value(row) !== null && (metric.key !== "availability" || number(row.availability_pct) !== null));
     return coverage && coverage.archived_days === coverage.calendar_days && supplied.every(metric => coverage.metric_days?.[metric.field] === coverage.calendar_days) ? "full" : "partial";
@@ -229,7 +232,7 @@
     dialog.addEventListener("click", event => { if (event.target === dialog && (event.clientX < dialog.getBoundingClientRect().left || event.clientX > dialog.getBoundingClientRect().right || event.clientY < dialog.getBoundingClientRect().top || event.clientY > dialog.getBoundingClientRect().bottom)) dialog.close(); });
     return (data, row) => { coverageContent(content, data, row); const link = document.createElement("a"); link.href = bankUrl(row.bank_id, row.period); link.className = "bank-detail-link"; link.textContent = "Celý detail banky →"; content.append(link); dialog.showModal(); };
   }
-  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, methodNote, hasMetrics, isCzReport, czSourceReports, supplementaryReports, reportCountryLabel, bankMetricCoverage, comparisonRows, nearestDailyPoint, bankUrl, reportUrl, csv, download, share, appendMetricButtons, initializeNavigation, coverageContent, reportCompleteness, createCoverageDialog };
+  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, methodNote, hasMetrics, isCzReport, isSummaryReport, isIncludedReport, summaryNote, czSourceReports, supplementaryReports, reportCountryLabel, bankMetricCoverage, comparisonRows, nearestDailyPoint, bankUrl, reportUrl, csv, download, share, appendMetricButtons, initializeNavigation, coverageContent, reportCompleteness, createCoverageDialog };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.PSD2_UI = api;
 })(typeof window === "undefined" ? globalThis : window);

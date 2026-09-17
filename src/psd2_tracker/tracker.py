@@ -65,6 +65,8 @@ CSV_FIELDS = [
     "metric_method",
     "note",
     "source_url",
+    "shared_error_pct", "country_scope", "report_kind",
+    "archived_days", "calendar_days", "first_day", "last_day",
 ]
 
 TIMESERIES_FIELDS = [
@@ -84,6 +86,7 @@ TIMESERIES_FIELDS = [
     "pisp_error_pct",
     "metric_method",
     "source_url",
+    "shared_error_pct", "country_scope",
 ]
 DERIVED_FIELDS = ["report_kind", "archived_days", "calendar_days", "first_day", "last_day"]
 
@@ -165,6 +168,13 @@ class Observation:
     note: str = ""
     report_details: dict[str, Any] | None = None
     daily_metrics: list[dict[str, Any]] | None = None
+    shared_error_pct: float | None = None
+    country_scope: str = ""
+    report_kind: str = ""
+    archived_days: int | None = None
+    calendar_days: int | None = None
+    first_day: str = ""
+    last_day: str = ""
 
     def rounded(self) -> "Observation":
         for field in (
@@ -175,6 +185,7 @@ class Observation:
             "pisp_response_ms",
             "aisp_error_pct",
             "pisp_error_pct",
+            "shared_error_pct",
         ):
             value = getattr(self, field)
             if value is not None:
@@ -792,6 +803,13 @@ def parse_report_links(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
                 period = first_period if first_period == last_period else f"{first_period}–{last_period}"
                 reports.append({"bank_id": "mbank", "bank": bank["name"], "period": period, "periods": quarter_range(first_period, last_period), "first_day": start.isoformat(), "last_day": end.isoformat(), "report_url": url, "source_url": bank["source_url"], "status": "unverified", "source_state": "ok", "metric_method": observation.metric_method, "note": observation.note})
             observation.report_details["published_reports"] = sorted(reports, key=lambda row: row["period"])
+            if bank.get("include_summary_statistics") and reports:
+                for report in reports:
+                    report.update(country_scope="unverified", report_kind="summary", metric_method=MBANK_SUMMARY_METHOD)
+                report = max(reports, key=lambda row: row["last_day"])
+                items = parse_mbank_report(bank, report, fetcher)
+                observation = items[-1]
+                observation.report_details = {"country_scope": "unverified", "catalog_url": bank["source_url"], "published_reports": sorted(reports, key=lambda row: row["period"])}
             if isinstance(fetcher, Fetcher) and fetcher.archive:
                 newest = max((row["period"] for row in reports), default="")
                 for row in reports:
@@ -826,6 +844,101 @@ def parse_report_links(bank: dict[str, Any], fetcher: Fetcher) -> Observation:
         observation.source_state = "report-error"
         observation.note = f"{observation.note} PDF se nepodarilo zpracovat: {exc}".strip()
     return observation
+
+
+MBANK_SUMMARY_METHOD = (
+    "Souhrnný report mBank; samostatný český rozsah nepotvrzen. "
+    "Čtvrtletní dostupnost je nevážený průměr publikovaných denních uptime; "
+    "odezva je průměr denních hodnot nad 0 ms; společná chybovost API je "
+    "nevážený průměr denních procent, nikoli poměr všech chybných volání. "
+    "Samostatná dostupnost ani chybovost AISP/PISP se ze souhrnu neodvozuje."
+)
+
+
+def parse_mbank_daily(content: bytes, first_day: str, last_day: str) -> list[dict[str, Any]]:
+    """Read both published PDF layouts without labelling their metrics as CZ."""
+    text = extract_pdf_text(content)
+    mobile = bool(re.search(r"Mobile\s+Banking", text, re.I))
+    expected = 10 if mobile else 8
+    start, end = date.fromisoformat(first_day), date.fromisoformat(last_day)
+    days = {}
+    for line in text.splitlines():
+        match = re.match(r"^\s*(\d{1,2}\s*\.\s*\d{1,2}\s*\.\s*20\d{2})\s+(.+)$", line)
+        if not match:
+            continue
+        day = datetime.strptime(re.sub(r"\s+", "", match[1]), "%d.%m.%Y").date()
+        if not start <= day <= end:
+            raise ValueError(f"Den {day} nesouhlasí s obdobím katalogu {start} až {end}")
+        raw = match[2]
+        tokens = raw.split()
+        if len(tokens) != expected:
+            # One older PDF extracts the untracked internet-banking cell as
+            # '100,0 0'. Restore its split decimal, never shift API columns.
+            raw = re.sub(r"(\d[,.]\d)\s+(\d)(?=\s|$)", r"\1\2", raw)
+            tokens = raw.split()
+        if len(tokens) != expected:
+            raise ValueError(f"Neočekávaný počet sloupců mBank dne {day}: {len(tokens)}")
+        values = [parse_number(token) for token in tokens]
+        if any(value is None and token not in {"-", "—"} for token, value in zip(tokens, values)):
+            raise ValueError(f"Nečitelná hodnota mBank dne {day}")
+        row = {"date": day.isoformat(), "country_code": "unverified", "metric_method": MBANK_SUMMARY_METHOD,
+               "availability_pct": values[0], "pisp_response_ms": values[-4],
+               "aisp_response_ms": values[-3], "shared_error_pct": values[-1]}
+        for field, value in row.items():
+            if field.endswith(("_pct", "_ms")) and value is not None and (not math.isfinite(value) or value < 0 or (field.endswith("_pct") and value > 100)):
+                raise ValueError(f"Neplatná hodnota mBank {field} dne {day}: {value}")
+        if row["date"] in days:
+            raise ValueError(f"Duplicitní den v reportu mBank: {day}")
+        days[row["date"]] = row
+    if not days:
+        raise ValueError("Report mBank neobsahuje čitelné denní řádky")
+    return [row for _, row in sorted(days.items())]
+
+
+def parse_mbank_report(bank: dict[str, Any], report: dict[str, Any], fetcher: Fetcher,
+                       use_archive: bool = False) -> list[Observation]:
+    content = fetcher.archive.response_content("mbank", report["report_url"]) if use_archive and isinstance(fetcher, Fetcher) and fetcher.archive else None
+    if content is None:
+        content = fetcher.get(report["report_url"]).content
+    if not content.startswith(b"%PDF"):
+        raise ValueError("Odkaz mBank nevrátil PDF")
+    daily = parse_mbank_daily(content, report["first_day"], report["last_day"])
+    grouped = {}
+    for row in daily:
+        day = date.fromisoformat(row["date"])
+        grouped.setdefault(f"{day.year}-Q{(day.month-1)//3+1}", []).append({**row, "source_url": report["report_url"]})
+    observations = []
+    for period, rows in sorted(grouped.items()):
+        year, quarter = map(int, period.split("-Q"))
+        start = date(year, (quarter-1)*3+1, 1)
+        end = date(year+1, 1, 1) if quarter == 4 else date(year, quarter*3+1, 1)
+        item = base_observation(bank)
+        item.latest_period, item.report_url = period, report["report_url"]
+        item.country_scope, item.report_kind = "unverified", "summary"
+        item.metric_method, item.daily_metrics = MBANK_SUMMARY_METHOD, rows
+        item.report_details = {"country_scope": "unverified"}
+        item.availability_pct = average(row["availability_pct"] for row in rows)
+        item.aisp_response_ms = average_active_response(row["aisp_response_ms"] for row in rows)
+        item.pisp_response_ms = average_active_response(row["pisp_response_ms"] for row in rows)
+        item.shared_error_pct = average(row["shared_error_pct"] for row in rows)
+        item.archived_days, item.calendar_days = len(rows), (end-start).days
+        item.first_day, item.last_day = rows[0]["date"], rows[-1]["date"]
+        observations.append(finalize_status(item, period))
+    return observations
+
+
+def collect_mbank_history(bank: dict[str, Any], fetcher: Fetcher, periods: set[str],
+                          reports: list[dict[str, Any]], refresh: bool = False) -> list[Observation]:
+    observations = []
+    for report in reports:
+        if not periods.intersection(report.get("periods", [report["period"]])):
+            continue
+        try:
+            observations.extend(item for item in parse_mbank_report(bank, report, fetcher, use_archive=not refresh)
+                                if item.latest_period in periods)
+        except (FetchError, ValueError) as exc:
+            print(f"  Report mBank {report['period']} nebyl převzat: {exc}", flush=True)
+    return observations
 
 
 def find_rb_reports(bank: dict[str, Any], fetcher: Fetcher) -> list[tuple[str, str]]:
@@ -1386,6 +1499,7 @@ def carry_previous(observation: Observation, previous: dict[str, Any] | None) ->
         "pisp_response_ms",
         "aisp_error_pct",
         "pisp_error_pct",
+        "shared_error_pct", "country_scope", "report_kind", "archived_days", "calendar_days", "first_day", "last_day",
         "metric_method",
     ):
         value = previous.get(field)
@@ -1401,7 +1515,7 @@ def finalize_status(observation: Observation, expected_period: str) -> Observati
     if observation.source_state not in {"ok", "ok-direct-pdf"}:
         observation.status = "blocked"
         return observation.rounded()
-    if (observation.report_details or {}).get("country_scope") == "unverified":
+    if observation.country_scope == "unverified" or (observation.report_details or {}).get("country_scope") == "unverified":
         observation.status = "unverified"
         return observation.rounded()
     if not observation.latest_period:
@@ -1489,6 +1603,7 @@ def has_reported_metrics(observation: Observation) -> bool:
             "pisp_response_ms",
             "aisp_error_pct",
             "pisp_error_pct",
+            "shared_error_pct",
         )
     )
 
@@ -1735,7 +1850,7 @@ def timeseries_row(observation: Observation) -> dict[str, Any]:
     values["period"] = values.pop("latest_period")
     return {
         field: values.get(field, "") if values.get(field) is not None else ""
-        for field in TIMESERIES_FIELDS
+        for field in TIMESERIES_FIELDS + (DERIVED_FIELDS if observation.report_kind else [])
     }
 
 
@@ -1770,7 +1885,7 @@ def collect_timeseries(
         bank_id = str(row.get("bank_id", ""))
         if period in periods_by_bank.get(bank_id, periods) and bank_id and row.get("report_url"):
             rows[(bank_id, period)] = {
-                field: row.get(field, "") for field in TIMESERIES_FIELDS
+                field: row.get(field, "") for field in TIMESERIES_FIELDS + [field for field in DERIVED_FIELDS if field in row]
             }
 
     for bank in banks:
@@ -1803,6 +1918,10 @@ def collect_timeseries(
                     if item.latest_period in wanted
                 ]
                 observations = [finalize_status(item, item.latest_period) for item in observations]
+            elif bank["id"] == "mbank" and bank.get("include_summary_statistics"):
+                current = next((item for item in latest if item.bank_id == "mbank" and item.report_details), None)
+                reports = (current.report_details if current else parse_report_links(bank, fetcher).report_details).get("published_reports", [])
+                observations = collect_mbank_history(bank, fetcher, wanted, reports, refresh)
             else:
                 observations = []
             for observation in observations:
@@ -2125,6 +2244,17 @@ def write_outputs(observations: list[Observation], data_dir: Path, today: date) 
     if changed:
         history_fields = ["observed_on", *CSV_FIELDS]
         exists = history_csv.exists() and history_csv.stat().st_size > 0
+        if exists:
+            with history_csv.open(encoding="utf-8", newline="") as handle:
+                reader = csv.DictReader(handle)
+                columns = reader.fieldnames
+                retained = list(reader)
+            if columns != history_fields:
+                # Keep old checks while adding scope/shared-error columns.
+                with history_csv.open("w", encoding="utf-8", newline="") as handle:
+                    writer = csv.DictWriter(handle, fieldnames=history_fields, lineterminator="\n")
+                    writer.writeheader()
+                    writer.writerows(retained)
         with history_csv.open("a", encoding="utf-8", newline="") as handle:
             writer = csv.DictWriter(handle, fieldnames=history_fields, lineterminator="\n")
             if not exists:

@@ -7,3 +7,9 @@ Po upřesnění zadání jsou z české matice vyloučeny dokumenty jiných zem�
 Původní Excel, číselná historie, denní hodnoty ani archiv stažených dokumentů nejsou změněny nebo mazány. mBank nadále nemá žádný ověřený český číselný záznam.
 
 Po následném výslovném souhlasu s odděleným zobrazením jsou její 28 dohledané dokumenty vráceny do samostatného katalogu v detailu mBank a na její list v novém Excelu. Nejsou započteny do české matice ani českých číselných časových řad. Země je uvedena pouze tehdy, když je rozsah doložen. Katalog mBank má dosud rozsah `unverified`, proto je správné označení „Země neověřena · CZ nepotvrzeno“, nikoli domyšlené označení všech dokumentů jako polských. Jde o metadata a odkazy na původní PDF, ne o nově importované české hodnoty.
+
+## Následné rozhodnutí: zahrnout souhrnné statistiky
+
+Výše je zaznamenána původní oprava a následné vrácení katalogu. Po další výslovné žádosti „tak je zahrn do statistiky i na webu“ byly 17. 9. 2026 importovány také číselné hodnoty mBank: 29 čtvrtletních souhrnů z 28 dokumentů a 2 574 denních řádků. Dashboard je nyní zahrnuje do statistik a matice, ale odlišuje symbolem † a označením „Souhrnný report · CZ rozsah nepotvrzen“. Podmínka `isCzReport` nadále tyto reporty odmítá jako ověřený český report; zahrnutí je explicitní výjimka pouze pro souhrnné mBank záznamy. Země zůstává `unverified`, ne `CZ` ani domyšlené `PL`.
+
+Oficiální dokumentace rozlišuje `cz-retail`, `sk-retail` a `pl-retail`. V uchovaných PDF tyto identifikátory ani `bankID` nebyly nalezeny; společná technická cesta API v českém/slovenském FAQ nedokládá zeměpisný rozsah reportovaných statistik. [Nový import a jeho metodika](mbank-summary-import-2026-09-17.md) popisuje změnu a kontroly. Ostatní banky a původní Excel se nezměnily.

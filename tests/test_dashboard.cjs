@@ -52,7 +52,7 @@ test('supplementary documents retain country scope, are deduplicated, and stay o
   assert.equal(ui.reportCountryLabel({...unknown,country_scope:'CZ'}),'Český rozsah neověřen');
 });
 
-test('actual mBank catalog has 28 supplementary documents and no CZ numeric observations', () => {
+test('actual mBank catalog supplies summary statistics without claiming verified CZ scope', () => {
   const fs=require('node:fs');
   const path=require('node:path');
   const data=JSON.parse(fs.readFileSync(path.join(__dirname,'../dashboard/data.js'),'utf8').replace(/^window\.PSD2_DATA\s*=\s*/,'').trim().replace(/;$/,''));
@@ -61,8 +61,17 @@ test('actual mBank catalog has 28 supplementary documents and no CZ numeric obse
   assert.equal(new Set(rows.map(row=>row.report_url)).size,28);
   assert.ok(rows.every(row=>row.country_scope==='unverified'));
   assert.equal(ui.czSourceReports(data.source_details).filter(row=>row.bank_id==='mbank').length,0);
-  assert.equal(data.timeseries.filter(row=>row.bank_id==='mbank').length,0);
-  assert.equal(data.latest.filter(row=>row.bank_id==='mbank' && ui.hasMetrics(row)).length,0);
+  const history=data.timeseries.filter(row=>row.bank_id==='mbank');
+  assert.equal(history.length,29);
+  assert.ok(history.every(row=>ui.isSummaryReport(row) && ui.hasMetrics(row) && !ui.isCzReport(row)));
+  assert.equal(data.latest.filter(row=>row.bank_id==='mbank' && ui.hasMetrics(row)).length,1);
+  const latest=data.latest.find(row=>row.bank_id==='mbank');
+  assert.equal(latest.latest_period,'2026-Q2');
+  assert.equal(ui.comparisonRows([latest],history,'quarter','2026-Q2')[0].status,'unverified');
+  assert.equal(ui.reportCompleteness(history.at(-1),data.report_coverage['mbank:2026-Q2']),'full');
+  assert.equal(ui.reportCompleteness(history[0],data.report_coverage['mbank:2019-Q2']),'partial');
+  assert.ok(history.every(row=>ui.metrics.aispError.value(row)===null && ui.metrics.pispError.value(row)===null && ui.metrics.aispAvailability.value(row)===null));
+  assert.match(ui.methodNote(latest),/český rozsah nepotvrzen/);
 });
 
 test('mBank catalog uses the summary report label while retaining scope disclosure', () => {
@@ -76,7 +85,7 @@ test('mBank catalog uses the summary report label while retaining scope disclosu
   assert.match(html,/>Souhrnný report<\/a>/);
   assert.match(html,/>Souhrnný report mBank<\/h2>/);
   assert.match(html,/nejsou doložené jako samostatné české statistiky/);
-  assert.match(html,/Číselné hodnoty nejsou převzaty do CZ datasetu/);
+  assert.match(html,/denní hodnoty a čtvrtletní souhrny jsou zahrnuty do statistik/);
 });
 
 test('separate service availability is not invented from an overall value', () => {
