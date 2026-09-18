@@ -22,6 +22,12 @@ Když banka tentýž den zpětně opraví, vznikne další číselná verze. Zaz
 
 ## Začátek archivu a limity
 
+### Souhrn libovolného vybraného období
+
+Detail banky i samostatný denní archiv po změně banky nebo dat od–do přepočítávají všechny metriky pro zvolené dny, nezávisle na metrice grafu. Jde o výpočet trackeru z posledních uložených denních verzí, nikoli dodatečně publikovaný report banky. Datumové meze jsou včetně prvního a posledního dne; každý den se započítá nejvýše jednou. Souhrn ukazuje počet archivovaných dnů proti kalendářním dnům výběru a u každé metriky vlastní počet dnů ve výpočtu.
+
+Dostupnost a chybovost jsou nevážené průměry publikovaných denních procent, včetně skutečných nul. Odezvy jsou průměry denních hodnot větších než 0 ms; počet vynechaných nul je zobrazen. Prázdné nebo chybějící údaje se nedoplňují, a průměr chybovosti bez počtů volání není celkový podíl chybných volání. Samostatné metriky AISP a PISP i společná chybovost zůstávají rozlišené. Pokud banka nepublikuje souhrnnou dostupnost, lze ji orientačně odvodit jako denní průměr AISP/PISP pouze ve dnech s oběma údaji; tyto dny jsou viditelně označené. Z jediného dostupného typu služby se souhrnná dostupnost neodvozuje. mBank zachovává poznámku o neověřeném samostatném českém rozsahu, Partners označení doplňkového health-checku. Výpočet nemění zdrojové hodnoty ani čtvrtletní historii.
+
 ### Čtvrtletní výpočty MONETY
 
 Každý týdenní sběr nově přepočítává uzavřená čtvrtletí MONETY z posledních verzí zachycených českých dnů. Výpočet má `report_kind=archive-derived` a vlastní databázový typ `quarterly-derived`; není vydáván za report banky a nikdy jej nenahradí. Denní odezva se průměruje nad 0 ms, chybovost je nevážený průměr publikovaných denních procent včetně skutečných nul. Bez počtů volání ji nelze vydávat za podíl všech chybných volání. Dostupnost ze zdroje odvodit nelze.

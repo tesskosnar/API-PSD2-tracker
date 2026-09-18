@@ -64,6 +64,32 @@
     const dot = svg("circle", { cx: plot.x(row), cy: plot.y(row), r: 6, fill: "#0f766e", stroke: "#fff", "stroke-width": 2.5 });
     marker.append(line, dot);
   }
+  function renderSummary(rows) {
+    const summary = ui.dailySummary(rows, from.value, to.value);
+    const context = document.querySelector("#dailySummaryCoverage");
+    context.textContent = summary.calendarDays
+      ? `${dateLabel(from.value)} – ${dateLabel(to.value)} · archivováno ${summary.archivedDays} z ${summary.calendarDays} dnů${summary.archivedDays < summary.calendarDays ? " · neúplné pokrytí období" : " · úplné denní pokrytí archivu"}`
+      : "Vyberte platné datumové období.";
+    context.classList.toggle("archive-summary__coverage--partial", summary.archivedDays < summary.calendarDays);
+    const cards = document.querySelector("#dailySummaryCards");
+    cards.replaceChildren();
+    for (const definition of Object.values(ui.metrics)) {
+      const item = summary.metrics[definition.key];
+      const card = document.createElement("article");
+      card.className = `bank-metric-card${item.value === null ? " bank-metric-card--empty" : ""}`;
+      card.dataset.summaryMetric = definition.key;
+      const label = document.createElement("span"); label.textContent = definition.label;
+      const value = document.createElement("strong"); value.textContent = item.value === null ? item.zeroDays ? "Jen 0 ms" : "Údaj nedoložen" : definition.format(item.value);
+      const coverage = document.createElement("small");
+      coverage.textContent = `${item.count} z ${summary.calendarDays} dnů ve výpočtu${item.zeroDays ? ` · ${item.zeroDays} dnů s 0 ms vynecháno` : ""}`;
+      card.append(label, value, coverage);
+      if (item.derivedDays) { const note=document.createElement("small"); note.textContent=`${item.derivedDays} dnů: odvozený průměr AISP/PISP`; card.append(note); }
+      cards.append(card);
+    }
+    document.querySelector("#dailySummaryMethod").textContent = "Výpočet trackeru, nikoli nový report banky: nevážené průměry publikovaných denních hodnot. Chybějící dny se nedoplňují. Odezva vynechává 0 ms; skutečné nuly u dostupnosti a chybovosti se započítávají. Bez počtů volání není průměr denní chybovosti podílem všech chybných volání.";
+    if (bank.value === "mbank" && history.some(row=>row.bank_id === "mbank" && row.country_code === "unverified")) document.querySelector("#dailySummaryMethod").textContent += " Souhrnný report mBank – samostatný český rozsah nepotvrzen.";
+    if (bank.value === "partners") document.querySelector("#dailySummaryMethod").textContent += " Partners: doplňkový health-check, nikoli srovnatelný čtvrtletní RTS report.";
+  }
   function render() {
     const available = key => history.some(row => row.bank_id === bank.value && number(row[key]) !== null);
     if (!available(metric)) metric = Object.keys(labels).find(available) || "availability_pct";
@@ -74,6 +100,7 @@
       button.title = button.disabled ? "V uloženém denním archivu není tato metrika doložená" : labels[button.dataset.dailyMetric];
     });
     const rows = history.filter(row => row.bank_id === bank.value && row.date >= from.value && row.date <= to.value).sort((a,b) => a.date.localeCompare(b.date));
+    renderSummary(rows);
     exportedRows = rows;
     const points = rows.filter(row => Number.isFinite(number(row[metric])));
     plottedPoints = points;

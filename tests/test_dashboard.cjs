@@ -203,6 +203,114 @@ test('quarter dates describe the aggregate period, including leap years and year
   for (const value of [null,'','2026-Q0','2026-Q5','rolling-90d-to-2026-09-15']) assert.equal(ui.quarterDates(value),null);
 });
 
+test('daily summary counts inclusive calendar days without filling gaps or using outside dates', () => {
+  const rows=[{date:'2024-02-28',availability_pct:100},{date:'2024-03-01',availability_pct:0},{date:'2024-03-02',availability_pct:10},{date:'2024-02-30',availability_pct:50}];
+  const summary=ui.dailySummary(rows,'2024-02-28','2024-03-01');
+  assert.equal(summary.calendarDays,3);
+  assert.equal(summary.archivedDays,2);
+  assert.deepEqual(summary.metrics.availability,{value:50,count:2,zeroDays:0,derivedDays:0,missingDays:1});
+  assert.equal(ui.dailySummary(rows,'2024-03-01','2024-03-01').metrics.availability.value,0);
+  for(const [from,to] of [['2024-02-30','2024-03-01'],['2024-03-01','2024-02-28'],['','2024-03-01']]) {
+    const empty=ui.dailySummary(rows,from,to);
+    assert.equal(empty.calendarDays,0);assert.equal(empty.archivedDays,0);
+    assert.ok(Object.values(empty.metrics).every(item=>item.value===null && item.count===0));
+  }
+});
+
+test('daily summary averages all metrics, retains genuine percentage zeros and excludes zero responses', () => {
+  const rows=[
+    {date:'2026-06-01',availability_pct:0,aisp_availability_pct:90,pisp_availability_pct:80,aisp_response_ms:0,pisp_response_ms:100,aisp_error_pct:0,pisp_error_pct:2,shared_error_pct:0},
+    {date:'2026-06-02',availability_pct:100,aisp_availability_pct:100,pisp_availability_pct:100,aisp_response_ms:200,pisp_response_ms:300,aisp_error_pct:2,pisp_error_pct:0,shared_error_pct:4},
+    {date:'2026-06-03',availability_pct:'',aisp_response_ms:null,pisp_response_ms:NaN,aisp_error_pct:-1,pisp_error_pct:101,shared_error_pct:Infinity},
+  ];
+  const {metrics}=ui.dailySummary(rows,'2026-06-01','2026-06-04');
+  assert.deepEqual(Object.values(metrics).map(item=>item.value),[50,95,90,200,200,1,1,2]);
+  assert.deepEqual(metrics.aispResponse,{value:200,count:1,zeroDays:1,derivedDays:0,missingDays:2});
+  assert.equal(metrics.aispError.count,2);
+  const zero=ui.dailySummary([{date:'2026-06-01',aisp_response_ms:0}],'2026-06-01','2026-06-02').metrics.aispResponse;
+  assert.deepEqual(zero,{value:null,count:0,zeroDays:1,derivedDays:0,missingDays:1});
+});
+
+test('derived daily availability requires both valid services and preserves the published overall value', () => {
+  const rows=[
+    {date:'2026-06-01',aisp_availability_pct:100,pisp_availability_pct:90},
+    {date:'2026-06-02',aisp_availability_pct:80},
+    {date:'2026-06-03',availability_pct:98,aisp_availability_pct:50,pisp_availability_pct:50},
+    {date:'2026-06-04',aisp_availability_pct:150,pisp_availability_pct:50},
+  ];
+  const summary=ui.dailySummary(rows,'2026-06-01','2026-06-04');
+  assert.deepEqual(summary.metrics.availability,{value:96.5,count:2,zeroDays:0,derivedDays:1,missingDays:2});
+  assert.equal(summary.metrics.aispAvailability.count,3);
+  assert.equal(summary.metrics.pispAvailability.count,3);
+});
+
+test('daily summary deduplicates the latest supplied version without mutating the archive', () => {
+  const rows=[{date:'2026-06-01',availability_pct:100},{date:'2026-06-01',availability_pct:80}];
+  const before=JSON.stringify(rows);
+  const summary=ui.dailySummary(rows,'2026-06-01','2026-06-01');
+  assert.equal(summary.archivedDays,1);assert.equal(summary.metrics.availability.value,80);
+  assert.equal(JSON.stringify(rows),before);
+});
+
+test('actual daily summary agrees with CREDITAS quarter and does not invent MONETA uptime or mBank service errors', () => {
+  const fs=require('node:fs'), path=require('node:path');
+  const daily=JSON.parse(fs.readFileSync(path.join(__dirname,'../data/daily-history.json'),'utf8'));
+  const data=JSON.parse(fs.readFileSync(path.join(__dirname,'../dashboard/data.js'),'utf8').replace(/^window\.PSD2_DATA\s*=\s*/,'').trim().replace(/;$/,''));
+  const quarter=bank=>ui.dailySummary(daily.filter(row=>row.bank_id===bank),'2026-04-01','2026-06-30');
+  const creditas=quarter('creditas'), report=data.timeseries.find(row=>row.bank_id==='creditas' && row.period==='2026-Q2');
+  assert.equal(creditas.calendarDays,91);assert.equal(creditas.archivedDays,91);
+  for(const key of ['availability','aispResponse','pispResponse']) assert.ok(Math.abs(creditas.metrics[key].value-ui.metrics[key].value(report))<.0001,key);
+  assert.equal(quarter('moneta').archivedDays,13);assert.equal(quarter('moneta').metrics.availability.value,null);
+  const mbank=quarter('mbank');
+  assert.equal(mbank.metrics.sharedError.count,91);assert.equal(mbank.metrics.aispError.value,null);assert.equal(mbank.metrics.pispError.value,null);
+  const empty=ui.dailySummary(daily.filter(row=>row.bank_id==='ppf'),'2026-04-01','2026-06-30');
+  assert.equal(empty.archivedDays,0);assert.ok(Object.values(empty.metrics).every(item=>item.value===null && item.missingDays===91));
+});
+
+test('archive date and bank handlers recalculate every summary card independently of the selected chart metric', () => {
+  const fs=require('node:fs'), path=require('node:path'), vm=require('node:vm');
+  class Element {
+    constructor(tag='div') { this.tagName=tag;this.children=[];this.dataset={};this.listeners={};this.value='';this.classList={contains:()=>false,toggle(){}};this.parentElement={clientWidth:1080}; }
+    append(...children) { children.forEach(child=>{child.parentElement=this;this.children.push(child);}); }
+    add(child) { this.append(child);if(!this.value)this.value=child.value; }
+    replaceChildren(...children) { this.children=[];this.append(...children); }
+    setAttribute(key,value) { this[key]=String(value); }
+    toggleAttribute(key,value) { this[key]=value; }
+    querySelector() { return null; }
+    closest(selector) { return selector==='[data-daily-metric]' && this.dataset.dailyMetric?this:null; }
+    addEventListener(type,listener) { this.listeners[type]=listener; }
+  }
+  const elements=new Map(), element=id=>{if(!elements.has(id))elements.set(id,new Element());return elements.get(id);};
+  const buttons=Object.values(ui.metrics).map(metric=>{const button=new Element('button');button.dataset.dailyMetric=metric.field;return button;});
+  const document={body:new Element(),querySelector:selector=>element(selector.slice(1)),querySelectorAll:()=>buttons,createElement:tag=>new Element(tag),createElementNS:(_,tag)=>new Element(tag)};
+  const history=[
+    {bank_id:'creditas',bank:'Banka CREDITAS',date:'2026-06-01',availability_pct:100,aisp_response_ms:200,aisp_error_pct:0},
+    {bank_id:'creditas',bank:'Banka CREDITAS',date:'2026-06-03',availability_pct:98,aisp_response_ms:400,aisp_error_pct:2},
+    {bank_id:'moneta',bank:'MONETA',date:'2026-06-02',aisp_response_ms:100,aisp_error_pct:1},
+    {bank_id:'mbank',bank:'mBank',date:'2026-06-01',availability_pct:99,country_code:'unverified'},
+  ].map(row=>({...row,first_seen_on:'2026-09-18',last_seen_on:'2026-09-18',versions:1}));
+  const window={PSD2_DATA:{},PSD2_DAILY_DATA:history,PSD2_UI:{...ui,initializeNavigation(){}},history:{replaceState(){}},addEventListener(){}};
+  const location={search:'?bank=creditas&dayFrom=2026-06-01&dayTo=2026-06-03',href:'https://example.test/archive.html'};
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../dashboard/archive.js'),'utf8'),{window,document,location,URL,URLSearchParams,Option:class extends Element{constructor(name,value){super('option');this.textContent=name;this.value=value;}}});
+  const card=key=>element('dailySummaryCards').children.find(card=>card.dataset.summaryMetric===key);
+  const value=key=>card(key).children[1].textContent;
+  assert.equal(element('dailySummaryCards').children.length,8);
+  assert.equal(value('availability'),'99 %');assert.equal(value('aispResponse'),'300 ms');assert.equal(value('aispError'),'1 %');
+  assert.match(element('dailySummaryCoverage').textContent,/2 z 3 dnů/);
+  element('archiveMetrics').listeners.click({target:buttons.find(button=>button.dataset.dailyMetric==='aisp_error_pct')});
+  assert.equal(value('aispResponse'),'300 ms');
+  element('archiveFrom').value='2026-06-03';element('archiveFrom').listeners.change();
+  assert.equal(value('availability'),'98 %');assert.equal(value('aispResponse'),'400 ms');assert.match(card('availability').children[2].textContent,/1 z 1/);
+  element('archiveFrom').value='2026-06-02';element('archiveTo').value='2026-06-02';element('archiveTo').listeners.change();
+  assert.equal(value('availability'),'Údaj nedoložen');assert.equal(value('aispResponse'),'Údaj nedoložen');
+  element('archiveBank').value='moneta';element('archiveBank').listeners.change();
+  assert.equal(value('availability'),'Údaj nedoložen');assert.equal(value('aispResponse'),'100 ms');assert.equal(value('aispError'),'1 %');
+  element('archiveBank').value='mbank';element('archiveBank').listeners.change();
+  assert.match(element('dailySummaryMethod').textContent,/český rozsah nepotvrzen/);
+  element('archiveFrom').value='2026-06-02';element('archiveTo').value='2026-06-02';element('archiveTo').listeners.change();
+  assert.equal(value('availability'),'Údaj nedoložen');assert.match(element('dailySummaryMethod').textContent,/český rozsah nepotvrzen/);
+});
+
 test('bank chart event handlers show quarter dates and values, preserve resize and avoid stale selections', () => {
   // Minimal DOM fixture executes the real bank.js, not a copy of its handlers.
   const fs=require('node:fs'), path=require('node:path'), vm=require('node:vm');

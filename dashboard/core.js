@@ -128,6 +128,39 @@
     if (left === rows.length) return rows.at(-1);
     return timestamp - time(rows[left - 1]) <= time(rows[left]) - timestamp ? rows[left - 1] : rows[left];
   }
+  function dailySummary(rows, from, to) {
+    const timestamp = value => {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) return NaN;
+      const time = Date.parse(`${value}T00:00:00Z`);
+      return Number.isFinite(time) && new Date(time).toISOString().slice(0, 10) === value ? time : NaN;
+    };
+    const start = timestamp(from), end = timestamp(to);
+    const calendarDays = Number.isFinite(start) && Number.isFinite(end) && end >= start ? (end - start) / 86400000 + 1 : 0;
+    // Exports contain the latest version of each day. Never double-count a day.
+    const selected = new Map();
+    if (calendarDays) for (const row of rows) {
+      if (row.date >= from && row.date <= to && Number.isFinite(timestamp(row.date))) selected.set(row.date, row);
+    }
+    const result = { calendarDays, archivedDays: selected.size, metrics: {} };
+    for (const metric of Object.values(metrics)) {
+      let sum = 0, count = 0, zeroDays = 0, derivedDays = 0;
+      for (const row of selected.values()) {
+        let value = metric.value(row), derived = false;
+        if (metric.key === "availability" && number(row.availability_pct) === null) {
+          const ais = number(row.aisp_availability_pct), pis = number(row.pisp_availability_pct);
+          // A single service must not be presented as combined API availability.
+          value = ais !== null && pis !== null && ais >= 0 && ais <= 100 && pis >= 0 && pis <= 100 ? (ais + pis) / 2 : null;
+          derived = value !== null;
+        }
+        if (value === null || value < 0 || (metric.unit === "%" && value > 100)) continue;
+        if (metric.unit === "ms" && value === 0) { zeroDays++; continue; }
+        sum += value; count++;
+        if (derived) derivedDays++;
+      }
+      result.metrics[metric.key] = { value: count ? sum / count : null, count, zeroDays, derivedDays, missingDays: calendarDays - count - zeroDays };
+    }
+    return result;
+  }
   const quarterRank = period => /^\d{4}-Q[1-4]$/.test(period || "")
     ? Number(period.slice(0, 4)) * 4 + Number(period.at(-1)) : NaN;
   function quarterDates(period) {
@@ -253,7 +286,7 @@
     dialog.addEventListener("click", event => { if (event.target === dialog && (event.clientX < dialog.getBoundingClientRect().left || event.clientX > dialog.getBoundingClientRect().right || event.clientY < dialog.getBoundingClientRect().top || event.clientY > dialog.getBoundingClientRect().bottom)) dialog.close(); });
     return (data, row) => { coverageContent(content, data, row); const link = document.createElement("a"); link.href = bankUrl(row.bank_id, row.period); link.className = "bank-detail-link"; link.textContent = "Celý detail banky →"; content.append(link); dialog.showModal(); };
   }
-  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, methodNote, hasMetrics, isCzReport, isSummaryReport, isIncludedReport, summaryNote, czSourceReports, supplementaryReports, reportCountryLabel, bankMetricCoverage, comparisonRows, nearestDailyPoint, quarterRank, quarterDates, nearestQuarterPoint, bankUrl, reportUrl, csv, download, share, appendMetricButtons, initializeNavigation, coverageContent, reportCompleteness, createCoverageDialog };
+  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, methodNote, hasMetrics, isCzReport, isSummaryReport, isIncludedReport, summaryNote, czSourceReports, supplementaryReports, reportCountryLabel, bankMetricCoverage, comparisonRows, nearestDailyPoint, dailySummary, quarterRank, quarterDates, nearestQuarterPoint, bankUrl, reportUrl, csv, download, share, appendMetricButtons, initializeNavigation, coverageContent, reportCompleteness, createCoverageDialog };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.PSD2_UI = api;
 })(typeof window === "undefined" ? globalThis : window);

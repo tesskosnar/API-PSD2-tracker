@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Archiv denních dat · PSD2 API tracker</title>
-  <link rel="stylesheet" href="styles.css?v=26">
+  <link rel="stylesheet" href="styles.css?v=28">
 </head>
 <body class="report-page">
   <header class="hero"><div class="hero__inner">
@@ -25,6 +25,7 @@
       <label>Do <input id="archiveTo" type="date"></label>
       <button id="archiveAll" type="button">Celá historie</button>
     </div>
+    <div class="archive-summary" aria-labelledby="dailySummaryTitle"><h3 id="dailySummaryTitle">Souhrn vybraného období</h3><p id="dailySummaryCoverage" class="archive-summary__coverage" aria-live="polite"></p><div id="dailySummaryCards" class="bank-metrics"></div><p id="dailySummaryMethod" class="chart-note"></p></div>
     <div id="archiveMetrics" class="metric-seg" role="group" aria-label="Metrika denního archivu">
       <button type="button" class="metric-button" data-daily-metric="availability_pct" aria-pressed="false">Dostupnost</button>
       <button type="button" class="metric-button" data-daily-metric="aisp_availability_pct" aria-pressed="false">Dostupnost AISP</button>
@@ -52,8 +53,8 @@
   </section></main>
   <footer><p>PSD2 API tracker · trvalý archiv veřejných statistik</p><nav class="footer-links"><a href="https://github.com/tesskosnar/API-PSD2-tracker/tree/main/data/archive">Databáze a zdrojové kopie ↗</a><a href="../docs/data-archive.md">Jak funguje archiv</a></nav></footer>
   <script src="data.js?v=059a10fdc619"></script>
-  <script src="core.js?v=26"></script>
+  <script src="core.js?v=28"></script>
   <script src="daily-data.js?v=3c555fb34ec4"></script>
-  <script src="archive.js?v=21"></script>
+  <script src="archive.js?v=22"></script>
 </body>
 </html>

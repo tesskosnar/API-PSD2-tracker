@@ -478,6 +478,16 @@ button.coverage-cell:hover { outline: 2px solid var(--teal); outline-offset: 2px
 .bank-metric-card small { display: block; margin-top: 4px; color: var(--ink-soft); font-size: .66rem; }
 .bank-metric-card--empty { background: #f4f5f4; }
 .bank-metric-card--empty strong { color: #7f8b85; font-size: .8rem; }
+.archive-summary { margin: 20px 0 26px; padding: 20px; border: 1px solid var(--line); border-radius: 12px; background: #fbfcfb; }
+.archive-summary h3 { margin: 0 0 9px; font-size: 1rem; }
+.archive-summary__coverage { margin: 0; color: var(--ink-soft); font-size: .8rem; line-height: 1.6; }
+.archive-summary__coverage--partial { color: #805714; }
+.archive-summary .bank-metrics { margin: 16px 0; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.archive-summary .bank-metric-card { background: #fff; }
+.archive-summary .bank-metric-card--empty { background: #f4f5f4; }
+.archive-summary .bank-metric-card small { font-size: .72rem; line-height: 1.5; }
+.archive-summary .chart-note { margin-bottom: 0; }
+@media (max-width: 760px) { .archive-summary { padding: 15px; } .archive-summary .bank-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } .archive-summary .bank-metric-card { padding: 12px; } .archive-summary .bank-metric-card strong { font-size: 1rem; white-space: normal; } .archive-summary .bank-metric-card--empty strong { font-size: .8rem; } }
 .bank-history-chart svg { display: block; width: 100%; height: auto; }
 #bankChart { cursor: crosshair; touch-action: manipulation; border-radius: 8px; }
 #bankChart:focus-visible { outline: 3px solid #8dcabb; outline-offset: 3px; }

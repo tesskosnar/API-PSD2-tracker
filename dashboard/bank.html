@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Detail banky · PSD2 API tracker</title>
-  <link rel="stylesheet" href="styles.css?v=27">
+  <link rel="stylesheet" href="styles.css?v=28">
 </head>
 <body class="report-page bank-page">
   <header class="hero"><div class="hero__inner">
@@ -41,6 +41,7 @@
       <div class="section-heading"><div><p class="section-kicker">Trvalý archiv</p><h2 id="archiveTitle">Denní hodnoty banky</h2></div><button id="exportDaily" class="text-button" type="button">Export výběru ↓</button></div>
       <p id="archiveMeta" class="chart-note"></p>
       <div class="archive-controls"><label hidden>Banka<select id="archiveBank"></select></label><label>Od<input id="archiveFrom" type="date"></label><label>Do<input id="archiveTo" type="date"></label><button id="archiveAll" type="button">Celá historie</button></div>
+      <div class="archive-summary" aria-labelledby="dailySummaryTitle"><h3 id="dailySummaryTitle">Souhrn vybraného období</h3><p id="dailySummaryCoverage" class="archive-summary__coverage" aria-live="polite"></p><div id="dailySummaryCards" class="bank-metrics"></div><p id="dailySummaryMethod" class="chart-note"></p></div>
       <div id="archiveMetrics" class="metric-seg" role="group" aria-label="Metrika denních hodnot">
         <button type="button" class="metric-button" data-daily-metric="availability_pct">Dostupnost</button><button type="button" class="metric-button" data-daily-metric="aisp_availability_pct">Dostupnost AISP</button><button type="button" class="metric-button" data-daily-metric="pisp_availability_pct">Dostupnost PISP</button><button type="button" class="metric-button" data-daily-metric="aisp_response_ms">Odezva AISP</button><button type="button" class="metric-button" data-daily-metric="pisp_response_ms">Odezva PISP</button><button type="button" class="metric-button" data-daily-metric="aisp_error_pct">Chybovost AISP</button><button type="button" class="metric-button" data-daily-metric="pisp_error_pct">Chybovost PISP</button><button type="button" class="metric-button" data-daily-metric="shared_error_pct">Společná chybovost</button>
       </div>
@@ -53,6 +54,6 @@
     </section>
   </main>
   <footer><p>PSD2 API tracker · archivované hodnoty se nemažou</p><nav class="footer-links"><a href="index.html">Přehled bank</a><a href="archive.html">Archiv všech bank</a><a href="https://github.com/tesskosnar/API-PSD2-tracker/blob/main/docs/expanded-data-audit.md">Audit zdrojů ↗</a></nav></footer>
-  <script src="data.js?v=059a10fdc619"></script><script src="core.js?v=27"></script><script src="bank.js?v=27"></script><script src="daily-data.js?v=3c555fb34ec4"></script><script src="archive.js?v=21"></script>
+  <script src="data.js?v=059a10fdc619"></script><script src="core.js?v=28"></script><script src="bank.js?v=27"></script><script src="daily-data.js?v=3c555fb34ec4"></script><script src="archive.js?v=22"></script>
 </body>
 </html>
