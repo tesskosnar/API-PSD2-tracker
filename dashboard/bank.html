@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Detail banky · PSD2 API tracker</title>
-  <link rel="stylesheet" href="styles.css?v=26">
+  <link rel="stylesheet" href="styles.css?v=27">
 </head>
 <body class="report-page bank-page">
   <header class="hero"><div class="hero__inner">
@@ -31,7 +31,9 @@
       <div class="section-heading"><div><p class="section-kicker">Čtvrtletní historie</p><h2 id="bankHistoryTitle">Vývoj publikované metriky</h2></div><button id="exportBankHistory" type="button" class="text-button">Export výběru ↓</button></div>
       <div id="bankHistoryMetrics" class="metric-seg" role="group" aria-label="Metrika čtvrtletní historie"></div>
       <p id="bankHistoryInfo" class="period-range-info"></p>
-      <div class="bank-history-chart"><svg id="bankChart" viewBox="0 0 1080 260" role="img" aria-label="Čtvrtletní vývoj banky"></svg></div>
+      <p id="bankChartHint" class="chart-note">Klikněte nebo klepněte na bod v grafu pro čtvrtletí, datumové rozmezí a hodnotu. Na klávesnici použijte šipky ← →.</p>
+      <div class="bank-history-chart"><svg id="bankChart" viewBox="0 0 1080 260" role="group" tabindex="0" aria-roledescription="interaktivní graf" aria-describedby="bankChartHint" aria-label="Čtvrtletní vývoj banky"></svg></div>
+      <div id="bankHistoryPointDetails" class="daily-point-details" role="status" aria-live="polite" aria-atomic="true" hidden><div><span>Vybrané čtvrtletí</span><strong id="bankHistoryPointPeriod"></strong></div><div><span>Období</span><strong id="bankHistoryPointRange"></strong></div><div><span id="bankHistoryPointMetric"></span><strong id="bankHistoryPointValue"></strong></div><button id="bankHistoryPointReport" class="text-button" type="button">Podrobnosti reportu →</button><button id="clearBankHistoryPoint" class="text-button" type="button" aria-label="Zrušit výběr čtvrtletí">Zrušit ×</button></div>
       <p class="chart-note">Chybějící čtvrtletí nebo hodnoty se nespojují čarou. Denní health-check není doplňován do čtvrtletní historie.</p>
       <div class="table-scroll"><table class="bank-history-table"><thead><tr><th>Období</th><th id="bankHistoryMetricHeader">Hodnota</th><th>Archivované dny</th><th>Report</th></tr></thead><tbody id="bankHistoryRows"></tbody></table></div>
     </section>
@@ -51,6 +53,6 @@
     </section>
   </main>
   <footer><p>PSD2 API tracker · archivované hodnoty se nemažou</p><nav class="footer-links"><a href="index.html">Přehled bank</a><a href="archive.html">Archiv všech bank</a><a href="https://github.com/tesskosnar/API-PSD2-tracker/blob/main/docs/expanded-data-audit.md">Audit zdrojů ↗</a></nav></footer>
-  <script src="data.js?v=059a10fdc619"></script><script src="core.js?v=26"></script><script src="bank.js?v=26"></script><script src="daily-data.js?v=3c555fb34ec4"></script><script src="archive.js?v=21"></script>
+  <script src="data.js?v=059a10fdc619"></script><script src="core.js?v=27"></script><script src="bank.js?v=27"></script><script src="daily-data.js?v=3c555fb34ec4"></script><script src="archive.js?v=21"></script>
 </body>
 </html>

@@ -181,3 +181,82 @@ test('daily selection uses an actual measured day, including gaps, edges and tie
   assert.equal(ui.nearestDailyPoint([],time('2026-06-01')),null);
   assert.equal(ui.nearestDailyPoint(rows,NaN),null);
 });
+
+test('quarter selection uses actual supplied periods, including gaps, ties and endpoints', () => {
+  const rows=[{period:'2024-Q1'},{period:'2024-Q3'},{period:'2025-Q1'}];
+  assert.equal(ui.nearestQuarterPoint(rows,ui.quarterRank('2024-Q3')),rows[1]);
+  assert.equal(ui.nearestQuarterPoint(rows,ui.quarterRank('2024-Q2')),rows[0]);
+  assert.equal(ui.nearestQuarterPoint(rows,ui.quarterRank('2024-Q2')+.1),rows[1]);
+  assert.equal(ui.nearestQuarterPoint(rows,ui.quarterRank('2023-Q4')),rows[0]);
+  assert.equal(ui.nearestQuarterPoint(rows,ui.quarterRank('2026-Q2')),rows[2]);
+  assert.equal(ui.nearestQuarterPoint([rows[0]],ui.quarterRank('2026-Q2')),rows[0]);
+  assert.equal(ui.nearestQuarterPoint([],ui.quarterRank('2024-Q1')),null);
+  assert.equal(ui.nearestQuarterPoint(rows,NaN),null);
+  assert.ok(Number.isNaN(ui.quarterRank('2024-Q5')));
+});
+
+test('quarter dates describe the aggregate period, including leap years and year end', () => {
+  assert.deepEqual(ui.quarterDates('2024-Q1'),{from:'2024-01-01',to:'2024-03-31'});
+  assert.deepEqual(ui.quarterDates('2026-Q2'),{from:'2026-04-01',to:'2026-06-30'});
+  assert.deepEqual(ui.quarterDates('2026-Q3'),{from:'2026-07-01',to:'2026-09-30'});
+  assert.deepEqual(ui.quarterDates('2026-Q4'),{from:'2026-10-01',to:'2026-12-31'});
+  for (const value of [null,'','2026-Q0','2026-Q5','rolling-90d-to-2026-09-15']) assert.equal(ui.quarterDates(value),null);
+});
+
+test('bank chart event handlers show quarter dates and values, preserve resize and avoid stale selections', () => {
+  // Minimal DOM fixture executes the real bank.js, not a copy of its handlers.
+  const fs=require('node:fs'), path=require('node:path'), vm=require('node:vm');
+  class Element {
+    constructor(tag='div') { this.tagName=tag;this.children=[];this.dataset={};this.attributes={};this.listeners={};this.classList={toggle(){}};this.parentElement={clientWidth:1080}; }
+    setAttribute(key,value) {
+      this.attributes[key]=String(value);
+      if(key==='class')this.className=value;
+      if(key.startsWith('data-'))this.dataset[key.slice(5).replace(/-([a-z])/g,(_,letter)=>letter.toUpperCase())]=value;
+    }
+    append(...children) { children.forEach(child=>{child.parentElement=this;this.children.push(child);}); }
+    add(child) { this.append(child); }
+    replaceChildren(...children) { this.children=[];this.append(...children); }
+    toggleAttribute(key,value) { if(key==='hidden')this.hidden=value; }
+    remove() { this.parentElement.children=this.parentElement.children.filter(child=>child!==this); }
+    matches(selector) {
+      if(selector.startsWith('.'))return (this.className||'').split(' ').includes(selector.slice(1));
+      const match=/^\[data-([\w-]+)\]$/.exec(selector);
+      return Boolean(match && this.dataset[match[1].replace(/-([a-z])/g,(_,letter)=>letter.toUpperCase())]!==undefined);
+    }
+    closest(selector) { return this.matches(selector)?this:this.parentElement.closest?.(selector)||null; }
+    querySelectorAll(selector) { return this.children.flatMap(child=>[...(child.matches(selector)?[child]:[]),...child.querySelectorAll(selector)]); }
+    addEventListener(type,listener) { this.listeners[type]=listener; }
+    focus() { this.focused=true; }
+    getScreenCTM() { return {inverse:()=>({})}; }
+    createSVGPoint() { return {x:0,y:0,matrixTransform(){return {x:this.x,y:this.y};}}; }
+  }
+  const elements=new Map(), element=id=>{if(!elements.has(id))elements.set(id,new Element());return elements.get(id);};
+  const document={getElementById:element,createElement:tag=>new Element(tag),createElementNS:(_,tag)=>new Element(tag),querySelectorAll:selector=>selector==='#bankHistoryMetrics [data-metric]'?element('bankHistoryMetrics').children:[]};
+  const bank={bank_id:'creditas',bank:'Banka CREDITAS',scope:'main',latest_period:'2024-Q4',availability_pct:98};
+  const reports=[{period:'2024-Q1',availability_pct:100,aisp_response_ms:10},{period:'2024-Q3',availability_pct:99,aisp_response_ms:0},{period:'2024-Q4',availability_pct:98}].map(row=>({...bank,...row,report_url:'https://example.test/'+row.period}));
+  const opened=[], resize={};
+  const window={PSD2_DATA:{latest:[bank],timeseries:reports,checked_on:'2026-09-18',source_details:{}},PSD2_UI:{...ui,coverageContent(){},initializeNavigation(){},createCoverageDialog:()=> (_,row)=>opened.push(row.period),appendMetricButtons(container){Object.keys(ui.metrics).forEach(key=>{const button=new Element('button');button.setAttribute('data-metric',key);container.append(button);});}},history:{replaceState(){}},addEventListener:(type,listener)=>resize[type]=listener};
+  const location={search:'?bank=creditas',href:'https://example.test/bank.html?bank=creditas'};
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../dashboard/bank.js'),'utf8'),{window,document,location,URL,URLSearchParams,Option:class extends Element{}});
+  const chart=element('bankChart'), details=element('bankHistoryPointDetails');
+  const clickPeriod=period=>chart.listeners.click({target:chart.querySelectorAll('.bank-chart-point').find(dot=>dot.dataset.historyPeriod===period)});
+  const key=key=>chart.listeners.keydown({key,target:chart,preventDefault(){}});
+  const metric=metric=>element('bankHistoryMetrics').listeners.click({target:element('bankHistoryMetrics').children.find(button=>button.dataset.metric===metric)});
+  assert.equal(details.hidden,true);
+  clickPeriod('2024-Q4');
+  assert.equal(details.hidden,false);
+  assert.equal(element('bankHistoryPointPeriod').textContent,'4Q2024');
+  assert.equal(element('bankHistoryPointRange').textContent,'1. 10. 2024 – 31. 12. 2024');
+  assert.equal(element('bankHistoryPointValue').textContent,'98 %');
+  element('bankHistoryPointReport').listeners.click();assert.deepEqual(opened,['2024-Q4']);
+  resize.resize();assert.equal(details.hidden,false);assert.equal(element('bankHistoryPointPeriod').textContent,'4Q2024');
+  assert.equal(chart.querySelectorAll('.bank-chart-selection').length,2);
+  key('Home');assert.equal(element('bankHistoryPointPeriod').textContent,'1Q2024');
+  metric('aispResponse');assert.equal(element('bankHistoryPointValue').textContent,'10 ms');
+  key('ArrowRight');assert.equal(element('bankHistoryPointPeriod').textContent,'3Q2024');assert.equal(element('bankHistoryPointValue').textContent,'0 ms');
+  key('Escape');assert.equal(details.hidden,true);
+  metric('availability');clickPeriod('2024-Q4');metric('aispResponse');assert.equal(details.hidden,true);
+  chart.listeners.click({target:chart,clientX:10,clientY:100});assert.equal(details.hidden,true);
+  chart.listeners.click({target:chart,clientX:730,clientY:100});assert.equal(element('bankHistoryPointPeriod').textContent,'3Q2024');
+  element('clearBankHistoryPoint').listeners.click();assert.equal(details.hidden,true);assert.equal(chart.querySelectorAll('.bank-chart-selection').length,0);
+});

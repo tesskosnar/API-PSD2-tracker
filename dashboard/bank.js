@@ -64,10 +64,26 @@
     });
     ui.coverageContent(document.getElementById("bankReportCoverage"), data, row);
   }
-  function rank(period) { const [year, quarter] = period.split("-Q").map(Number); return year * 4 + quarter; }
+  const rank = ui.quarterRank;
+  const historyChart = document.getElementById("bankChart");
+  let historyPoints = [], historyPlot = null, historySelection = null;
   function svg(tag, attrs, text) {
     const el = document.createElementNS("http://www.w3.org/2000/svg", tag); for (const [key,value] of Object.entries(attrs)) el.setAttribute(key,value);
     if (text !== undefined) el.textContent = text; document.getElementById("bankChart").append(el); return el;
+  }
+  function showHistoryPoint(row) {
+    historyChart.querySelectorAll(".bank-chart-selection").forEach(el => el.remove());
+    historyChart.querySelectorAll(".bank-chart-point").forEach(el => el.setAttribute("aria-pressed", String(el.dataset.historyPeriod === row?.period)));
+    document.getElementById("bankHistoryPointDetails").hidden = !row;
+    historySelection = row ? row.period : null;
+    if (!row || !historyPlot) return;
+    const metric = ui.metrics[activeMetric], dates = ui.quarterDates(row.period);
+    document.getElementById("bankHistoryPointPeriod").textContent = ui.shortPeriod(row.period);
+    document.getElementById("bankHistoryPointRange").textContent = `${ui.dateLabel(dates.from)} – ${ui.dateLabel(dates.to)}`;
+    document.getElementById("bankHistoryPointMetric").textContent = metric.label;
+    document.getElementById("bankHistoryPointValue").textContent = metric.format(metric.value(row));
+    svg("line", {x1:historyPlot.x(row),x2:historyPlot.x(row),y1:40,y2:210,stroke:"#719990","stroke-dasharray":"4 4",class:"bank-chart-selection","aria-hidden":"true"});
+    svg("circle", {cx:historyPlot.x(row),cy:historyPlot.y(row),r:7,fill:"#fff",stroke:"#0f766e","stroke-width":3,class:"bank-chart-selection","aria-hidden":"true"});
   }
   function renderHistory() {
     const available = key => history.some(row => ui.metrics[key].value(row) !== null);
@@ -76,11 +92,13 @@
       button.disabled = !available(button.dataset.metric); const active = button.dataset.metric === activeMetric; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); button.title = button.disabled ? "V uložené čtvrtletní historii není tato metrika doložená" : ui.metrics[button.dataset.metric].label;
     });
     const metric = ui.metrics[activeMetric], points = history.filter(row => metric.value(row) !== null);
+    historyPoints = points; historyPlot = null;
     const derivedCount = history.filter(row => row.report_kind === "archive-derived").length;
     const summaryHistory = history.some(ui.isSummaryReport);
     document.getElementById("bankHistoryInfo").textContent = history.length ? `${summaryHistory ? `${history.length} čtvrtletních souhrnů z ${new Set(history.map(row=>row.report_url)).size} dokumentů · samostatný český rozsah nepotvrzen` : `${history.length-derivedCount} publikovaných čtvrtletních reportů${derivedCount ? ` · ${derivedCount} vypočtený souhrn z archivu` : ""}`} · ${points.length} s údajem: ${metric.label} (${metric.unit}) · ${metric.note}` : "Český čtvrtletní report není doložený. Pokud jsou dostupné denní hodnoty, najdete je níže.";
     document.getElementById("bankHistoryMetricHeader").textContent = `${metric.label} (${metric.unit})`;
     const chart = document.getElementById("bankChart"); chart.replaceChildren(); chart.toggleAttribute("hidden", !points.length);
+    document.getElementById("bankChartHint").hidden = !points.length;
     if (points.length) {
       const width = Math.max(300, Math.min(1080, chart.parentElement.clientWidth));
       chart.setAttribute("viewBox", `0 0 ${width} 260`);
@@ -89,6 +107,8 @@
       const low = Math.max(0, min-padding), high = metric.higher ? Math.min(100, max+padding) : max+padding;
       const first = rank(history[0].period), last = rank(history.at(-1).period);
       const x = row => last === first ? (left+right)/2 : left + (rank(row.period)-first) / (last-first) * (right-left), y = row => 210 - (metric.value(row)-low) / (high-low || 1) * 170;
+      historyPlot = {x,y,left,right,first,last};
+      chart.setAttribute("aria-label", `${bank.bank} · ${metric.label} · interaktivní čtvrtletní graf`);
       svg("title", {}, `${bank.bank} · ${metric.label}`);
       for (let index=0; index<=4; index++) { const position=40+index*42.5; svg("line", {x1:left,x2:right,y1:position,y2:position,stroke:"#dce2df"}); svg("text", {x:left-8,y:position+5,"text-anchor":"end",fill:"#53666d","font-size":13}, ui.format(high-index/4*(high-low), metric.unit === "ms" ? 0 : 3)); }
       if (first === last) svg("text", {x:(left+right)/2,y:247,"text-anchor":"middle",fill:"#53666d","font-size":13}, ui.shortPeriod(history[0].period));
@@ -96,8 +116,9 @@
       let path="", previous=null;
       points.forEach(row => { path += `${previous && rank(row.period)-rank(previous.period) === 1 ? "L" : "M"}${x(row).toFixed(2)},${y(row).toFixed(2)} `; previous=row; });
       svg("path", {d:path,fill:"none",stroke:"#0f766e","stroke-width":2.5});
-      points.forEach(row => { const dot=svg("circle",{cx:x(row),cy:y(row),r:4,fill:"#0f766e"}); const title=document.createElementNS("http://www.w3.org/2000/svg","title"); title.textContent=`${ui.shortPeriod(row.period)}: ${metric.format(metric.value(row))}`; dot.append(title); });
+      points.forEach(row => { const label=`${ui.shortPeriod(row.period)}: ${metric.format(metric.value(row))}`; const dot=svg("circle",{cx:x(row),cy:y(row),r:4,fill:"#0f766e",class:"bank-chart-point","data-history-period":row.period,role:"button",tabindex:"-1","aria-label":label,"aria-pressed":"false"}); const title=document.createElementNS("http://www.w3.org/2000/svg","title"); title.textContent=label; dot.append(title); });
     }
+    showHistoryPoint(points.find(row => row.period === historySelection) || null);
     const rows = document.getElementById("bankHistoryRows"); rows.replaceChildren();
     for (const report of [...history].reverse()) {
       const row = document.createElement("tr"); const period = document.createElement("th"); period.scope="row"; period.textContent=ui.shortPeriod(report.period);
@@ -107,6 +128,34 @@
       const source=document.createElement("td"), button=document.createElement("button"); button.type="button"; button.className="text-button"; button.textContent="Podrobnosti →"; button.addEventListener("click",()=>openCoverage(data,report)); source.append(button); row.append(period,value,days,source); rows.append(row);
     }
   }
+  historyChart.addEventListener("click", event => {
+    if (!historyPlot) return;
+    const direct = event.target.closest?.("[data-history-period]");
+    if (direct) showHistoryPoint(historyPoints.find(row => row.period === direct.dataset.historyPeriod));
+    else {
+      const matrix = historyChart.getScreenCTM();
+      if (!matrix) return;
+      const point = historyChart.createSVGPoint(); point.x = event.clientX; point.y = event.clientY;
+      const position = point.matrixTransform(matrix.inverse());
+      if (position.x < historyPlot.left - 8 || position.x > historyPlot.right + 8 || position.y < 25 || position.y > 225) return;
+      const ratio = Math.max(0, Math.min(1, (position.x - historyPlot.left) / (historyPlot.right - historyPlot.left)));
+      showHistoryPoint(ui.nearestQuarterPoint(historyPoints, historyPlot.first + ratio * (historyPlot.last - historyPlot.first)));
+    }
+    historyChart.focus({preventScroll:true});
+  });
+  historyChart.addEventListener("keydown", event => {
+    if (!historyPoints.length) return;
+    const direct = event.target.closest?.("[data-history-period]");
+    if (direct && ["Enter", " "].includes(event.key)) { event.preventDefault(); showHistoryPoint(historyPoints.find(row => row.period === direct.dataset.historyPeriod)); return; }
+    if (!["ArrowLeft", "ArrowRight", "Home", "End", "Escape"].includes(event.key)) return;
+    event.preventDefault();
+    if (event.key === "Escape") { showHistoryPoint(null); return; }
+    const current = historyPoints.findIndex(row => row.period === historySelection);
+    const index = event.key === "Home" ? 0 : event.key === "End" ? historyPoints.length - 1 : current < 0 ? event.key === "ArrowLeft" ? historyPoints.length - 1 : 0 : Math.max(0, Math.min(historyPoints.length - 1, current + (event.key === "ArrowLeft" ? -1 : 1)));
+    showHistoryPoint(historyPoints[index]);
+  });
+  document.getElementById("clearBankHistoryPoint").addEventListener("click", () => { showHistoryPoint(null); historyChart.focus({preventScroll:true}); });
+  document.getElementById("bankHistoryPointReport").addEventListener("click", () => { const row=historyPoints.find(row => row.period === historySelection); if (row) openCoverage(data,row); });
   ui.appendMetricButtons(document.getElementById("bankHistoryMetrics"), activeMetric);
   document.getElementById("bankHistoryMetrics").addEventListener("click",event=>{ const button=event.target.closest("[data-metric]"); if (!button || button.disabled) return; activeMetric=button.dataset.metric; renderHistory(); syncUrl(); });
   periodSelect.addEventListener("change",()=>{selectedPeriod=periodSelect.value; renderReport(); syncUrl();});

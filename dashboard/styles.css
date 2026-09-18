@@ -479,6 +479,12 @@ button.coverage-cell:hover { outline: 2px solid var(--teal); outline-offset: 2px
 .bank-metric-card--empty { background: #f4f5f4; }
 .bank-metric-card--empty strong { color: #7f8b85; font-size: .8rem; }
 .bank-history-chart svg { display: block; width: 100%; height: auto; }
+#bankChart { cursor: crosshair; touch-action: manipulation; border-radius: 8px; }
+#bankChart:focus-visible { outline: 3px solid #8dcabb; outline-offset: 3px; }
+.bank-chart-point { cursor: pointer; }
+.bank-chart-selection { pointer-events: none; }
+#bankHistoryPointDetails .text-button { margin-left: 0; }
+#bankHistoryPointDetails #bankHistoryPointReport { margin-left: auto; }
 .bank-history-table { min-width: 650px; font-size: .83rem; font-variant-numeric: tabular-nums; }
 .bank-history-table thead th, .bank-history-table tbody th { white-space: nowrap; }
 .bank-history-table tbody th { color: var(--ink); text-transform: none; letter-spacing: 0; }
