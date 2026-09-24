@@ -314,6 +314,7 @@ tbody tr:last-child td { border-bottom: 0; }
 .latest-count { margin: -9px 0 15px; color: var(--ink-soft); font-size: .75rem; }
 .latest-context { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 18px; padding: 13px 16px; margin-bottom: 14px; border: 1px solid #cfe4db; border-left: 4px solid var(--teal); border-radius: 8px; background: #f3faf6; color: var(--ink-soft); font-size: .77rem; }
 .latest-context strong { color: var(--teal); }
+.latest-context .latest-context__benchmark { color: #8f1d14; font-weight: 700; }
 .latest-context__period { margin-left: auto; font-size: .72rem; }
 .data-table .sorted-metric { background: #e6f4ed !important; box-shadow: inset 2px 0 #a0cfc0, inset -2px 0 #a0cfc0; font-weight: 750; color: #0b625b; }
 .data-table .latest-divider td { padding: 14px 0 10px; background: #fff !important; border-bottom: 0; }
@@ -400,7 +401,7 @@ footer { display: flex; justify-content: space-between; align-items: baseline; f
   .report-summary strong { font-size: 1.3rem; }
   .report-source-button { white-space: normal; }
 }
-/* Three median-relative bands; the full-history reference is stable on filtering. */
+/* Median-relative green bands plus fixed red benchmark alerts. */
 html { scroll-behavior: smooth; scroll-padding-top: var(--nav-offset, 90px); }
 .top-nav { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--line); background: #fffffff5; backdrop-filter: blur(10px); }
 .top-nav > div { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 22px; max-width: 1320px; margin: auto; padding: 13px 24px; }
@@ -448,6 +449,7 @@ html { scroll-behavior: smooth; scroll-padding-top: var(--nav-offset, 90px); }
 .quality-0, .quality-0 .metric-grid__value { background: #1b7662; color: #fff; }
 .quality-1, .quality-1 .metric-grid__value { background: #a8d5c2; color: #174d42; }
 .quality-2, .quality-2 .metric-grid__value { background: #e7f3ec; color: #3b6357; }
+.quality-3, .quality-3 .metric-grid__value { background: #b42318; color: #fff; }
 .scale-direction { align-self: center; margin: 0 8px; color: var(--ink-soft); font-size: .73rem; }
 .scale-median { align-self: center; margin-left: auto; color: var(--ink-soft); font-size: .73rem; font-variant-numeric: tabular-nums; }
 .metric-grid td[class*="quality-"] { background: transparent; }
@@ -478,6 +480,10 @@ button.coverage-cell:hover { outline: 2px solid var(--teal); outline-offset: 2px
 .bank-metric-card small { display: block; margin-top: 4px; color: var(--ink-soft); font-size: .66rem; }
 .bank-metric-card--empty { background: #f4f5f4; }
 .bank-metric-card--empty strong { color: #7f8b85; font-size: .8rem; }
+.bank-metric-card--alert { border-color: #e59a94; background: #fde8e7; box-shadow: inset 4px 0 #b42318; }
+.bank-metric-card--alert strong { color: #8f1d14; }
+.bank-metric-card .benchmark-alert-note { color: #8f1d14; font-weight: 700; }
+.metric-alert { background: #fde8e7 !important; color: #8f1d14 !important; font-weight: 750; box-shadow: inset 4px 0 #b42318; }
 .archive-summary { margin: 20px 0 26px; padding: 20px; border: 1px solid var(--line); border-radius: 12px; background: #fbfcfb; }
 .archive-summary h3 { margin: 0 0 9px; font-size: 1rem; }
 .archive-summary__coverage { margin: 0; color: var(--ink-soft); font-size: .8rem; line-height: 1.6; }
@@ -485,6 +491,7 @@ button.coverage-cell:hover { outline: 2px solid var(--teal); outline-offset: 2px
 .archive-summary .bank-metrics { margin: 16px 0; grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .archive-summary .bank-metric-card { background: #fff; }
 .archive-summary .bank-metric-card--empty { background: #f4f5f4; }
+.archive-summary .bank-metric-card--alert { background: #fde8e7; }
 .archive-summary .bank-metric-card small { font-size: .72rem; line-height: 1.5; }
 .archive-summary .chart-note { margin-bottom: 0; }
 @media (max-width: 760px) { .archive-summary { padding: 15px; } .archive-summary .bank-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } .archive-summary .bank-metric-card { padding: 12px; } .archive-summary .bank-metric-card strong { font-size: 1rem; white-space: normal; } .archive-summary .bank-metric-card--empty strong { font-size: .8rem; } }

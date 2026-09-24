@@ -30,6 +30,17 @@
   }]));
   metrics.availability.note += " Pokud banka publikuje jen oddělené AISP/PISP hodnoty, souhrn je jejich nevážený průměr. Samostatné hodnoty najdete v dalších metrikách; nevypočítáváme je ze souhrnu.";
   metrics.sharedError.note += " Společná chybovost není samostatnou chybovostí AISP ani PISP.";
+  const benchmarkAlert = (key, value) => {
+    const parsed = number(value);
+    if (parsed === null || !metrics[key]) return false;
+    if (key === "availability" || key.endsWith("Availability")) return parsed < 99;
+    if (key.endsWith("Response")) return parsed > 1000;
+    if (key.endsWith("Error")) return parsed > 1;
+    return false;
+  };
+  const benchmarkLabel = key => key === "availability" || key.endsWith("Availability")
+    ? "Výpadek > 1 %"
+    : key.endsWith("Response") ? "Odezva > 1 000 ms" : "Chybovost > 1 %";
   const median = values => {
     const sorted = values.map(number).filter(value => value !== null).sort((a, b) => a - b);
     if (!sorted.length) return null;
@@ -52,11 +63,12 @@
       deviation ? `Mezi ${threshold(low)} a ${threshold(high)}; hranice patří krajním barvám. Medián ± medián absolutních odchylek.` : `Přesně na mediánu ${threshold(center)}; běžná odchylka je nulová.`,
       `${metric.higher ? (deviation ? "≤ " : "< ") + threshold(low) : (deviation ? "≥ " : "> ") + threshold(high)}`,
     ];
-    return { median: center, deviation, low, high, count: values.length, labels: ["Lepší než obvyklé", "Kolem mediánu", "Horší než obvyklé"], titles };
+    return { median: center, deviation, low, high, count: values.length, labels: ["Lepší než obvyklé", "Kolem mediánu", "Horší než obvyklé", benchmarkLabel(key)], titles: [...titles, `${benchmarkLabel(key)} · pevná varovná hranice`] };
   };
   const band = (key, value, referenceScale) => {
     const parsed = number(value);
     if (parsed === null) return null;
+    if (benchmarkAlert(key, parsed)) return 3;
     if (!referenceScale || referenceScale.median === null) return 1;
     const tolerance = Number.EPSILON * Math.max(1, Math.abs(parsed), Math.abs(referenceScale.median)) * 8;
     if (referenceScale.deviation <= tolerance) {
@@ -286,7 +298,7 @@
     dialog.addEventListener("click", event => { if (event.target === dialog && (event.clientX < dialog.getBoundingClientRect().left || event.clientX > dialog.getBoundingClientRect().right || event.clientY < dialog.getBoundingClientRect().top || event.clientY > dialog.getBoundingClientRect().bottom)) dialog.close(); });
     return (data, row) => { coverageContent(content, data, row); const link = document.createElement("a"); link.href = bankUrl(row.bank_id, row.period); link.className = "bank-detail-link"; link.textContent = "Celý detail banky →"; content.append(link); dialog.showModal(); };
   }
-  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, methodNote, hasMetrics, isCzReport, isSummaryReport, isIncludedReport, summaryNote, czSourceReports, supplementaryReports, reportCountryLabel, bankMetricCoverage, comparisonRows, nearestDailyPoint, dailySummary, quarterRank, quarterDates, nearestQuarterPoint, bankUrl, reportUrl, csv, download, share, appendMetricButtons, initializeNavigation, coverageContent, reportCompleteness, createCoverageDialog };
+  const api = { number, format, shortPeriod, dateLabel, periodLabel, metrics, availability, median, scale, band, benchmarkAlert, benchmarkLabel, methodNote, hasMetrics, isCzReport, isSummaryReport, isIncludedReport, summaryNote, czSourceReports, supplementaryReports, reportCountryLabel, bankMetricCoverage, comparisonRows, nearestDailyPoint, dailySummary, quarterRank, quarterDates, nearestQuarterPoint, bankUrl, reportUrl, csv, download, share, appendMetricButtons, initializeNavigation, coverageContent, reportCompleteness, createCoverageDialog };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.PSD2_UI = api;
 })(typeof window === "undefined" ? globalThis : window);

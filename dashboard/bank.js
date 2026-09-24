@@ -55,10 +55,11 @@
         : ui.methodNote(row);
     const cards = document.getElementById("bankMetrics"); cards.replaceChildren();
     Object.values(ui.metrics).forEach(metric => {
-      const value = metric.value(row), card = document.createElement("article"); card.className = `bank-metric-card${value === null ? " bank-metric-card--empty" : ""}`;
+      const value = metric.value(row), card = document.createElement("article"); card.className = `bank-metric-card${value === null ? " bank-metric-card--empty" : ""}${ui.benchmarkAlert(metric.key, value) ? " bank-metric-card--alert" : ""}`;
       const label = document.createElement("span"); label.textContent = metric.label;
       const number = document.createElement("strong"); number.textContent = value === null ? "Údaj nedoložen" : metric.format(value);
       card.append(label, number);
+      if (ui.benchmarkAlert(metric.key, value)) { const alert=document.createElement("small"); alert.className="benchmark-alert-note"; alert.textContent=ui.benchmarkLabel(metric.key); card.append(alert); }
       if (metric.key === "availability" && value !== null && ui.number(row.availability_pct) === null) { const note = document.createElement("small"); note.textContent = "Nevážený průměr AISP/PISP"; card.append(note); }
       cards.append(card);
     });
@@ -116,14 +117,14 @@
       let path="", previous=null;
       points.forEach(row => { path += `${previous && rank(row.period)-rank(previous.period) === 1 ? "L" : "M"}${x(row).toFixed(2)},${y(row).toFixed(2)} `; previous=row; });
       svg("path", {d:path,fill:"none",stroke:"#0f766e","stroke-width":2.5});
-      points.forEach(row => { const label=`${ui.shortPeriod(row.period)}: ${metric.format(metric.value(row))}`; const dot=svg("circle",{cx:x(row),cy:y(row),r:4,fill:"#0f766e",class:"bank-chart-point","data-history-period":row.period,role:"button",tabindex:"-1","aria-label":label,"aria-pressed":"false"}); const title=document.createElementNS("http://www.w3.org/2000/svg","title"); title.textContent=label; dot.append(title); });
+      points.forEach(row => { const alert=ui.benchmarkAlert(activeMetric,metric.value(row)); const label=`${ui.shortPeriod(row.period)}: ${metric.format(metric.value(row))}${alert ? ` · ${ui.benchmarkLabel(activeMetric)}` : ""}`; const dot=svg("circle",{cx:x(row),cy:y(row),r:alert?5:4,fill:alert?"#b42318":"#0f766e",class:`bank-chart-point${alert?" bank-chart-point--alert":""}`,"data-history-period":row.period,role:"button",tabindex:"-1","aria-label":label,"aria-pressed":"false"}); const title=document.createElementNS("http://www.w3.org/2000/svg","title"); title.textContent=label; dot.append(title); });
     }
     showHistoryPoint(points.find(row => row.period === historySelection) || null);
     const rows = document.getElementById("bankHistoryRows"); rows.replaceChildren();
     for (const report of [...history].reverse()) {
       const row = document.createElement("tr"); const period = document.createElement("th"); period.scope="row"; period.textContent=ui.shortPeriod(report.period);
       if (report.report_kind === "archive-derived") { const note=document.createElement("small"); note.className="derived-note"; note.textContent="Výpočet z archivu"; period.append(note); }
-      const value=document.createElement("td"); value.textContent=metric.value(report) === null ? "—" : metric.format(metric.value(report));
+      const value=document.createElement("td"); value.textContent=metric.value(report) === null ? "—" : metric.format(metric.value(report)); if(ui.benchmarkAlert(activeMetric,metric.value(report))) value.className="metric-alert";
       const coverage=data.report_coverage?.[`${bank.bank_id}:${report.period}`], days=document.createElement("td"); days.textContent=coverage ? `${coverage.archived_days} / ${coverage.calendar_days}` : "Nedoloženo";
       const source=document.createElement("td"), button=document.createElement("button"); button.type="button"; button.className="text-button"; button.textContent="Podrobnosti →"; button.addEventListener("click",()=>openCoverage(data,report)); source.append(button); row.append(period,value,days,source); rows.append(row);
     }

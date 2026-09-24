@@ -76,13 +76,14 @@
     for (const definition of Object.values(ui.metrics)) {
       const item = summary.metrics[definition.key];
       const card = document.createElement("article");
-      card.className = `bank-metric-card${item.value === null ? " bank-metric-card--empty" : ""}`;
+      card.className = `bank-metric-card${item.value === null ? " bank-metric-card--empty" : ""}${ui.benchmarkAlert(definition.key, item.value) ? " bank-metric-card--alert" : ""}`;
       card.dataset.summaryMetric = definition.key;
       const label = document.createElement("span"); label.textContent = definition.label;
       const value = document.createElement("strong"); value.textContent = item.value === null ? item.zeroDays ? "Jen 0 ms" : "Údaj nedoložen" : definition.format(item.value);
       const coverage = document.createElement("small");
       coverage.textContent = `${item.count} z ${summary.calendarDays} dnů ve výpočtu${item.zeroDays ? ` · ${item.zeroDays} dnů s 0 ms vynecháno` : ""}`;
       card.append(label, value, coverage);
+      if (ui.benchmarkAlert(definition.key, item.value)) { const alert=document.createElement("small"); alert.className="benchmark-alert-note"; alert.textContent=ui.benchmarkLabel(definition.key); card.append(alert); }
       if (item.derivedDays) { const note=document.createElement("small"); note.textContent=`${item.derivedDays} dnů: odvozený průměr AISP/PISP`; card.append(note); }
       cards.append(card);
     }

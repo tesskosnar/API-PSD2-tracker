@@ -241,7 +241,7 @@
       const entry = document.createElement("span"); entry.className = `scale-band quality-${index}`; entry.textContent = label; entry.title = referenceScale.titles[index]; scaleKey.append(entry);
     });
     const directionLabel = document.createElement("span"); directionLabel.className = "scale-direction";
-    directionLabel.textContent = "Tmavší zelená = lepší výsledek";
+    directionLabel.textContent = "Zelená = relativně k mediánu · červená = překročená pevná hranice";
     scaleKey.append(directionLabel);
     const referenceLabel = document.createElement("span"); referenceLabel.className = "scale-median";
     referenceLabel.textContent = referenceScale.median === null ? "Medián není doložený" : `Medián: ${metric.format(referenceScale.median)}`;
@@ -304,6 +304,7 @@
         content.className = "metric-grid__value";
         content.textContent = value === null ? "—" : metric.format(value);
         content.title = `${bank} · ${formatPeriod(period)} · ${metric.label}: ${content.textContent}`;
+        if (ui.benchmarkAlert(activeMetric, value)) content.title += ` · ${ui.benchmarkLabel(activeMetric)}`;
         if (item?.metric_method) content.title += ` · ${item.metric_method}`;
         if (ui.isSummaryReport(item)) content.title += ` · ${ui.summaryNote}`;
         if (content.tagName === "BUTTON") {
@@ -400,6 +401,10 @@
     periodInfo.className = "latest-context__period";
     periodInfo.textContent = comparisonMode === "quarter" ? `${rows.filter(row => row.comparison_group === "quarter").length} bank s reportem · ${rows.filter(row => ui.isSummaryReport(row) && row.comparison_group === "quarter").length} z toho souhrnný s nepotvrzeným CZ rozsahem · ${rows.filter(row => row.comparison_group === "derived").length} výpočet z archivu · ${rows.filter(row => row.comparison_group === "missing").length} bez reportu` : `${shortPeriod(data.expected_period)} + starší / pohyblivé přehledy${older.length ? ` · ${older.length} starší report` : ""} · souhrnné reporty jsou označeny †`;
     context.append(periodInfo);
+    const benchmarkInfo = document.createElement("span");
+    benchmarkInfo.className = "latest-context__benchmark";
+    benchmarkInfo.textContent = "Červená: dostupnost < 99 % · chybovost > 1 % · odezva > 1 000 ms";
+    context.append(benchmarkInfo);
     document.querySelectorAll("#latestTable [data-sort]").forEach(button => button.closest("th").classList.toggle("sorted-metric", Boolean(sortMetric) && button.dataset.sort === latestSort.key));
     const groupRank = { quarter: 0, derived: 1, older: 2, rolling: 3, healthcheck: 4, missing: 5 };
     rows.sort((a, b) => {
@@ -481,6 +486,9 @@
           availability.append(line);
         });
       } else availability.textContent = displayAvailability(item);
+      if (ui.benchmarkAlert("availability", availabilityValue(item))
+        || ui.benchmarkAlert("aispAvailability", item.aisp_availability_pct)
+        || ui.benchmarkAlert("pispAvailability", item.pisp_availability_pct)) { availability.classList.add("metric-alert"); availability.title = ui.benchmarkLabel("availability"); }
       const periodCell = latestPeriodCell(item.latest_period);
       if (item.report_kind === "archive-derived") { const note=document.createElement("small"); note.className="derived-note"; note.textContent=`Výpočet · ${item.archived_days}/${item.calendar_days} dní`; periodCell.append(note); tr.title=ui.methodNote(item); }
       if (item.fallback_period) { const fallback = document.createElement("a"); fallback.href = ui.bankUrl(item.bank_id); fallback.className = "period-note"; fallback.textContent = /^rolling-/.test(item.fallback_period) ? "Denní přehled →" : `Jiné: ${shortPeriod(item.fallback_period)} →`; periodCell.append(fallback); }
@@ -494,6 +502,7 @@
         cell.dataset.value = value === null ? "" : String(value);
         cell.title = `${metrics[key].label}: ${value === null ? "údaj není doložený" : metrics[key].format(value)}`;
         if (value === null) cell.classList.add("numeric-metric--empty");
+        if (ui.benchmarkAlert(key, value)) { cell.classList.add("metric-alert"); cell.title += ` · ${ui.benchmarkLabel(key)}`; }
         if (sortMetric && latestSort.key === key) {
           cell.classList.add("sorted-metric");
           if (value === null) cell.textContent = "Bez údaje";
