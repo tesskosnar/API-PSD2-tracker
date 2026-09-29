@@ -1,18 +1,18 @@
 window.PSD2_DATA = {
   "archive": {
-    "checked_on": "2026-09-22",
-    "daily_days": 19905,
+    "checked_on": "2026-09-29",
+    "daily_days": 19919,
     "daily_from": "2019-01-01",
-    "daily_to": "2026-09-21",
-    "daily_versions": 19995,
-    "documents": 323,
-    "fetches": 340,
+    "daily_to": "2026-09-28",
+    "daily_versions": 20100,
+    "documents": 341,
+    "fetches": 375,
     "first_archived_on": "2026-09-16",
     "schema_version": 1,
-    "snapshots": 484
+    "snapshots": 490
   },
-  "checked_on": "2026-09-22",
-  "daily_history_asset": "daily-data.js?v=469d7d550365",
+  "checked_on": "2026-09-29",
+  "daily_history_asset": "daily-data.js?v=f736d7cd055b",
   "expected_period": "2026-Q2",
   "latest": [
     {
@@ -147,8 +147,8 @@ window.PSD2_DATA = {
     },
     {
       "aisp_availability_pct": "",
-      "aisp_error_pct": 0.17,
-      "aisp_response_ms": 493.9778,
+      "aisp_error_pct": 0.1722,
+      "aisp_response_ms": 490.7778,
       "archived_days": "",
       "availability_pct": "",
       "bank": "MONETA Money Bank",
@@ -157,12 +157,12 @@ window.PSD2_DATA = {
       "country_scope": "",
       "first_day": "",
       "last_day": "",
-      "latest_period": "rolling-90d-to-2026-09-21",
+      "latest_period": "rolling-90d-to-2026-09-28",
       "metric_method": "prumer dennich hodnot v klouzavem 90dennim okne; uptime chybi",
       "note": "Banka publikuje klouzavych 90 dni odezvy a chybovosti, nikoli dostupnost/uptime. Tracker z uchovanych dni pocita oznacene souhrny uzavrenych ctvrtleti; neuplne pokryti je uvedeno, chybejici dny nejsou domyslene.",
       "pisp_availability_pct": "",
-      "pisp_error_pct": 0.0944,
-      "pisp_response_ms": 148.0333,
+      "pisp_error_pct": 0.1778,
+      "pisp_response_ms": 148.8333,
       "report_kind": "",
       "report_url": "https://www.moneta.cz/otevrene-bankovnictvi",
       "scope": "main",
@@ -263,7 +263,7 @@ window.PSD2_DATA = {
       "last_day": "",
       "latest_period": "2026-Q2",
       "metric_method": "prumer dennich hodnot z PDF tabulky se zachovanymi prazdnymi sloupci",
-      "note": "Prehledova stranka muze blokovat automaticke klienty; PDF maji stabilni a predvidatelnou adresu. Automaticke nacteni selhalo: HTTP 403 Posledni zname metriky byly zachovany z predchoziho behu.",
+      "note": "Prehledova stranka muze blokovat automaticke klienty; PDF maji stabilni a predvidatelnou adresu.",
       "pisp_availability_pct": "",
       "pisp_error_pct": "",
       "pisp_response_ms": 938.0659,
@@ -271,9 +271,9 @@ window.PSD2_DATA = {
       "report_url": "https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf",
       "scope": "main",
       "shared_error_pct": "",
-      "source_state": "http-403",
+      "source_state": "ok-direct-pdf",
       "source_url": "https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti",
-      "status": "blocked"
+      "status": "ok"
     },
     {
       "aisp_availability_pct": "",
@@ -294,7 +294,7 @@ window.PSD2_DATA = {
       "pisp_error_pct": "",
       "pisp_response_ms": "",
       "report_kind": "",
-      "report_url": "https://www.trinitybank.cz/download/3036",
+      "report_url": "https://trinitybank.cz/download/3036",
       "scope": "main",
       "shared_error_pct": "",
       "source_state": "ok",
@@ -306,14 +306,14 @@ window.PSD2_DATA = {
       "aisp_error_pct": "",
       "aisp_response_ms": "",
       "archived_days": "",
-      "availability_pct": 99.9853,
+      "availability_pct": 99.9873,
       "bank": "Partners Banka",
       "bank_id": "partners",
       "calendar_days": "",
       "country_scope": "",
       "first_day": "",
       "last_day": "",
-      "latest_period": "rolling-30d-to-2026-09-21",
+      "latest_period": "rolling-30d-to-2026-09-28",
       "metric_method": "prumer 30 publikovanych dennich PSD2 health-check hodnot; nikoli ctvrtletni RTS report",
       "note": "Oficialni stavovy web publikuje denni PSD2 health-check za poslednich 30 dni; nejde o ctvrtletni RTS statistiku.",
       "pisp_availability_pct": "",
@@ -4560,7 +4560,7 @@ window.PSD2_DATA = {
       ]
     },
     "mbank:2026-Q2": {
-      "catalog_checked_on": "2026-09-22",
+      "catalog_checked_on": "2026-09-29",
       "catalog_url": "https://developer.api.mbank.cz/reports",
       "country_scope": "unverified",
       "published_reports": [
@@ -5100,7 +5100,7 @@ window.PSD2_DATA = {
       ]
     },
     "oberbank:": {
-      "catalog_checked_on": "2026-09-22",
+      "catalog_checked_on": "2026-09-29",
       "catalog_url": "https://www.oberbank.cz/documents/20195/21703/obkglobal_xs2a_statistik.pdf/ed74f6e3-961a-a810-31ed-0df88ef05b56",
       "country_scope": "unverified",
       "published_reports": [
@@ -5120,7 +5120,7 @@ window.PSD2_DATA = {
       ]
     },
     "unicredit:2026-Q2": {
-      "checked_on": "2026-09-22",
+      "checked_on": "2026-09-29",
       "country": "UniCredit Bank Czech Republic",
       "country_code": "CZ-B",
       "months": [
@@ -9689,7 +9689,7 @@ window.PSD2_DATA = {
       "pisp_availability_pct": "",
       "pisp_error_pct": "",
       "pisp_response_ms": "",
-      "report_url": "https://www.trinitybank.cz/download/3036",
+      "report_url": "https://trinitybank.cz/download/3036",
       "scope": "main",
       "shared_error_pct": "",
       "source_state": "ok",
