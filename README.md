@@ -29,18 +29,18 @@ Souhrn hlavního seznamu: **8 s aktuální dostupností**, **3 s částečnými 
 
 | Banka | Stav | Poslední období | Dostupnost | Odezva AISP / PISP | Zdroj |
 |---|---|---:|---:|---:|---|
-| Česká spořitelna | OK | 2026-Q2 | AISP 99.5523 % / PISP 99.2837 % | — / — | [stránka](https://developers.erstegroup.com/api-health-check/bank.csas/last-quarter) |
-| ČSOB | Částečná data | 2026-Q2 | — | 879.2395 ms / 612.5572 ms | [stránka](https://www.csob.cz/csob/otevrene-bankovnictvi-csob/pro-vyvojare/seznam-api/reporting) · [report](https://www.csob.cz/documents/10710/21871290/psd2-q2-2026.xlsx) |
+| Česká spořitelna | OK | 2026-Q3 | AISP 99.9961 % / PISP 99.9957 % | — / — | [stránka](https://developers.erstegroup.com/api-health-check/bank.csas/last-quarter) |
+| ČSOB | Částečná data | 2026-Q3 | — | 889.9337 ms / 610.3359 ms | [stránka](https://www.csob.cz/csob/otevrene-bankovnictvi-csob/pro-vyvojare/seznam-api/reporting) · [report](https://www.csob.cz/documents/10710/21871290/psd2-q3-2026.xlsx) |
 | Komerční banka | OK | 2026-Q2 | 97.1856 % | 378.5604 ms / 408.4945 ms | [stránka](https://www.kb.cz/cs/dostupnost-sluzeb-internetoveho-a-otevreneho-bankovnictvi-api) · [report](https://www.kb.cz/getmedia/956647de-9725-4cf0-9975-52c1e3462491/kb-psd2-2026-q2-cz.pdf) |
 | Raiffeisenbank | Zastaralé | 2025-Q1 | AISP 99.9981 % / PISP 100 % | — / — | [stránka](https://www.rb.cz/informacni-servis/dokumenty-ke-stazeni) · [report](https://www.rb.cz/attachments/infopovinnost/statistiky-vykonu-rozhrani-otevreneho-bankovnictvi-1Q-2025.pdf) |
 | Air Bank | OK | 2026-Q2 | 98.9736 % | 62.8242 ms / 72.7143 ms | [stránka](https://www.airbank.cz/aplikace-tretich-stran/) · [report](https://www.airbank.cz/file-download/statistiky-dostupnosti-2q-2026) |
-| MONETA Money Bank | Částečná data | rolling-90d-to-2026-09-28 | — | 490.7778 ms / 148.8333 ms | [stránka](https://www.moneta.cz/otevrene-bankovnictvi) |
-| Fio banka | OK | 2026-Q2 | 99.9809 % | 22.7143 ms / 16 ms | [stránka](https://developers.fio.cz/stats.html) · [report](https://developers.fio.cz/stats/PSD2_2026Q2.pdf) |
+| MONETA Money Bank | Částečná data | rolling-90d-to-2026-10-05 | — | 492.4556 ms / 149.1778 ms | [stránka](https://www.moneta.cz/otevrene-bankovnictvi) |
+| Fio banka | OK | 2026-Q3 | 99.9706 % | 35.3152 ms / 16.9239 ms | [stránka](https://developers.fio.cz/stats.html) · [report](https://developers.fio.cz/stats/PSD2_2026Q3.pdf) |
 | mBank | Český rozsah neověřen | 2026-Q2 | 99.9929 % | 392.6154 ms / 327.9451 ms | [stránka](https://developer.api.mbank.cz/reports) · [report](https://dpprodassetstorage.blob.core.windows.net/prod-asset-storage-container/1d57afe69deb4b25a25aac9487a31605.pdf) |
 | UniCredit Bank | OK | 2026-Q2 | 100 % | 345.29 ms / 248.6567 ms | [stránka](https://developer.unicredit.eu/report?view=kpi) |
 | Banka CREDITAS | OK | 2026-Q2 | 99.956 % | 1819.5176 ms / 938.0659 ms | [stránka](https://www.creditas.cz/povinne-uverejnovane-informace#statisticke-udaje-o-dostupnosti) · [report](https://www.creditas.cz/files/statisticke-udaje-o-dostupnosti-a-vykonu-rozhrani-2q-2026.pdf) |
-| Trinity Bank | OK | 2026-Q2 | 99.9951 % | — / — | [stránka](https://www.trinitybank.cz/otevrene-bankovnictvi/) · [report](https://trinitybank.cz/download/3036) |
-| Partners Banka | Částečná data | rolling-30d-to-2026-09-28 | 99.9873 % | — / — | [stránka](https://jakbezi.partnersbanka.cz/) |
+| Trinity Bank | OK | 2026-Q2 | 99.9951 % | — / — | [stránka](https://www.trinitybank.cz/otevrene-bankovnictvi/) · [report](https://www.trinitybank.cz/download/3036) |
+| Partners Banka | Částečná data | rolling-30d-to-2026-10-05 | 99.9907 % | — / — | [stránka](https://jakbezi.partnersbanka.cz/) |
 | Oberbank | Český rozsah neověřen | — | — | — / — | [stránka](https://www.oberbank.cz/xs2a-interface) · [report](https://www.oberbank.cz/documents/20195/21703/obkglobal_xs2a_statistik.pdf/ed74f6e3-961a-a810-31ed-0df88ef05b56) |
 | J&T Banka | OK | 2026-Q2 | 99.7801 % | 387.1698 ms / 1482 ms | [stránka](https://www.jtbank.cz/informacni-povinnost) · [report](https://assets-eu-01.kc-usercontent.com:443/23883f12-8a12-01af-3f05-426faedce691/69bbf441-3b3b-4519-998b-10ec11b07591/Q2-2026_psd2_unavailability.pdf) |
 | PPF banka | Zastaralé | 2026-Q1 | — | 1833.6 ms / — | [stránka](https://www.ppfbanka.cz/cs/dokumenty/1868-pristupy-tretich-stran) · [report](https://www.ppfbanka.cz/cs/document/download/8437) |
